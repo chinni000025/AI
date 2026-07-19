@@ -145,11 +145,11 @@ call :build_core
 if !errorlevel! neq 0 exit /b !errorlevel!
 
 echo.
-echo Building AIEngineInstaller (%CONFIG%)...
-dotnet build "%INSTALLER_SLN%" -c "%CONFIG%"
+echo Building AIEngineInstaller (%CONFIG%) for Windows...
+dotnet publish "%INSTALLER_SLN%" -c "%CONFIG%" -r win-x64 -o "windows-installer"
 if !errorlevel! neq 0 exit /b !errorlevel!
-if /I "%TARGET%"=="installer" (
-    echo Build completed successfully for target: installer
+if /I "%TARGET%"=="windowsinstaller" (
+    echo Build completed successfully for target: windowsinstaller
 )
 goto :eof
 
@@ -161,11 +161,11 @@ call :build_core
 if !errorlevel! neq 0 exit /b !errorlevel!
 
 echo.
-echo Building AIEngineInstaller (%CONFIG%)...
-dotnet build "%INSTALLER_SLN%" -c "%CONFIG%"
+echo Building AIEngineInstaller (%CONFIG%) for Linux...
+dotnet publish "%INSTALLER_SLN%" -c "%CONFIG%" -r linux-x64 -o "linux-installer"
 if !errorlevel! neq 0 exit /b !errorlevel!
-if /I "%TARGET%"=="installer" (
-    echo Build completed successfully for target: installer
+if /I "%TARGET%"=="linuxinstaller" (
+    echo Build completed successfully for target: linuxinstaller
 )
 goto :eof
 

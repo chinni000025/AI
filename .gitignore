@@ -54,3 +54,6 @@ Thumbs.db
 # generated frontend assets
 AIEngineGateway/wwwroot/
 
+# installer output folders
+windows-installer/
+linux-installer/
