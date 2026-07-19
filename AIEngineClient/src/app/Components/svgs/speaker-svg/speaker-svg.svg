@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     [attr.width]="width"
+     [attr.height]="height"
+     viewBox="0 0 24 24"
+     fill="currentColor">
+  <!-- Speaker cone -->
+  <path d="M3 9v6h4l5 5V4L7 9H3z"/>
+  <!-- Sound wave 1 (close) -->
+  <path d="M16.5 12a4.5 4.5 0 0 0-2.7-4.1v8.2a4.5 4.5 0 0 0 2.7-4.1z"/>
+  <!-- Sound wave 2 (far) -->
+  <path d="M14 3.23v2.06a7 7 0 0 1 0 13.42v2.06A9 9 0 0 0 14 3.23z" opacity="0.6"/>
+</svg>

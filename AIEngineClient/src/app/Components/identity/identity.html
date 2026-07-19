@@ -1,0 +1,246 @@
+<div class="identity-page">
+    <button class="theme-toggle" (click)="themeService.toggleTheme()"
+        [title]="themeService.isDarkMode() ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
+        @if (themeService.isDarkMode()) {
+        <!-- Sun Icon for Light Mode -->
+        <app-svg-sun [width]="'20px'" [height]="'20px'"></app-svg-sun>
+        } @else {
+        <!-- Moon Icon for Dark Mode -->
+        <app-svg-moon [width]="'20px'" [height]="'20px'"></app-svg-moon>
+        }
+    </button>
+    <div class="ps-aurora" aria-hidden="true">
+        <span class="ps-aurora__orb ps-aurora__orb--1"></span>
+        <span class="ps-aurora__orb ps-aurora__orb--2"></span>
+        <span class="ps-aurora__orb ps-aurora__orb--3"></span>
+        <span class="ps-aurora__orb ps-aurora__orb--4"></span>
+    </div>
+
+    <!-- ── Split Layout Container ── -->
+    <div class="identity-split">
+
+        <!-- ── Left Panel: Brand ── -->
+        <div class="identity-left">
+            <div class="brand-section">
+                <div class="brand-logo">
+                    <app-svg-brand-logo></app-svg-brand-logo>
+                </div>
+                <div class="brand-text">
+                    <h1 class="brand-name">AI Engine</h1>
+                    <p class="brand-tagline">Next-generation intelligence</p>
+                </div>
+            </div>
+            <p class="brand-description">
+                Driven by a passion for engineering excellence, AI Engine represents our commitment to building systems
+                that are robust, adaptable, and efficient. By emphasizing clean architecture, modular design, and
+                continuous improvement,
+                we aim tocreate technology that stands the test of time
+                <br>
+                <span class="engineers">— Bhagya, Viswas & Ganesh.</span>
+            </p>
+        </div>
+
+        <!-- ── Right Panel: Auth ── -->
+        <div class="identity-right">
+            <div class="auth-card">
+                <input type="radio" name="auth-tab" id="tab-login" class="tab-radio" value="login"
+                    [(ngModel)]="activeTab" />
+                <input type="radio" name="auth-tab" id="tab-signup" class="tab-radio" value="signup"
+                    [(ngModel)]="activeTab" />
+
+                <div class="tab-switcher">
+                    <label for="tab-login" class="tab-btn" id="login-tab-label">Login</label>
+                    <label for="tab-signup" class="tab-btn" id="signup-tab-label">Sign Up</label>
+                </div>
+
+                <form class="form-section login-form" [formGroup]="loginForm" novalidate>
+                    <div class="input-group">
+                        <span class="input-icon">
+                            <app-svg-user></app-svg-user>
+                        </span>
+                        <input type="text" formControlName="userName" placeholder="User Name" class="auth-input"
+                            id="login-email" />
+                    </div>
+
+                    @if (loginControls['userName'].touched && loginControls['userName'].invalid) {
+                    <small class="validation-message">User name is required.</small>
+                    }
+
+                    <div class="input-group">
+                        <span class="input-icon">
+                            <app-svg-password-icon></app-svg-password-icon>
+                        </span>
+                        <input #loginPwd type="password" formControlName="password" placeholder="Password"
+                            class="auth-input has-toggle" id="login-password" />
+                        <button type="button" class="pwd-toggle"
+                            (click)="loginPwd.type = loginPwd.type === 'password' ? 'text' : 'password'"
+                            [title]="loginPwd.type === 'password' ? 'Show password' : 'Hide password'">
+                            @if (loginPwd.type === 'password') {
+                            <app-svg-show-password-eye></app-svg-show-password-eye>
+                            } @else {
+                            <app-svg-hide-password-eye></app-svg-hide-password-eye>
+                            }
+                        </button>
+                    </div>
+
+                    @if (loginControls['password'].touched && loginControls['password'].invalid) {
+                    <small class="validation-message">Password is required.</small>
+                    }
+
+                    <div class="forgot-password-container">
+                        <a class="forgot-password-link" (click)="forgetIdentity()">Forgot Identity?</a>
+                    </div>
+
+                    <button type="submit" class="primary-btn" id="login-submit-btn" (click)="submitLoginForm()"
+                        [disabled]="loginForm.invalid">
+                        Enter AI Engine
+                        <app-svg-right-arrow class="btn-arrow"></app-svg-right-arrow>
+                    </button>
+
+                    <div class="divider">
+                        <div class="divider-line"></div>
+                        <span class="divider-text">or continue with</span>
+                        <div class="divider-line"></div>
+                    </div>
+
+                    <div class="social-btns">
+                        <button [disabled]="'true'" class="social-btn" id="login-google-btn" type="button">
+                            <app-svg-google></app-svg-google>
+                            Google
+                        </button>
+
+                        <button [disabled]="'true'" class="social-btn" id="login-microsoft-btn" type="button">
+                            <app-svg-microsoft></app-svg-microsoft>
+                            Microsoft
+                        </button>
+                    </div>
+                </form>
+
+                <form class="form-section signup-form" [formGroup]="signUpForm" novalidate>
+                    <div class="input-group">
+                        <span class="input-icon">
+                            <app-svg-user></app-svg-user>
+                        </span>
+                        <input type="text" formControlName="userName" placeholder="User name" class="auth-input"
+                            id="signup-name" />
+                    </div>
+
+                    @if (signUpControls['userName'].touched && signUpControls['userName'].errors?.['required']) {
+                    <small class="validation-message">User name is required.</small>
+                    }
+                    @if (signUpControls['userName'].touched && signUpControls['userName'].errors?.['minlength']) {
+                    <small class="validation-message">User name must be at least 3 characters.</small>
+                    }
+                    <div class="input-group">
+                        <span class="input-icon">
+                            <app-svg-email></app-svg-email>
+                        </span>
+                        <input type="email" formControlName="email" placeholder="Email address" class="auth-input"
+                            id="signup-email" />
+                    </div>
+                    @if (signUpControls['email'].touched && signUpControls['email'].errors?.['required']) {
+                    <small class="validation-message">Email address is required.</small>
+                    }
+                    @if (signUpControls['email'].touched && signUpControls['email'].errors?.['email']) {
+                    <small class="validation-message">Enter a valid email address.</small>
+                    }
+                    <div class="input-group">
+                        <span class="input-icon">
+                            <app-svg-password-icon></app-svg-password-icon>
+                        </span>
+                        <input #signupPwd type="password" formControlName="password" placeholder="Password"
+                            class="auth-input has-toggle" id="signup-password" />
+                        <button type="button" class="pwd-toggle"
+                            (click)="signupPwd.type = signupPwd.type === 'password' ? 'text' : 'password'"
+                            [title]="signupPwd.type === 'password' ? 'Show password' : 'Hide password'">
+                            @if (signupPwd.type === 'password') {
+                            <app-svg-show-password-eye></app-svg-show-password-eye>
+                            } @else {
+                            <app-svg-hide-password-eye></app-svg-hide-password-eye>
+                            }
+                        </button>
+                    </div>
+                    @if (signUpControls['password'].touched && signUpControls['password'].errors?.['required']) {
+                    <small class="validation-message">Password is required.</small>
+                    }
+                    @if (signUpControls['password'].touched && signUpControls['password'].errors?.['passwordLength']) {
+                    <small class="validation-message">Password must be between 8 and 64 characters.</small>
+                    }
+                    @if (signUpControls['password'].touched && signUpControls['password'].errors?.['missingUppercase']) {
+                    <small class="validation-message">Password must include at least one uppercase letter.</small>
+                    }
+                    @if (signUpControls['password'].touched && signUpControls['password'].errors?.['missingLowercase']) {
+                    <small class="validation-message">Password must include at least one lowercase letter.</small>
+                    }
+                    @if (signUpControls['password'].touched && signUpControls['password'].errors?.['missingNumber']) {
+                    <small class="validation-message">Password must include at least one number.</small>
+                    }
+                    @if (signUpControls['password'].touched && signUpControls['password'].errors?.['missingSpecialCharacter']) {
+                    <small class="validation-message">Password must include at least one special character.</small>
+                    }
+                    @if (signUpControls['password'].touched && signUpControls['password'].errors?.['startsWithSpecialCharacter']) {
+                    <small class="validation-message">Password should not start with a special character.</small>
+                    }
+                    @if (signUpControls['password'].touched && signUpControls['password'].errors?.['containsSpace']) {
+                    <small class="validation-message">Password should not include spaces.</small>
+                    }
+                    <div class="input-group">
+                        <span class="input-icon">
+                            <app-svg-confirm-password-icon></app-svg-confirm-password-icon>
+                        </span>
+                        <input #confirmPwd type="password" formControlName="confirmPassword"
+                            placeholder="Confirm password" class="auth-input has-toggle" id="signup-confirm-password" />
+                        <button type="button" class="pwd-toggle"
+                            (click)="confirmPwd.type = confirmPwd.type === 'password' ? 'text' : 'password'"
+                            [title]="confirmPwd.type === 'password' ? 'Show password' : 'Hide password'">
+                            @if (confirmPwd.type === 'password') {
+                            <app-svg-show-password-eye></app-svg-show-password-eye>
+                            } @else {
+                            <app-svg-hide-password-eye></app-svg-hide-password-eye>
+                            }
+                        </button>
+                    </div>
+
+                    @if (signUpControls['confirmPassword'].touched &&
+                    signUpControls['confirmPassword'].errors?.['required']) {
+                    <small class="validation-message">Confirm password is required.</small>
+                    }
+
+                    @if (signUpForm.touched && signUpForm.errors?.['passwordMismatch']) {
+                    <small class="validation-message">Password and confirm password must match.</small>
+                    }
+
+                    <button type="submit" class="primary-btn" id="signup-submit-btn" (click)="submitSignUpForm()"
+                        [disabled]="signUpForm.invalid">
+                        Create Account
+                        <app-svg-right-arrow class="btn-arrow"></app-svg-right-arrow>
+                    </button>
+
+                    <div class="divider">
+                        <div class="divider-line"></div>
+                        <span class="divider-text">or continue with</span>
+                        <div class="divider-line"></div>
+                    </div>
+
+                    <div class="social-btns">
+                        <button [disabled]="'true'" class="social-btn" id="signup-google-btn" type="button">
+                            <app-svg-google></app-svg-google>
+                            Google
+                        </button>
+
+                        <button [disabled]="'true'" class="social-btn" id="signup-microsoft-btn" type="button">
+                            <app-svg-microsoft></app-svg-microsoft>
+                            Microsoft
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <p class="footer-text">
+                By continuing, you agree to our <a class="footer-link">Terms</a> &amp;
+                <a class="footer-link">Privacy Policy</a>
+            </p>
+        </div>
+
+    </div>
+</div>

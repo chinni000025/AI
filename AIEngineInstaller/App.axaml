@@ -1,0 +1,57 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="AIEngineInstaller.App"
+             xmlns:local="using:AIEngineInstaller"
+             RequestedThemeVariant="Dark">
+
+    <Application.DataTemplates>
+        <local:ViewLocator/>
+    </Application.DataTemplates>
+  
+    <Application.Resources>
+        <ResourceDictionary>
+            <SolidColorBrush x:Key="AppBackground">#060913</SolidColorBrush>
+            <SolidColorBrush x:Key="AppPrimary">#00f0ff</SolidColorBrush>
+            <SolidColorBrush x:Key="AppSecondary">#0072ff</SolidColorBrush>
+            <SolidColorBrush x:Key="AppSurface">#0f1526</SolidColorBrush>
+            <SolidColorBrush x:Key="AppGlass">#0aFFFFFF</SolidColorBrush>
+            <SolidColorBrush x:Key="AppTextPrimary">#FFFFFF</SolidColorBrush>
+            <SolidColorBrush x:Key="AppTextSecondary">#94a3b8</SolidColorBrush>
+            
+            <LinearGradientBrush x:Key="AccentGradient" StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Color="#00f0ff" Offset="0"/>
+                <GradientStop Color="#0072ff" Offset="1"/>
+            </LinearGradientBrush>
+        </ResourceDictionary>
+    </Application.Resources>
+
+    <Application.Styles>
+        <FluentTheme />
+        
+        <Style Selector="Window">
+            <Setter Property="Background" Value="{StaticResource AppBackground}"/>
+            <Setter Property="Foreground" Value="{StaticResource AppTextPrimary}"/>
+        </Style>
+
+        <Style Selector="Button.Primary">
+            <Setter Property="Background" Value="{StaticResource AccentGradient}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="24,12"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        </Style>
+        
+        <Style Selector="Button.Primary:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{StaticResource AccentGradient}"/>
+            <Setter Property="Opacity" Value="0.8"/>
+        </Style>
+        
+        <Style Selector="ProgressBar">
+            <Setter Property="Foreground" Value="{StaticResource AccentGradient}"/>
+            <Setter Property="Background" Value="{StaticResource AppSurface}"/>
+            <Setter Property="Height" Value="8"/>
+            <Setter Property="CornerRadius" Value="4"/>
+        </Style>
+    </Application.Styles>
+</Application>

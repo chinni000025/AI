@@ -1,0 +1,52 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="AIEngineInstaller.Views.ErrorWindow"
+        Title="Hardware Requirements Check"
+        Width="450" Height="220"
+        WindowStartupLocation="CenterScreen"
+        CanResize="False"
+        SystemDecorations="Full"
+        Background="{StaticResource AppBackground}">
+
+    <Grid>
+        <!-- Background Glow -->
+        <Border Background="{StaticResource AppBackground}">
+            <Border HorizontalAlignment="Center" VerticalAlignment="Top" 
+                    Width="300" Height="150" Margin="0,-75,0,0" 
+                    Background="{StaticResource AccentGradient}"
+                    Opacity="0.1" CornerRadius="150"
+                    BoxShadow="0 0 50 25 #1A00f0ff"/>
+        </Border>
+
+        <!-- Content -->
+        <Grid RowDefinitions="*,Auto" Margin="24">
+            <StackPanel Grid.Row="0" Spacing="16" VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center">
+                    <TextBlock Text="⚠️" FontSize="28" VerticalAlignment="Center" Foreground="#FF5555"/>
+                    <TextBlock Text="Requirements Check Failed" 
+                               FontSize="20" 
+                               FontWeight="Bold" 
+                               VerticalAlignment="Center"
+                               Foreground="{StaticResource AppTextPrimary}"/>
+                </StackPanel>
+                
+                <TextBlock Text="This system does not meet the minimum hardware requirements needed for this application." 
+                           TextWrapping="Wrap" 
+                           FontSize="14" 
+                           HorizontalAlignment="Center" 
+                           TextAlignment="Center"
+                           Foreground="{StaticResource AppTextSecondary}"/>
+            </StackPanel>
+
+            <!-- Action button -->
+            <Button Grid.Row="1" 
+                    Classes="Primary" 
+                    Click="OnOkClick"
+                    HorizontalAlignment="Center" 
+                    Width="120"
+                    Margin="0,16,0,0">
+                <TextBlock Text="OK" FontSize="14" FontWeight="SemiBold"/>
+            </Button>
+        </Grid>
+    </Grid>
+</Window>

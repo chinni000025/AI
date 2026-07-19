@@ -1,0 +1,323 @@
+/* Overlay for blocking interaction with other parts of the application */
+.cd-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--bg-overlay);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: cd-fade-in 0.2s ease-out;
+}
+
+/* Modal window */
+.cd-dialog {
+  /* Use a layered background to create a gradient border effect */
+  background:
+    linear-gradient(var(--bg-dialog), var(--bg-dialog)) padding-box,
+    var(--accent-gradient) border-box;
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-xl);
+  padding: 32px;
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  animation: cd-pop-in 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  width: min(440px, 100%);
+  max-width: calc(100vw - 32px);
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  box-sizing: border-box;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+}
+
+/* Body (Icon + Text) */
+.cd-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+/* Left side icon wrapper */
+.cd-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.cd-icon-mask {
+  display: block;
+  width: 26px;
+  height: 26px;
+  background-color: currentColor;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+
+  /* Using custom property to gracefully handle Angular DOM Sanitizer */
+  mask-image: var(--icon-url);
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-image: var(--icon-url);
+}
+
+/* Variant styles for Icons */
+.cd-icon--danger {
+  background: rgba(248, 113, 113, 0.12);
+  color: #fca5a5;
+  border: 1px solid rgba(248, 113, 113, 0.2);
+}
+
+.cd-icon--warning {
+  background: rgba(245, 158, 11, 0.12);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.cd-icon--info {
+  background: rgba(59, 130, 246, 0.12);
+  color: #93c5fd;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.cd-icon--confirmation {
+  background: rgba(16, 185, 129, 0.12);
+  color: #6ee7b7;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.cd-icon--question {
+  background: rgba(139, 92, 246, 0.12);
+  color: #c4b5fd;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+/* Text content */
+.cd-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.cd-message {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.cd-submessage {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  line-height: 1.6;
+
+  /* Handle long messages gracefully */
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 8px;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+/* Match the modern dark dialog theme with a sleek custom scrollbar */
+.cd-submessage::-webkit-scrollbar {
+  width: 4px;
+}
+.cd-submessage::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px;
+}
+.cd-submessage::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+.cd-submessage::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Footer / Actions */
+.cd-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* Base button */
+.cd-btn {
+  padding: 11px 22px;
+  border-radius: 12px;
+  font-size: 14.5px;
+  font-weight: 600;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    inherit;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    opacity 0.15s ease,
+    background 0.15s ease;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+}
+
+@media (max-width: 520px) {
+  .cd-overlay {
+    align-items: flex-end;
+    padding: 10px;
+  }
+
+  .cd-dialog {
+    width: 100% !important;
+    max-width: 100%;
+    padding: 22px;
+    gap: 20px;
+    border-radius: 18px;
+  }
+
+  .cd-body {
+    gap: 14px;
+  }
+
+  .cd-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+  }
+
+  .cd-message {
+    font-size: 18px;
+  }
+
+  .cd-submessage {
+    font-size: 13.5px;
+    max-height: 40dvh;
+  }
+
+  .cd-footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .cd-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 380px) {
+  .cd-dialog {
+    padding: 18px;
+  }
+
+  .cd-body {
+    flex-direction: column;
+  }
+}
+
+.cd-btn:active {
+  transform: scale(0.98);
+}
+
+/* Generic Button Variants */
+.cd-btn--secondary {
+  background: var(--surface-card);
+  border: 1px solid var(--border-interactive);
+  color: var(--text-secondary);
+}
+
+.cd-btn--secondary:hover {
+  background: var(--surface-glass);
+  border-color: var(--border-subtle);
+  color: var(--text-primary);
+  transform: scale(1.02);
+}
+
+.cd-btn--primary {
+  background: var(--accent-gradient-right);
+  color: var(--text-inverse);
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.25);
+}
+
+.cd-btn--primary:hover {
+  transform: scale(1.02);
+  box-shadow: 0 10px 30px rgba(124, 58, 237, 0.35);
+}
+
+.cd-btn--danger {
+  background: #ef4444;
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.2);
+}
+
+.cd-btn--danger:hover {
+  background: #f87171;
+  transform: scale(1.02);
+  box-shadow: 0 10px 30px rgba(239, 68, 68, 0.3);
+}
+
+.cd-btn--warning {
+  background: #f59e0b;
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.2);
+}
+
+.cd-btn--warning:hover {
+  background: #fbbf24;
+  transform: scale(1.02);
+  box-shadow: 0 10px 30px rgba(245, 158, 11, 0.3);
+}
+
+.cd-btn--ghost {
+  background: transparent;
+  color: #6b7089;
+}
+
+.cd-btn--ghost:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #d1d5ef;
+}
+
+/* Animations */
+@keyframes cd-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes cd-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}

@@ -1,0 +1,101 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AIEngineInstaller.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="500"
+        Width="700" Height="450"
+        WindowStartupLocation="CenterScreen"
+        CanResize="False"
+        x:Class="AIEngineInstaller.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="AIEngine Installer">
+
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <!-- Main Container -->
+    <Grid>
+        
+        <!-- Background Gradient Glow -->
+        <Border Background="{StaticResource AppBackground}">
+            <Border HorizontalAlignment="Center" VerticalAlignment="Top" 
+                    Width="600" Height="300" Margin="0,-150,0,0" 
+                    Background="{StaticResource AccentGradient}"
+                    Opacity="0.15" CornerRadius="300"
+                    BoxShadow="0 0 100 50 #1A00f0ff"/>
+        </Border>
+
+        <!-- Content Layout -->
+        <Grid RowDefinitions="Auto,*,Auto" Margin="40">
+            
+            <!-- Header Section -->
+            <StackPanel Grid.Row="0" Spacing="20" HorizontalAlignment="Center" Margin="0,20,0,0">
+                <Image Source="/Assets/AIEngineLogo.png" Width="96" Height="96" 
+                       HorizontalAlignment="Center"
+                       RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                
+                <TextBlock Text="{Binding Greeting}" 
+                           FontSize="32" 
+                           FontWeight="Bold" 
+                           HorizontalAlignment="Center"
+                           Foreground="{StaticResource AppTextPrimary}"/>
+            </StackPanel>
+
+            <!-- Status Section -->
+            <StackPanel Grid.Row="1" VerticalAlignment="Center" Spacing="24" MaxWidth="500">
+                
+                <TextBlock Text="{Binding StatusText}" 
+                           FontSize="16" 
+                           Foreground="{StaticResource AppTextSecondary}"
+                           HorizontalAlignment="Center"/>
+
+                <!-- Custom Progress Bar -->
+                <Grid IsVisible="{Binding IsInstalling}">
+                    <!-- Glow effect for progress bar background -->
+                    <Border CornerRadius="4" 
+                            BoxShadow="0 0 15 0 #3300f0ff"
+                            Opacity="0.5"
+                            Background="Transparent"/>
+                            
+                    <ProgressBar Minimum="0" Maximum="100" 
+                                 Value="{Binding InstallProgress}" 
+                                 Height="8" CornerRadius="4"
+                                 Background="{StaticResource AppSurface}"
+                                 Foreground="{StaticResource AccentGradient}"/>
+                </Grid>
+                
+            </StackPanel>
+
+            <!-- Action Buttons -->
+            <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="0,20,0,0">
+                
+                <!-- Install Button -->
+                <Button Grid.Column="1" 
+                        Classes="Primary"
+                        Command="{Binding InstallCommand}"
+                        IsVisible="{Binding !IsInstallComplete}"
+                        IsEnabled="{Binding !IsInstalling}"
+                        Width="160">
+                    <TextBlock Text="Install Now" FontSize="16"/>
+                </Button>
+
+                <!-- Launch Button -->
+                <Button Grid.Column="1" 
+                        Classes="Primary"
+                        Command="{Binding LaunchCommand}"
+                        IsVisible="{Binding IsInstallComplete}"
+                        Width="160">
+                    <TextBlock Text="Launch" FontSize="16"/>
+                </Button>
+            </Grid>
+        </Grid>
+        
+        <!-- Custom Title Bar Area (Draggable) -->
+        <Grid Height="30" VerticalAlignment="Top" Background="Transparent" IsHitTestVisible="True"/>
+        
+    </Grid>
+</Window>

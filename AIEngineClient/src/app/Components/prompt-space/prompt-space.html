@@ -1,0 +1,631 @@
+<div class="ps-shell">
+
+    @if (!sidebarCollapsed) {
+    <div class="ps-sidebar-backdrop" (click)="toggleSidebar()"></div>
+    }
+
+    <!-- SIDEBAR -->
+    <aside class="ps-sidebar" [class.ps-sidebar--collapsed]="sidebarCollapsed">
+
+        <!-- Brand -->
+        <div class="ps-brand">
+            <div class="ps-brand__icon">
+                <app-svg-brand-logo [height]="'56px'" [width]="'56px'"></app-svg-brand-logo>
+            </div>
+            @if (!sidebarCollapsed) {
+            <div class="ps-brand__text">
+                <span class="ps-brand__name">AI Engine</span>
+                <span class="ps-brand__tagline">Prompt Space</span>
+            </div>
+            }
+        </div>
+
+        <!-- New Chat -->
+        <button class="ps-new-chat-btn" (click)="startNewChat()" [title]="sidebarCollapsed ? 'New Chat' : ''">
+            <app-svg-plus></app-svg-plus>
+            @if (!sidebarCollapsed) { <span>New Chat</span> }
+        </button>
+
+        <!-- Chat / Saved Tabs -->
+        @if (!sidebarCollapsed) {
+        <div class="ps-tabs">
+            <button class="ps-tab" [class.ps-tab--active]="activeTab === 'chats'" (click)="setTab('chats')">
+                <app-svg-chats></app-svg-chats>
+                Chats
+            </button>
+            <button class="ps-tab" [class.ps-tab--active]="activeTab === 'saved'" (click)="setTab('saved')">
+                <app-svg-favorite [fillColor]="'none'"></app-svg-favorite>
+                Favourites
+            </button>
+        </div>
+
+        <!-- History List -->
+        <div class="ps-history">
+            @for (conv of conversations; track conv.conversationId) {
+            <div class="ps-history-item" [class.ps-history-item--active]="activeConversationId === conv.conversationId"
+                (click)="loadConversation(conv.conversationId)">
+                <div class="ps-history-item__row">
+                    <div class="ps-history-item__info">
+                        @if (editingConversationId !== conv.conversationId) {
+                        <span class="ps-history-item__title" (dblclick)="enableTitleEdit(conv)">
+                            {{ conv.conversationTitle }}</span>
+                        } @else {
+                        <input class="ps-history-item-title-edit" type="text"
+                            [attr.data-conversation-id]="conv.conversationId" (keyup.escape)="cancelEdit()"
+                            [(ngModel)]="tempConversationTitle" (blur)="onBlur(conv)"
+                            (keyup.enter)="onEnter($event,conv)" #editInput>
+                        }
+                    </div>
+
+                    <!-- Kebab trigger + dropdown -->
+                    <div class="ps-history-item__menu-wrap">
+                        <div class="ps-history-item__menu"
+                            [class.ps-history-item__menu--open]="openMenuId === conv.conversationId"
+                            (click)="toggleMenu($event, conv)">
+                            <app-svg-kebab-menu></app-svg-kebab-menu>
+                        </div>
+
+                        @if (openMenuId === conv.conversationId) {
+                        <div class="ps-conv-menu" [class.ps-conv-menu--up]="menuOpensUp"
+                            (click)="$event.stopPropagation()">
+                            <!-- Note : Some options disabled currently will introduce later -->
+                            <!-- Pin -->
+                            @if(false){
+                            <button class="ps-conv-menu__item">
+                                <app-svg-pin></app-svg-pin>
+                                Pin
+                            </button>
+                            }
+                            <!-- Rename -->
+                            <button class="ps-conv-menu__item" (click)="renameConversation($event, conv)">
+                                <app-svg-rename></app-svg-rename>
+                                Rename
+                            </button>
+                            <!-- Archive -->
+                            <button class="ps-conv-menu__item" (click)="archiveConversation($event, conv)">
+                                <app-svg-archive></app-svg-archive>
+                                Archive
+                            </button>
+
+                            <div class="ps-conv-menu__divider"></div>
+
+                            <!-- Share -->
+                            @if(false){
+                            <button class="ps-conv-menu__item" (click)="shareConversation($event, conv)">
+                                <app-svg-share></app-svg-share>
+                                Share
+                            </button>
+                            }
+                            <!-- Favourite -->
+                            <button class="ps-conv-menu__item"
+                                [class.ps-conv-menu__item--active]="conv.isFavorite"
+                                (click)="toggleFavourite($event, conv)">
+                                <app-svg-favorite
+                                    [fillColor]="conv.isFavorite ? 'currentColor' : 'none'"></app-svg-favorite>
+                                {{ conv.isFavorite ? 'Unfavourite' : 'Favourite' }}
+                            </button>
+                            <div class="ps-conv-menu__divider"></div>
+                            <!-- Delete -->
+                            <button class="ps-conv-menu__item ps-conv-menu__item--danger"
+                                (click)="deleteConversation($event, conv)">
+                                <app-svg-trash></app-svg-trash>
+                                Delete
+                            </button>
+                        </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            }
+            @empty {
+            <div class="ps-history-empty">
+                <div class="ps-history-empty__icon" aria-hidden="true">
+                    @if (activeTab === 'saved') {
+                    <app-svg-favorite [fillColor]="'none'"></app-svg-favorite>
+                    } @else {
+                    <app-svg-chats></app-svg-chats>
+                    }
+                </div>
+                <div class="ps-history-empty__content">
+                    <h3 class="ps-history-empty__title">
+                        {{ activeTab === 'saved' ? 'No saved chats' : 'No chats found' }}
+                    </h3>
+                    <p class="ps-history-empty__text">
+                        {{ activeTab === 'saved' ? 'Favourite a conversation and it will appear here.' : 'Start a new chat and your history will appear here.' }}
+                    </p>
+                </div>
+            </div>
+            }
+        </div>
+        }
+
+        <!-- Sidebar Footer -->
+        <div class="ps-sidebar-footer">
+            <!-- Profile Section -->
+            <div class="ps-profile-wrap">
+                <button class="ps-profile-btn" [class.ps-profile-btn--active]="showProfileMenu"
+                    (click)="toggleProfileMenu($event)" [title]="sidebarCollapsed ? 'User Profile' : ''">
+                    <div class="ps-profile-avatar">
+                        <span>{{userName?.[0]}}</span>
+                    </div>
+                    @if (!sidebarCollapsed) {
+                    <div class="ps-profile-info">
+                        <span class="ps-profile-name">{{userName}}</span>
+                    </div>
+                    <app-svg-dropdown class="ps-profile-chevron"></app-svg-dropdown>
+                    }
+                </button>
+
+                <!-- Profile Menu Dropdown -->
+                @if (showProfileMenu) {
+                <div class="ps-profile-menu" (click)="$event.stopPropagation()">
+                    <button class="ps-profile-menu__item" (click)="openSettingsDialog($event)">
+                        <app-svg-settings></app-svg-settings>
+                        Settings
+                    </button>
+                    <button class="ps-profile-menu__item" (click)="openArchiveDialog($event)">
+                        <app-svg-archive></app-svg-archive>
+                        Archive
+                    </button>
+                    <button class="ps-profile-menu__item" (click)="themeService.toggleTheme()">
+                        @if (themeService.isDarkMode()) {
+                        <app-svg-sun [width]="'16px'" [height]="'16px'"></app-svg-sun>
+                        } @else {
+                        <app-svg-moon [width]="'16px'" [height]="'16px'"></app-svg-moon>
+                        }
+                        Theme
+                    </button>
+                    <div class="ps-profile-menu__divider"></div>
+                    <button class="ps-profile-menu__item ps-profile-menu__item--danger" (click)="logout()">
+                        <app-svg-logout></app-svg-logout>
+                        Log out
+                    </button>
+                </div>
+                }
+            </div>
+
+            <button class="ps-sidebar-footer__btn" [title]="sidebarCollapsed ? 'Upgrade Pro' : ''">
+                <app-svg-thunder></app-svg-thunder>
+                @if (!sidebarCollapsed) { <span class="upgrade-option">Upgrade Pro</span> }
+            </button>
+        </div>
+    </aside>
+
+    <!-- Collapse toggle -->
+    <button class="ps-collapse-btn" (click)="toggleSidebar()" [title]="sidebarCollapsed ? 'Expand' : 'Collapse'">
+        <app-svg-expand-collapse
+            [transform]="sidebarCollapsed ? 'rotate(180deg)' : 'rotate(0deg)'"></app-svg-expand-collapse>
+    </button>
+
+    <!-- CHAT WINDOW -->
+    <main class="ps-chat-window" [class.ps-chat-window--empty]="messages.length === 0 && !isTyping">
+        <!-- Mobile Top Header Bar -->
+        <header class="ps-mobile-header">
+            <button class="ps-mobile-menu-btn" (click)="toggleSidebar()" title="Toggle Sidebar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+            <span class="ps-mobile-title">{{ activeConversationId ? 'Chat' : 'AI Engine' }}</span>
+            <button class="ps-mobile-new-chat-btn" (click)="startNewChat()" title="New Chat">
+                <app-svg-plus></app-svg-plus>
+            </button>
+        </header>
+
+        <!-- Aurora background — absolute, fills full chat window -->
+        @if (messages.length === 0 && !isTyping) {
+        <div class="ps-aurora" aria-hidden="true">
+            <span class="ps-aurora__orb ps-aurora__orb--1"></span>
+            <span class="ps-aurora__orb ps-aurora__orb--2"></span>
+            <span class="ps-aurora__orb ps-aurora__orb--3"></span>
+            <span class="ps-aurora__orb ps-aurora__orb--4"></span>
+        </div>
+        }
+
+        <!-- ══ EMPTY STATE: greeting + chips only (input stays below via CSS centering) ══ -->
+        @if (messages.length === 0 && !isTyping) {
+        <div class="ps-empty-state">
+
+            <!-- Greeting -->
+            <div class="ps-greeting">
+                <h2 class="ps-greeting__title">
+                    <span class="ps-greeting__hi">Hi, {{userName}}.</span>
+                    <span class="ps-greeting__question">What's on your mind?</span>
+                </h2>
+            </div>
+
+            <!-- Suggestion chips -->
+
+
+        </div>
+        }
+
+        <!-- Message List -->
+        <div class="ps-message-list" [class.ps-message-list--hidden]="messages.length === 0 && !isTyping"
+            (scroll)="onMessageListScroll()" #messageContainer>
+
+            @for (msg of messages; track $index) {
+            @if (msg.role === 'Assistant') {
+            <!-- AI Bubble -->
+            <div class="ps-msg ps-msg--assistant">
+                <div class="ps-msg__avatar ps-msg__avatar--ai">
+                    <app-svg-brand-logo [width]="'48px'" [height]="'48px'"></app-svg-brand-logo>
+                </div>
+                <div class="ps-msg__body">
+                    <div class="ps-msg__meta">
+                        <span class="ps-msg__sender">AI Engine</span>
+                        <span class="ps-msg__time">{{ formatTimestamp(msg.timestamp) }}</span>
+                    </div>
+                    <div class="ps-msg__bubble ps-msg__bubble--assistant markdown-body">
+                        <markdown [data]="msg.content"></markdown>
+                    </div>
+                    <div class="ps-msg__actions">
+                        <button type="button" class="ps-msg__copy-btn" (click)="copyMessage(msg, $event)"
+                            [title]="copiedMessageId === msg.id ? 'Copied' : 'Copy message'"
+                            [attr.aria-label]="copiedMessageId === msg.id ? 'Copied message' : 'Copy message'">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                @if (copiedMessageId === msg.id) {
+                                <path d="M20 6 9 17l-5-5"></path>
+                                } @else {
+                                <rect x="9" y="9" width="11" height="11" rx="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                }
+                            </svg>
+                            @if (copiedMessageId === msg.id) {
+                            <span>Copied</span>
+                            }
+                        </button>
+                    </div>
+
+                    <!-- ── TTS Speaker Row ── -->
+                    <div class="ps-tts-row">
+                        <!-- <button class="ps-tts-btn" [class.ps-tts-btn--speaking]="speakingMsgId === msg.id"
+                            (click)="toggleSpeak(msg, $event)"
+                            [title]="speakingMsgId === msg.id ? 'Stop speaking' : 'Read aloud'">
+
+                            <!-- Sound-wave bars — only when THIS message is speaking -->
+                        <!-- @if (speakingMsgId === msg.id) { -->
+                        <!-- <span class="ps-tts-waves" aria-hidden="true">
+                                <span class="ps-tts-wave ps-tts-wave--1"></span>
+                                <span class="ps-tts-wave ps-tts-wave--2"></span>
+                                <span class="ps-tts-wave ps-tts-wave--3"></span>
+                                <span class="ps-tts-wave ps-tts-wave--4"></span>
+                                <span class="ps-tts-wave ps-tts-wave--5"></span>
+                            </span> -->
+                        <!-- } @else { -->
+                        <!-- <app-svg-speaker [width]="'15px'" [height]="'15px'"></app-svg-speaker> -->
+                        <!-- } -->
+                        <!-- </button> -->
+
+                        @if (speakingMsgId === msg.id) {
+                        <!-- <span class="ps-tts-label">Speaking…</span>
+                        <button class="ps-tts-stop-btn" (click)="stopSpeak()" title="Stop">
+                            <svg viewBox="0 0 24 24" fill="currentColor" width="10" height="10">
+                                <rect x="4" y="4" width="16" height="16" rx="2" />
+                            </svg>
+                        </button> -->
+                        }
+                    </div>
+                </div>
+            </div>
+            } @else {
+            <!-- User Bubble -->
+            <div class="ps-msg ps-msg--user">
+                <div class="ps-msg__avatar ps-msg__avatar--user">
+                    <app-svg-user [width]="'22px'" [height]="'22px'"></app-svg-user>
+                </div>
+                <div class="ps-msg__body">
+                    <div class="ps-msg__meta">
+                        <span class="ps-msg__sender">You</span>
+                        <span class="ps-msg__time"> {{ formatTimestamp(msg.timestamp) }}</span>
+                    </div>
+                    <div class="ps-msg__bubble ps-msg__bubble--user">
+                        <p>{{ msg.content }}</p>
+                    </div>
+                    <div class="ps-msg__actions ps-msg__actions--user">
+                        <button type="button" class="ps-msg__copy-btn" (click)="copyMessage(msg, $event)"
+                            [title]="copiedMessageId === msg.id ? 'Copied' : 'Copy message'"
+                            [attr.aria-label]="copiedMessageId === msg.id ? 'Copied message' : 'Copy message'">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                @if (copiedMessageId === msg.id) {
+                                <path d="M20 6 9 17l-5-5"></path>
+                                } @else {
+                                <rect x="9" y="9" width="11" height="11" rx="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                }
+                            </svg>
+                            @if (copiedMessageId === msg.id) {
+                            <span>Copied</span>
+                            }
+                        </button>
+                    </div>
+                </div>
+            </div>
+            }
+
+            }
+
+            <!-- Thinking / Typing indicator -->
+            @if (isTyping) {
+            <div class="ps-msg ps-msg--assistant">
+                <div class="ps-msg__avatar ps-msg__avatar--ai ps-msg__avatar--thinking">
+                    <app-svg-brand-logo [width]="'48px'" [height]="'48px'"></app-svg-brand-logo>
+                </div>
+                <div class="ps-msg__body">
+                    <div class="ps-thinking-bubble">
+                        <span class="ps-thinking__label">Thinking</span>
+                        <div class="ps-thinking__dots">
+                            <span></span><span></span><span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            }
+
+        </div><!-- /message list -->
+
+        @if (showScrollToBottom && (messages.length > 0 || isTyping)) {
+        <div class="ps-scroll-bottom-wrap" aria-live="polite">
+            <button type="button" class="ps-scroll-bottom-btn" (click)="scrollToBottom()" title="Jump to latest message"
+                aria-label="Jump to latest message">
+                <span class="ps-scroll-bottom-btn__ring" aria-hidden="true"></span>
+                <svg class="ps-scroll-bottom-btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 5v14"></path>
+                    <path d="m6 13 6 6 6-6"></path>
+                </svg>
+            </button>
+        </div>
+        }
+
+        <!-- Suggestion Chips (only shown when there are messages) -->
+        <!-- PROMPT INPUT AREA -->
+        <div class="ps-input-area">
+            <div class="ps-input-wrap">
+                <!-- Plus menu -->
+                <div class="ps-plus-dropdown" (click)="$event.stopPropagation()">
+                    <button [disabled]="'true'" type="button" class="ps-input-cmd ps-input-cmd--button"
+                        [class.ps-input-cmd--open]="showPlusMenu" (click)="togglePlusMenu($event)">
+                        <app-svg-plus [style.height]="'20px'" [style.width]="'20px'"></app-svg-plus>
+                    </button>
+
+                    @if (showPlusMenu) {
+                    <div class="ps-plus-menu">
+                        <div class="ps-plus-menu__list">
+                            <button type="button" class="ps-plus-menu__item" (click)="handlePlusAction('upload')">
+                                <app-svg-attachment [width]="'20px'" [height]="'20px'"></app-svg-attachment> Add Image
+                            </button>
+                        </div>
+                    </div>
+                    }
+                </div>
+
+                <textarea class="ps-input" placeholder="Ask me anything..." [(ngModel)]="promptText"
+                    (keydown.enter)="onEnterKey($event)" (input)="onInputChange()" rows="1" #promptInput></textarea>
+
+                <div class="ps-model-dropdown" (click)="$event.stopPropagation()">
+                    <button type="button" class="ps-input-model-trigger"
+                        [class.ps-input-model-trigger--open]="showModelMenu" (click)="toggleModelMenu($event)">
+                        <div class="ps-trigger-content">
+                            <div class="ps-provider-icon ps-provider-icon--sm">{{ selectedProvider.charAt(0) || '?' }}
+                            </div>
+                            <span class="ps-input-model-trigger__label">{{ selectedModelDisplayName.length > 10 ?
+                                selectedModelDisplayName.substring(0, 10) + "..." : selectedModelDisplayName }}</span>
+                        </div>
+                        <app-svg-dropdown class="ps-input-model-trigger__icon"></app-svg-dropdown>
+                    </button>
+
+                    @if (showModelMenu) {
+                    <div class="ps-model-menu">
+                        <div class="ps-model-menu__container">
+                            @if (isProviderView) {
+                            <!-- Step 1: Provider List -->
+                            <div class="ps-model-menu__view">
+                                <div class="ps-model-menu__section-label">AI Providers</div>
+                                <div class="ps-model-menu__list">
+                                    @for(provider of modelCatalog; track provider.name) {
+                                    <button type="button" class="ps-provider-item"
+                                        [disabled]="provider.name.toLowerCase() === 'ollama'"
+                                        [class.active]="selectedProvider.toLowerCase() === provider.name.toLowerCase()"
+                                        (click)="setActiveProvider(provider.name, $event)">
+                                        <div class="ps-provider-item__content">
+                                            <div class="ps-provider-icon">{{ provider.name.charAt(0) }}</div>
+                                            <span class="ps-provider-item__name">{{ provider.name }}</span>
+                                        </div>
+                                        <app-svg-dropdown class="ps-provider-item__chevron"
+                                            style="transform: rotate(-90deg)"></app-svg-dropdown>
+                                    </button>
+                                    }
+                                </div>
+                            </div>
+                            } @else {
+                            <!-- Step 2: Model List -->
+                            <div class="ps-model-menu__view">
+                                <div class="ps-model-menu__header">
+                                    <button type="button" class="ps-back-btn" (click)="goBackToProviders($event)">
+                                        <app-svg-dropdown style="transform: rotate(90deg)"></app-svg-dropdown>
+                                        Back
+                                    </button>
+                                    <div class="ps-active-provider-badge">{{ activeProviderTab }}</div>
+                                </div>
+
+                                <div class="ps-model-menu__list">
+                                    @for(model of getModelsForProvider(activeProviderTab); track model.value) {
+                                    <button type="button" class="ps-model-item"
+                                        [class.ps-model-item--selected]="selectedModel.toLowerCase() === model.value.toLowerCase() && selectedProvider.toLowerCase() === activeProviderTab.toLowerCase()"
+                                        (click)="selectModel(activeProviderTab, model.value)">
+                                        <div class="ps-model-item__info">
+                                            <div class="ps-model-item__row">
+                                                <span class="ps-model-item__name">{{ model.displayName }}</span>
+                                            </div>
+                                        </div>
+                                        @if(selectedModel.toLowerCase() === model.value.toLowerCase() &&
+                                        selectedProvider.toLowerCase() === activeProviderTab.toLowerCase()) {
+                                        <div class="ps-model-item__check">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                                <polyline points="20 6 9 17 4 12" />
+                                            </svg>
+                                        </div>
+                                        }
+                                    </button>
+                                    }
+                                </div>
+                            </div>
+                            }
+                        </div>
+                    </div>
+                    }
+                </div>
+
+                <!-- Mic -->
+                <button class="ps-input-action ps-input-action--mic" title="Voice input" (click)="openVoiceModal()">
+                    <app-svg-mic></app-svg-mic>
+                </button>
+
+                <!-- Send -->
+                <button class="ps-input-action ps-input-action--send" [disabled]="promptText.trim().length == 0"
+                    (click)="sendMessage()" title="Send">
+                    <app-svg-send></app-svg-send>
+                </button>
+            </div>
+
+            <!-- Footer Info -->
+            <div class="ps-footer-info">
+                <span>AI Engine v1.0</span>
+                <span class="ps-footer-dot">•</span>
+                <span>Powered by AI Cognitive Builders</span>
+                <span class="ps-footer-dot">•</span>
+                <span>Secure &amp; Private</span>
+            </div>
+        </div>
+
+    </main>
+</div>
+@if (isVoiceModalOpen) {
+<div class="vim-backdrop" (click)="closeVoiceModal()">
+    <div class="vim-panel" (click)="$event.stopPropagation()">
+        <div class="vim-header">
+            <div class="vim-header__label">
+                <span class="vim-header__icon">
+                    <app-svg-mic [width]="'16px'" [height]="'16px'"></app-svg-mic>
+                </span>
+                Voice Input
+            </div>
+            <button class="vim-close-btn" title="Close" (click)="closeVoiceModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+        </div>
+        <p class="vim-status-label" [class.vim-status-label--listening]="voiceState === 'listening'"
+            [class.vim-status-label--processing]="voiceState === 'processing'"
+            [class.vim-status-label--done]="voiceState === 'done'">
+            {{ voiceStatusLabel }}
+        </p>
+
+        <div class="vim-orb-area" [class.vim-orb-area--hidden]="voiceState === 'done'">
+            @if (voiceState === 'listening') {
+            <span class="vim-ripple vim-ripple--1"></span>
+            <span class="vim-ripple vim-ripple--2"></span>
+            <span class="vim-ripple vim-ripple--3"></span>
+            }
+
+            <button class="vim-orb" [class.vim-orb--listening]="voiceState === 'listening'"
+                [class.vim-orb--processing]="voiceState === 'processing'" [disabled]="voiceState === 'processing'"
+                (click)="toggleVoiceRecording()"
+                [title]="voiceState === 'listening' ? 'Stop recording' : 'Start recording'">
+
+                @if (voiceState !== 'processing') {
+                <svg class="vim-orb__icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M12 1a4 4 0 0 1 4 4v6a4 4 0 0 1-8 0V5a4 4 0 0 1 4-4zm0 2a2 2 0 0 0-2 2v6a2 2 0 1 0 4 0V5a2 2 0 0 0-2-2zm-7 9h2a5 5 0 0 0 10 0h2a7 7 0 0 1-6 6.92V21h3v2H8v-2h3v-2.08A7 7 0 0 1 5 12z" />
+                </svg>
+                }
+
+                @if (voiceState === 'processing') {
+                <span class="vim-orb__spinner"></span>
+                }
+            </button>
+        </div>
+        @if (voiceState === 'listening') {
+        <div class="vim-waveform" aria-hidden="true">
+            @for (bar of voiceBars; track $index) {
+            <span class="vim-waveform__bar" [style.--bar-h]="bar"></span>
+            }
+        </div>
+        }
+        @if (voiceState === 'processing') {
+        <div class="vim-processing-dots" aria-hidden="true">
+            <span></span><span></span><span></span>
+        </div>
+        }
+        @if (voiceState === 'done') {
+        <div class="vim-transcript">
+            <div class="vim-transcript__card">
+                <svg class="vim-transcript__check" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12" />
+                </svg>
+                <p class="vim-transcript__text">{{ voiceTranscript }}</p>
+            </div>
+        </div>
+        }
+        <div class="vim-actions">
+            @if (voiceState === 'done') {
+            <button class="vim-btn vim-btn--primary" (click)="useVoiceTranscript()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13" />
+                    <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                </svg>
+                Use this text
+            </button>
+            <button class="vim-btn vim-btn--ghost" (click)="toggleVoiceRecording()">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M12 1a4 4 0 0 1 4 4v6a4 4 0 0 1-8 0V5a4 4 0 0 1 4-4zm0 2a2 2 0 0 0-2 2v6a2 2 0 1 0 4 0V5a2 2 0 0 0-2-2zm-7 9h2a5 5 0 0 0 10 0h2a7 7 0 0 1-6 6.92V21h3v2H8v-2h3v-2.08A7 7 0 0 1 5 12z" />
+                </svg>
+                Record again
+            </button>
+            } @else if (voiceState === 'listening') {
+            <button class="vim-btn vim-btn--danger" (click)="toggleVoiceRecording()">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                    <rect x="4" y="4" width="16" height="16" rx="2" />
+                </svg>
+                Stop recording
+            </button>
+            } @else if (voiceState === 'idle') {
+            <button class="vim-btn vim-btn--primary" (click)="toggleVoiceRecording()">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M12 1a4 4 0 0 1 4 4v6a4 4 0 0 1-8 0V5a4 4 0 0 1 4-4zm0 2a2 2 0 0 0-2 2v6a2 2 0 1 0 4 0V5a2 2 0 0 0-2-2zm-7 9h2a5 5 0 0 0 10 0h2a7 7 0 0 1-6 6.92V21h3v2H8v-2h3v-2.08A7 7 0 0 1 5 12z" />
+                </svg>
+                Start speaking
+            </button>
+            }
+
+            <button class="vim-btn vim-btn--ghost" (click)="closeVoiceModal()">
+                Cancel
+            </button>
+        </div>
+        <p class="vim-hint">
+            @if (voiceState === 'idle') { Click the mic or "Start speaking" to begin. }
+            @if (voiceState === 'listening') { Speak clearly — click Stop or the mic when done. }
+            @if (voiceState === 'processing') { Transcribing your speech, please wait… }
+            @if (voiceState === 'done') { Review the text above, then send it or record again. }
+        </p>
+    </div>
+</div>
+}
+@if (isArchiveDialogOpen) {
+<app-archive-dialog (closed)="closeArchiveDialog()"></app-archive-dialog>
+}
+@if (isSettingsDialogOpen) {
+<app-settings-dialog (closed)="closeSettingsDialog()"></app-settings-dialog>
+}

@@ -1,0 +1,55 @@
+<div class="cd-overlay">
+    <div class="cd-dialog" role="dialog" aria-modal="true" [style.width]="data.width || 'auto'"
+        [style.height]="data.height || 'auto'">
+
+        <div class="cd-body">
+            <!-- Dynamic Icon Rendering via CSS Masks -->
+            @if (data.iconType !== 'none') {
+            <div class="cd-icon" [class]="'cd-icon--' + (data.variant === 'default' ? data.iconType : data.variant)">
+                @switch (data.iconType) {
+                    @case ('info-svg') {
+                        <app-svg-info width="26px" height="26px"></app-svg-info>
+                    }
+                    @case ('warning-svg') {
+                        <app-svg-warning width="26px" height="26px"></app-svg-warning>
+                    }
+                    @case ('error-svg') {
+                        <app-svg-error width="26px" height="26px"></app-svg-error>
+                    }
+                    @case ('success-svg') {
+                        <app-svg-success width="26px" height="26px"></app-svg-success>
+                    }
+                    @case ('trash-svg') {
+                        <app-svg-trash width="26px" height="26px"></app-svg-trash>
+                    }
+                    @case ('shield-svg') {
+                        <app-svg-shield width="26px" height="26px"></app-svg-shield>
+                    }
+                    @default {
+                        <app-svg-info width="26px" height="26px"></app-svg-info>
+                    }
+                }
+            </div>
+            }
+
+            <!-- Text Content -->
+            <div class="cd-content">
+                <h3 class="cd-message" [class]="'cd-text--' + data.variant">{{ data.message }}</h3>
+                @if (data.subMessage) {
+                <p class="cd-submessage">{{ data.subMessage }}</p>
+                }
+            </div>
+        </div>
+
+        <!-- Dynamic Buttons -->
+        @if (data.buttons && data.buttons.length > 0) {
+        <div class="cd-footer">
+            @for (btn of data.buttons; track btn.text) {
+            <button class="cd-btn" [class]="'cd-btn--' + (btn.variant || 'secondary')" (click)="onButtonClick(btn)">
+                {{ btn.text }}
+            </button>
+            }
+        </div>
+        }
+    </div>
+</div>

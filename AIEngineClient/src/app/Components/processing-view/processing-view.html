@@ -1,0 +1,45 @@
+<div class="processing-container" [ngClass]="themeService.getTheme()">
+	<!-- Atmospheric Effects -->
+	<div class="atmosphere">
+		<div class="glow-orb glow-orb--1"></div>
+		<div class="glow-orb glow-orb--2"></div>
+		<div class="scanline"></div>
+	</div>
+
+	<!-- Liquid Loader Section -->
+	<div class="visualizer-stage">
+		<div class="loader-wrapper">
+			<!-- Individual Letters -->
+			<span *ngFor="let char of titleChars; let i = index" class="loader-letter"
+				[style.animation-delay]="(i * 0.1) + 's'">
+				{{ char === ' ' ? '&nbsp;' : char }}
+			</span>
+
+			<!-- The Liquid Rotating Core -->
+			<div class="loader"></div>
+		</div>
+	</div>
+
+	<!-- Status Content -->
+	<div class="content-stage">
+		<div class="message-wrapper">
+			<p class="message">{{ message }}</p>
+		</div>
+
+		<!-- Advanced Progress Bar -->
+		<div class="progress-track">
+			<div class="progress-fill">
+				<div class="progress-glow"></div>
+			</div>
+		</div>
+
+		<!-- Helper Stats Decorations -->
+		<div class="system-stats">
+			<span class="stat-item">ENGINE READY</span>
+			<span class="stat-divider"></span>
+			<span class="stat-item">AI CORE ACTIVE</span>
+			<span class="stat-divider"></span>
+			<span class="stat-item">SYNCING DATA</span>
+		</div>
+	</div>
+</div>

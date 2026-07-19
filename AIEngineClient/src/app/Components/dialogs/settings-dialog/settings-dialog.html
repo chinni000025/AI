@@ -1,0 +1,888 @@
+<div class="stg-backdrop" (click)="close()">
+    <section class="stg-panel" role="dialog" aria-modal="true" aria-labelledby="settingsDialogTitle"
+        (click)="$event.stopPropagation(); closeDropdowns()">
+
+        <!-- Header -->
+        <header class="stg-header">
+            <div class="stg-header__title-wrap">
+                <span class="stg-header__icon">
+                    <app-svg-settings [width]="'18px'" [height]="'18px'"></app-svg-settings>
+                </span>
+                <div>
+                    <h2 class="stg-header__title" id="settingsDialogTitle">Settings</h2>
+                    <p class="stg-header__subtitle">Manage connections, engine configuration, and logging preferences.
+                    </p>
+                </div>
+            </div>
+            <button type="button" class="stg-close-btn" title="Close" (click)="close()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+        </header>
+
+        <!-- Tabs -->
+        <nav class="stg-tabs">
+            <button class="stg-tab" [class.stg-tab--active]="activeTab === 'connections'"
+                (click)="setTab('connections')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                </svg>
+                Connections
+            </button>
+            <button class="stg-tab" [class.stg-tab--active]="activeTab === 'engine'" (click)="setTab('engine')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3" />
+                    <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                </svg>
+                Engine
+            </button>
+            <button class="stg-tab" [class.stg-tab--active]="activeTab === 'security'" (click)="setTab('security')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+                Security
+            </button>
+            <button class="stg-tab" [class.stg-tab--active]="activeTab === 'smtp'" (click)="setTab('smtp')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                    <polyline points="22,6 12,13 2,6" />
+                </svg>
+                SMTP
+            </button>
+            <button class="stg-tab" [class.stg-tab--active]="activeTab === 'ingestion'" (click)="setTab('ingestion')" [disabled]="'true'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path
+                        d="M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9m9 9H3m9 9a9 9 0 0 1-9-9m9 9c1.66 0 3-4.03 3-9s-1.34-9-3-9m0 18c-1.66 0-3-4.03-3-9s1.34-9 3-9m-9 9a9 9 0 0 1 9-9" />
+                </svg>
+                Ingestion
+            </button>
+            <button class="stg-tab" [class.stg-tab--active]="activeTab === 'logs'" (click)="setTab('logs')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
+                    <polyline points="10 9 9 9 8 9" />
+                </svg>
+                Logs
+            </button>
+        </nav>
+
+        <!-- Tab Content -->
+        <div class="stg-content">
+
+            <!-- ═══ CONNECTIONS TAB ═══ -->
+            @if (activeTab === 'connections') {
+            <div class="stg-section stg-section--connections">
+                <div class="stg-section__header">
+                    <h3 class="stg-section__title">Service Connections</h3>
+                    <p class="stg-section__desc">Manage external service integrations for your engine workspace.</p>
+                </div>
+
+                @for (conn of connections; track conn.id) {
+                <div class="stg-conn-card" [class.stg-conn-card--expanded]="expandedConnection === conn.id">
+                    <!-- Connection Header Row -->
+                    <button class="stg-conn-card__header" [disabled]="'true'" (click)="toggleConnection(conn.id)">
+                        <div class="stg-conn-card__left">
+                            <span class="stg-conn-card__icon">
+                                @if (conn.id === 'google-drive') {
+                                <app-svg-google-drive [width]="'22px'" [height]="'22px'"></app-svg-google-drive>
+                                }
+                            </span>
+                            <div class="stg-conn-card__info">
+                                <span class="stg-conn-card__name">{{ conn.name }}</span>
+                                <span class="stg-conn-card__desc">{{ conn.description }}</span>
+                            </div>
+                        </div>
+                        <div class="stg-conn-card__right">
+                            <span class="stg-conn-status"
+                                [class.stg-conn-status--connected]="conn.status === 'connected'">
+                                <span class="stg-conn-status__dot"></span>
+                                {{ conn.status === 'connected' ? 'Connected' : 'Not Connected' }}
+                            </span>
+                            <app-svg-dropdown class="stg-conn-card__chevron"
+                                [style.transform]="expandedConnection === conn.id ? 'rotate(180deg)' : 'rotate(0)'">
+                            </app-svg-dropdown>
+                        </div>
+                    </button>
+
+                    <!-- Connection Expanded Body -->
+                    @if (expandedConnection === conn.id) {
+                    <div class="stg-conn-card__body">
+                        <div class="stg-conn-card__body-label">Authentication Method</div>
+                        <div class="stg-auth-methods">
+                            @for (method of conn.authMethods; track method.id) {
+                            <button class="stg-auth-card"
+                                [class.stg-auth-card--selected]="selectedAuthMethod[conn.id] === method.id"
+                                (click)="selectAuthMethod(conn.id, method.id)">
+                                <div class="stg-auth-card__top">
+                                    <span class="stg-auth-card__icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                            <polyline points="9 12 11 14 15 10" />
+                                        </svg>
+                                    </span>
+                                    <span class="stg-auth-card__label">{{ method.label }}</span>
+                                    @if (selectedAuthMethod[conn.id] === method.id) {
+                                    <span class="stg-auth-card__check">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                            <polyline points="20 6 9 17 4 12" />
+                                        </svg>
+                                    </span>
+                                    }
+                                </div>
+                                <span class="stg-auth-card__desc">{{ method.description }}</span>
+                            </button>
+                            }
+                        </div>
+
+                        <!-- Configuration Fields (UI-only) -->
+                        @if (selectedAuthMethod[conn.id] === 'oauth') {
+                        <div class="stg-config-fields">
+                            <div class="stg-field">
+                                <label class="stg-field__label">Client ID</label>
+                                <input type="text" class="stg-field__input" placeholder="Enter OAuth Client ID"
+                                    [(ngModel)]="googleClientId">
+                            </div>
+                            <div class="stg-field">
+                                <label class="stg-field__label">Client Secret</label>
+                                <input type="password" class="stg-field__input" placeholder="Enter OAuth Client Secret"
+                                    [(ngModel)]="googleClientSecret">
+                            </div>
+                            <div class="stg-field">
+                                <button type="button" class="stg-google-connect-btn" (click)="openConsentScreen()"
+                                    [disabled]="!isValid">
+                                    <span class="stg-google-connect-btn__mark" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" focusable="false">
+                                            <path fill="#4285f4"
+                                                d="M23.49 12.27c0-.79-.07-1.54-.2-2.27H12v4.29h6.47c-.28 1.5-1.13 2.77-2.4 3.62v2.95h3.89c2.27-2.09 3.53-5.17 3.53-8.59z" />
+                                            <path fill="#34a853"
+                                                d="M12 24c3.24 0 5.96-1.07 7.95-2.91l-3.89-2.95c-1.08.72-2.45 1.15-4.06 1.15-3.12 0-5.76-2.11-6.71-4.94H1.28v3.04C3.26 21.3 7.3 24 12 24z" />
+                                            <path fill="#fbbc05"
+                                                d="M5.29 14.35c-.24-.72-.38-1.49-.38-2.35s.14-1.63.38-2.35V6.61H1.28C.46 8.24 0 10.06 0 12s.46 3.76 1.28 5.39l4.01-3.04z" />
+                                            <path fill="#ea4335"
+                                                d="M12 4.71c1.76 0 3.35.61 4.6 1.8l3.44-3.44C17.96 1.13 15.24 0 12 0 7.3 0 3.26 2.7 1.28 6.61l4.01 3.04C6.24 6.82 8.88 4.71 12 4.71z" />
+                                        </svg>
+                                    </span>
+                                    <span>Connect with Google</span>
+                                </button>
+                            </div>
+                        </div>
+                        }
+
+                        <div class="stg-conn-card__actions">
+                            <button class="stg-btn stg-btn--primary" [disabled]="!isValid"
+                                (click)="saveAndConnect()">Save Connection</button>
+                        </div>
+                    </div>
+                    }
+                </div>
+                }
+            </div>
+            }
+
+            <!-- ═══ ENGINE TAB ═══ -->
+            @if (activeTab === 'engine') {
+            <div class="stg-section stg-section--engine">
+
+                <!-- Regional Settings -->
+                <div class="stg-section__header">
+                    <h3 class="stg-section__title">Regional Settings</h3>
+                    <p class="stg-section__desc">Configure the engine's regional preferences for data processing and
+                        localization.</p>
+                </div>
+
+                <div class="stg-settings-grid">
+                    <!-- Region -->
+                    <div class="stg-setting-card">
+                        <div class="stg-setting-card__header">
+                            <span class="stg-setting-card__icon stg-setting-card__icon--region">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="2" y1="12" x2="22" y2="12" />
+                                    <path
+                                        d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                                </svg>
+                            </span>
+                            <div>
+                                <span class="stg-setting-card__label">Processing Region</span>
+                                <span class="stg-setting-card__hint">Server region for data processing</span>
+                            </div>
+                        </div>
+                        <div class="stg-dropdown" (click)="$event.stopPropagation()">
+                            <button class="stg-dropdown__trigger" [disabled]="'true'" (click)="toggleDropdown('region', $event)">
+                                <span>{{ getOptionLabel(regions, selectedRegion) }}</span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9" />
+                                </svg>
+                            </button>
+                            @if (activeDropdown === 'region') {
+                            <div class="stg-dropdown__menu">
+                                @for (region of regions; track region.value) {
+                                <button class="stg-dropdown__item"
+                                    [class.stg-dropdown__item--active]="selectedRegion === region.value"
+                                    (click)="selectDropdownOption('selectedRegion', region.value)">{{ region.label
+                                    }}</button>
+                                }
+                            </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Language -->
+                    <div class="stg-setting-card">
+                        <div class="stg-setting-card__header">
+                            <span class="stg-setting-card__icon stg-setting-card__icon--language">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M5 8l6 6" />
+                                    <path d="M4 14l6-6 2-3" />
+                                    <path d="M2 5h12" />
+                                    <path d="M7 2h1" />
+                                    <path d="M22 22l-5-10-5 10" />
+                                    <path d="M14 18h6" />
+                                </svg>
+                            </span>
+                            <div>
+                                <span class="stg-setting-card__label">Language</span>
+                                <span class="stg-setting-card__hint">Default language for engine responses</span>
+                            </div>
+                        </div>
+                        <div class="stg-dropdown" (click)="$event.stopPropagation()">
+                            <button class="stg-dropdown__trigger" [disabled]="'true'" (click)="toggleDropdown('language', $event)">
+                                <span>{{ getOptionLabel(languages, selectedLanguage) }}</span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9" />
+                                </svg>
+                            </button>
+                            @if (activeDropdown === 'language') {
+                            <div class="stg-dropdown__menu">
+                                @for (lang of languages; track lang.value) {
+                                <button class="stg-dropdown__item"
+                                    [class.stg-dropdown__item--active]="selectedLanguage === lang.value"
+                                    (click)="selectDropdownOption('selectedLanguage', lang.value)">{{ lang.label
+                                    }}</button>
+                                }
+                            </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Timezone -->
+                    <div class="stg-setting-card">
+                        <div class="stg-setting-card__header">
+                            <span class="stg-setting-card__icon stg-setting-card__icon--timezone">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <polyline points="12 6 12 12 16 14" />
+                                </svg>
+                            </span>
+                            <div>
+                                <span class="stg-setting-card__label">Timezone</span>
+                                <span class="stg-setting-card__hint">Timezone for logs and scheduled tasks</span>
+                            </div>
+                        </div>
+                        <div class="stg-dropdown" (click)="$event.stopPropagation()">
+                            <button [disabled]="'true'" class="stg-dropdown__trigger" (click)="toggleDropdown('timezone', $event)">
+                                <span>{{ getOptionLabel(timezones, selectedTimezone) }}</span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9" />
+                                </svg>
+                            </button>
+                            @if (activeDropdown === 'timezone') {
+                            <div class="stg-dropdown__menu">
+                                @for (tz of timezones; track tz.value) {
+                                <button class="stg-dropdown__item"
+                                    [class.stg-dropdown__item--active]="selectedTimezone === tz.value"
+                                    (click)="selectDropdownOption('selectedTimezone', tz.value)">{{ tz.label }}</button>
+                                }
+                            </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Time Format -->
+                    <div class="stg-setting-card">
+                        <div class="stg-setting-card__header">
+                            <span class="stg-setting-card__icon stg-setting-card__icon--timeformat">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <polyline points="12 6 12 12 8 14" />
+                                </svg>
+                            </span>
+                            <div>
+                                <span class="stg-setting-card__label">Time Format</span>
+                                <span class="stg-setting-card__hint">Display time in 12-hour or 24-hour clock</span>
+                            </div>
+                        </div>
+                        <div class="stg-toggle-group">
+                            <button [disabled]="'true'" class="stg-toggle-btn" [class.stg-toggle-btn--active]="selectedTimeFormat === '12h'"
+                                (click)="selectedTimeFormat = '12h'">
+                                <span class="stg-toggle-btn__label">12 Hour</span>
+                                <span class="stg-toggle-btn__example">2:30 PM</span>
+                            </button>
+                            <button [disabled]="'true'" class="stg-toggle-btn" [class.stg-toggle-btn--active]="selectedTimeFormat === '24h'"
+                                (click)="selectedTimeFormat = '24h'">
+                                <span class="stg-toggle-btn__label">24 Hour</span>
+                                <span class="stg-toggle-btn__example">14:30</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- <div class="stg-engine-actions">
+                    <button class="stg-btn stg-btn--ghost">Reset to Defaults</button>
+                    <button class="stg-btn stg-btn--primary">Save Changes</button>
+                </div> -->
+            </div>
+            }
+            <!-- ═══ SECURITY TAB ═══ -->
+            @if (activeTab === 'security') {
+            <div class="stg-section stg-section--security">
+
+                <!-- Security Hero -->
+                <div class="stg-security-hero">
+                    <div class="stg-security-hero__left">
+                        <div class="stg-security-hero__icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="stg-security-hero__title">Security &amp; Lifecycle</h3>
+                            <p class="stg-security-hero__desc">Configure token expiry, link sharing, and data
+                                retention policies.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Group 1: Authentication Security -->
+                <div class="stg-security-group">
+                    <div class="stg-security-group__header">
+                        <span class="stg-security-group__icon stg-security-group__icon--auth">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                            </svg>
+                        </span>
+                        <div>
+                            <span class="stg-security-group__title">Authentication Security</span>
+                            <span class="stg-security-group__subtitle">Token and session expiry controls</span>
+                        </div>
+                    </div>
+                    <div class="stg-security-group__body">
+                        <div class="stg-setting-card">
+                            <div class="stg-setting-card__header">
+                                <span class="stg-setting-card__icon stg-setting-card__icon--token">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                                    </svg>
+                                </span>
+                                <div>
+                                    <span class="stg-setting-card__label">Token Expiry Time</span>
+                                    <span class="stg-setting-card__hint">Duration before authentication tokens
+                                        expire</span>
+                                </div>
+                            </div>
+                            <div class="stg-dropdown" (click)="$event.stopPropagation()">
+                                <button [disabled]="'true'" class="stg-dropdown__trigger" (click)="toggleDropdown('token', $event)">
+                                    <span>{{ getOptionLabel(tokenExpiryOptions, tokenExpiryTime) }}</span>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="6 9 12 15 18 9" />
+                                    </svg>
+                                </button>
+                                @if (activeDropdown === 'token') {
+                                <div class="stg-dropdown__menu">
+                                    @for (opt of tokenExpiryOptions; track opt.value) {
+                                    <button [disabled]="'true'" class="stg-dropdown__item"
+                                        [class.stg-dropdown__item--active]="tokenExpiryTime === opt.value"
+                                        (click)="selectDropdownOption('tokenExpiryTime', opt.value)">{{ opt.label
+                                        }}</button>
+                                    }
+                                </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Group 2: Data Lifecycle -->
+                <div class="stg-security-group">
+                    <div class="stg-security-group__header">
+                        <span class="stg-security-group__icon stg-security-group__icon--lifecycle">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="23 4 23 10 17 10" />
+                                <polyline points="1 20 1 14 7 14" />
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                            </svg>
+                        </span>
+                        <div>
+                            <span class="stg-security-group__title">Data Lifecycle</span>
+                            <span class="stg-security-group__subtitle">Shared link and recycle bin retention
+                                policies</span>
+                        </div>
+                    </div>
+                    <div class="stg-security-group__body">
+                        <!-- Link Share Expiration -->
+                        <div class="stg-setting-card">
+                            <div class="stg-setting-card__header">
+                                <span class="stg-setting-card__icon stg-setting-card__icon--share">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="18" cy="5" r="3" />
+                                        <circle cx="6" cy="12" r="3" />
+                                        <circle cx="18" cy="19" r="3" />
+                                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+                                    </svg>
+                                </span>
+                                <div>
+                                    <span class="stg-setting-card__label">Link Share Expiration</span>
+                                    <span class="stg-setting-card__hint">Default expiry for shared links</span>
+                                </div>
+                            </div>
+                            <div class="stg-dropdown" (click)="$event.stopPropagation()">
+                                <button [disabled]="'true'" class="stg-dropdown__trigger" (click)="toggleDropdown('linkshare', $event)">
+                                    <span>{{ getOptionLabel(linkExpirationOptions, linkShareExpiration) }}</span>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="6 9 12 15 18 9" />
+                                    </svg>
+                                </button>
+                                @if (activeDropdown === 'linkshare') {
+                                <div class="stg-dropdown__menu">
+                                    @for (opt of linkExpirationOptions; track opt.value) {
+                                    <button class="stg-dropdown__item"
+                                        [class.stg-dropdown__item--active]="linkShareExpiration === opt.value"
+                                        (click)="selectDropdownOption('linkShareExpiration', opt.value)">{{ opt.label
+                                        }}</button>
+                                    }
+                                </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Recycle Bin Retention -->
+                        <div class="stg-setting-card">
+                            <div class="stg-setting-card__header">
+                                <span class="stg-setting-card__icon stg-setting-card__icon--recycle">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="3 6 5 6 21 6" />
+                                        <path
+                                            d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                        <line x1="10" y1="11" x2="10" y2="17" />
+                                        <line x1="14" y1="11" x2="14" y2="17" />
+                                    </svg>
+                                </span>
+                                <div>
+                                    <span class="stg-setting-card__label">Recycle Bin Retention</span>
+                                    <span class="stg-setting-card__hint">Days before permanently deleting trashed
+                                        items</span>
+                                </div>
+                            </div>
+                            <div class="stg-dropdown" (click)="$event.stopPropagation()">
+                                <button [disabled]="'true'" class="stg-dropdown__trigger" (click)="toggleDropdown('recycle', $event)">
+                                    <span>{{ getOptionLabel(recycleBinOptions, recycleBinRetention) }}</span>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="6 9 12 15 18 9" />
+                                    </svg>
+                                </button>
+                                @if (activeDropdown === 'recycle') {
+                                <div class="stg-dropdown__menu">
+                                    @for (opt of recycleBinOptions; track opt.value) {
+                                    <button class="stg-dropdown__item"
+                                        [class.stg-dropdown__item--active]="recycleBinRetention === opt.value"
+                                        (click)="selectDropdownOption('recycleBinRetention', opt.value)">{{ opt.label
+                                        }}</button>
+                                    }
+                                </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- <div class="stg-engine-actions">
+                    <button class="stg-btn stg-btn--ghost">Reset to Defaults</button>
+                    <button class="stg-btn stg-btn--primary">Save Changes</button>
+                </div> -->
+            </div>
+            }
+
+            <!-- ═══ SMTP TAB ═══ -->
+            @if (activeTab === 'smtp') {
+            <div class="stg-section stg-section--smtp">
+
+                <!-- Hero Status Card -->
+                <div class="stg-smtp-hero">
+                    <div class="stg-smtp-hero__left">
+                        <div class="stg-smtp-hero__icon-wrap">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                <polyline points="22,6 12,13 2,6" />
+                            </svg>
+                        </div>
+                        <div class="stg-smtp-hero__meta">
+                            <h4 class="stg-smtp-hero__title">SMTP Configuration</h4>
+                            <p class="stg-smtp-hero__desc">Configure your outgoing mail server for system notifications,
+                                alerts, and user emails.</p>
+                        </div>
+                    </div>
+                    <div class="stg-smtp-hero__status">
+                        <span class="stg-smtp-status-dot"></span>
+                        <span class="stg-smtp-status-label">Not Configured</span>
+                    </div>
+                </div>
+
+                <div class="stg-smtp-grid">
+                    <!-- Server Settings Group -->
+                    <div class="stg-smtp-group">
+                        <div class="stg-smtp-group__header">
+                            <span class="stg-smtp-group__icon stg-smtp-group__icon--server">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="2" y="2" width="20" height="8" rx="2" ry="2" />
+                                    <rect x="2" y="14" width="20" height="8" rx="2" ry="2" />
+                                    <line x1="6" y1="6" x2="6.01" y2="6" />
+                                    <line x1="6" y1="18" x2="6.01" y2="18" />
+                                </svg>
+                            </span>
+                            <div>
+                                <span class="stg-smtp-group__title">Server Settings</span>
+                                <span class="stg-smtp-group__subtitle">Host address and connection port</span>
+                            </div>
+                        </div>
+                        <div class="stg-smtp-fields">
+                            <div class="stg-smtp-row">
+                                <div class="stg-smtp-field stg-smtp-field--grow">
+                                    <label class="stg-smtp-field__label">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round">
+                                            <rect x="2" y="2" width="20" height="8" rx="2" />
+                                            <rect x="2" y="14" width="20" height="8" rx="2" />
+                                            <line x1="6" y1="6" x2="6.01" y2="6" />
+                                            <line x1="6" y1="18" x2="6.01" y2="18" />
+                                        </svg>
+                                        SMTP Host
+                                    </label>
+                                    <input [disabled]="'true'" type="text" class="stg-smtp-input" placeholder="smtp.gmail.com" [(ngModel)]="smtpHost">
+                                </div>
+                                <div class="stg-smtp-field stg-smtp-field--port">
+                                    <label class="stg-smtp-field__label">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round">
+                                            <polyline points="16 3 21 3 21 8" />
+                                            <line x1="4" y1="20" x2="21" y2="3" />
+                                            <polyline points="21 16 21 21 16 21" />
+                                            <line x1="15" y1="15" x2="21" y2="21" />
+                                        </svg>
+                                        Port
+                                    </label>
+                                    <input [disabled]="'true'" type="text" class="stg-smtp-input" placeholder="587" [(ngModel)]="smtpPort">
+                                </div>
+                            </div>
+                            <!-- SSL Row -->
+                            <div class="stg-smtp-ssl">
+                                <div class="stg-smtp-ssl__left">
+                                    <span class="stg-smtp-ssl__icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                                        </svg>
+                                    </span>
+                                    <div class="stg-smtp-ssl__text">
+                                        <span class="stg-smtp-ssl__label">Use SSL / TLS</span>
+                                        <span class="stg-smtp-ssl__hint">Encrypt the connection to the SMTP
+                                            server</span>
+                                    </div>
+                                </div>
+                                <label class="stg-checkbox">
+                                    <input [disabled]="'true'" type="checkbox" class="stg-checkbox__input" [(ngModel)]="smtpUseSsl">
+                                    <span class="stg-checkbox__box">
+                                        <svg viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="1.5,5 4.5,8.5 10.5,1.5" />
+                                        </svg>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Authentication Group -->
+                    <div class="stg-smtp-group">
+                        <div class="stg-smtp-group__header">
+                            <span class="stg-smtp-group__icon stg-smtp-group__icon--auth">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                </svg>
+                            </span>
+                            <div>
+                                <span class="stg-smtp-group__title">Authentication</span>
+                                <span class="stg-smtp-group__subtitle">Login credentials for the mail server</span>
+                            </div>
+                        </div>
+                        <div class="stg-smtp-fields">
+                            <div class="stg-smtp-field">
+                                <label class="stg-smtp-field__label">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                        <circle cx="12" cy="7" r="4" />
+                                    </svg>
+                                    Username / Email
+                                </label>
+                                <input [disabled]="'true'" type="text" class="stg-smtp-input" placeholder="your-email@gmail.com"
+                                    [(ngModel)]="smtpUsername">
+                            </div>
+                            <div class="stg-smtp-field">
+                                <label class="stg-smtp-field__label">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                                    </svg>
+                                    Password
+                                </label>
+                                <input [disabled]="'true'" type="password" class="stg-smtp-input" placeholder="Enter SMTP password"
+                                    [(ngModel)]="smtpPassword">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <!-- <div class="stg-smtp-actions">
+                    <button [disabled]="'true'" class="stg-smtp-test-btn" (click)="sendTestEmail()">
+                        <span class="stg-smtp-test-btn__icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                <polyline points="22,6 12,13 2,6" />
+                            </svg>
+                        </span>
+                        Send Test Email
+                    </button>
+                    <button [disabled]="'true'" class="stg-smtp-save-btn" (click)="saveSmtpSettings()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                            <polyline points="17 21 17 13 7 13 7 21" />
+                            <polyline points="7 3 7 8 15 8" />
+                        </svg>
+                        Save SMTP Settings
+                    </button>
+                </div> -->
+            </div>
+            }
+
+            <!-- ═══ INGESTION TAB ═══ -->
+            @if (activeTab === 'ingestion') {
+            <div class="stg-section stg-section--ingestion">
+                <div class="stg-section__header">
+                    <h3 class="stg-section__title">Data Ingestion</h3>
+                    <p class="stg-section__desc">Provide website URLs to crawl and ingest content into the engine's
+                        knowledge base.</p>
+                </div>
+
+                <!-- Add URL Form -->
+                <div class="stg-ingest-form">
+                    <div class="stg-ingest-form__row">
+                        <div class="stg-field stg-field--grow">
+                            <label class="stg-field__label">Website URL</label>
+                            <input [disabled]="'true'" type="url" class="stg-field__input" placeholder="https://example.com/docs"
+                                [(ngModel)]="newIngestionUrl" (keyup.enter)="addIngestionUrl()">
+                        </div>
+                        <div class="stg-field stg-field--depth">
+                            <label class="stg-field__label">Crawl Depth</label>
+                            <div class="stg-dropdown" (click)="$event.stopPropagation()">
+                                <button [disabled]="'true'" class="stg-dropdown__trigger" (click)="toggleDropdown('crawldepth', $event)">
+                                    <span>{{ getOptionLabel(crawlDepthOptions, newIngestionDepth) }}</span>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="6 9 12 15 18 9" />
+                                    </svg>
+                                </button>
+                                @if (activeDropdown === 'crawldepth') {
+                                <div class="stg-dropdown__menu">
+                                    @for (opt of crawlDepthOptions; track opt.value) {
+                                    <button  class="stg-dropdown__item"
+                                        [class.stg-dropdown__item--active]="newIngestionDepth === opt.value"
+                                        (click)="selectDropdownOption('newIngestionDepth', opt.value)">{{ opt.label
+                                        }}</button>
+                                    }
+                                </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <button [disabled]="'true'" class="stg-btn stg-btn--primary stg-ingest-form__add" (click)="addIngestionUrl()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19" />
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
+                        Add to Queue
+                    </button>
+                </div>
+
+                <!-- Ingestion Queue -->
+                @if (ingestionUrls.length > 0) {
+                <div class="stg-ingest-queue">
+                    <div class="stg-ingest-queue__label">Ingestion Queue ({{ ingestionUrls.length }})</div>
+                    @for (entry of ingestionUrls; track $index) {
+                    <div class="stg-ingest-item">
+                        <div class="stg-ingest-item__icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="2" y1="12" x2="22" y2="12" />
+                                <path
+                                    d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                            </svg>
+                        </div>
+                        <div class="stg-ingest-item__info">
+                            <span class="stg-ingest-item__url">{{ entry.url }}</span>
+                            <span class="stg-ingest-item__meta">Depth: {{ getOptionLabel(crawlDepthOptions,
+                                entry.depth) }}</span>
+                        </div>
+                        <span class="stg-ingest-item__status"
+                            [class.stg-ingest-item__status--idle]="entry.status === 'idle'"
+                            [class.stg-ingest-item__status--completed]="entry.status === 'completed'">
+                            {{ entry.status === 'idle' ? 'Pending' : entry.status === 'ingesting' ? 'Ingesting...' :
+                            entry.status === 'completed' ? 'Done' : 'Failed' }}
+                        </span>
+                        <button class="stg-ingest-item__remove" title="Remove" (click)="removeIngestionUrl($index)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18" />
+                                <line x1="6" y1="6" x2="18" y2="18" />
+                            </svg>
+                        </button>
+                    </div>
+                    }
+                </div>
+                } @else {
+                <div class="stg-ingest-empty">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path
+                            d="M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9m9 9H3m9 9a9 9 0 0 1-9-9m9 9c1.66 0 3-4.03 3-9s-1.34-9-3-9m0 18c-1.66 0-3-4.03-3-9s1.34-9 3-9m-9 9a9 9 0 0 1 9-9" />
+                    </svg>
+                    <span>No URLs queued for ingestion</span>
+                    <span class="stg-ingest-empty__hint">Add a website URL above to start ingesting content.</span>
+                </div>
+                }
+
+                <!-- <div class="stg-engine-actions">
+                    <button class="stg-btn stg-btn--ghost">Clear Queue</button>
+                    <button class="stg-btn stg-btn--primary">Start Ingestion</button>
+                </div> -->
+            </div>
+            }
+
+            <!-- ═══ LOGS TAB ═══ -->
+            @if (activeTab === 'logs') {
+            <div class="stg-section stg-section--logs">
+                <div class="stg-section__header">
+                    <h3 class="stg-section__title">Log Configuration</h3>
+                    <p class="stg-section__desc">Set the engine log level to control the verbosity of diagnostic
+                        output.</p>
+                </div>
+
+                <!-- Current Selection Display -->
+                <div class="stg-log-current">
+                    <div class="stg-log-current__badge"
+                        [style.--log-color]="logLevels[getSelectedLogLevelIndex()].color">
+                        <span class="stg-log-current__dot"
+                            [style.background]="logLevels[getSelectedLogLevelIndex()].color"></span>
+                        {{ logLevels[getSelectedLogLevelIndex()].label }}
+                    </div>
+                    <span class="stg-log-current__desc">{{ logLevels[getSelectedLogLevelIndex()].description
+                        }}</span>
+                </div>
+
+                <!-- Priority Visual -->
+                <div class="stg-log-priority">
+                    <div class="stg-log-priority__label">Log Priority</div>
+                    <div class="stg-log-priority__track">
+                        @for (level of logLevels; track level.value) {
+                        <button [disabled]="'true'" class="stg-log-level" [class.stg-log-level--selected]="selectedLogLevel === level.value"
+                            [class.stg-log-level--active]="isLogLevelActive(level.value)"
+                            [class.stg-log-level--inactive]="!isLogLevelActive(level.value)"
+                            (click)="selectLogLevel(level.value)" [title]="level.description">
+                            <span class="stg-log-level__dot" [style.background]="level.color"></span>
+                            <span class="stg-log-level__name">{{ level.label }}</span>
+                        </button>
+                        }
+                    </div>
+                    <div class="stg-log-priority__hint">
+                        <span>← More verbose</span>
+                        <span>Less verbose →</span>
+                    </div>
+                </div>
+
+                <!-- Priority Table -->
+                <div class="stg-log-table">
+                    <div class="stg-log-table__header">
+                        <span>Level</span>
+                        <span>Status</span>
+                        <span>Description</span>
+                    </div>
+                    @for (level of logLevels; track level.value) {
+                    <div class="stg-log-table__row" [class.stg-log-table__row--active]="isLogLevelActive(level.value)"
+                        [class.stg-log-table__row--selected]="selectedLogLevel === level.value"
+                        (click)="selectLogLevel(level.value)">
+                        <span class="stg-log-table__level">
+                            <span class="stg-log-table__dot" [style.background]="level.color"></span>
+                            {{ level.label }}
+                        </span>
+                        <span class="stg-log-table__status">
+                            @if (isLogLevelActive(level.value)) {
+                            <span class="stg-log-table__badge stg-log-table__badge--active">Captured</span>
+                            } @else {
+                            <span class="stg-log-table__badge stg-log-table__badge--muted">Filtered</span>
+                            }
+                        </span>
+                        <span class="stg-log-table__desc">{{ level.description }}</span>
+                    </div>
+                    }
+                </div>
+
+                <!-- <div class="stg-engine-actions">
+                    <button [disabled]="'true'" class="stg-btn stg-btn--ghost">Reset to Default</button>
+                    <button [disabled]="'true'" class="stg-btn stg-btn--primary">Apply Log Level</button>
+                </div> -->
+            </div>
+            }
+        </div>
+
+        <div class="stg-footer">
+            <button [disabled]="'true'" class="stg-btn stg-btn--ghost">Cancel</button>
+            <button [disabled]="'true'" class="stg-btn stg-btn--primary">Save Changes</button>
+        </div>
+    </section>
+</div>

@@ -1,0 +1,294 @@
+<div class="engine-page">
+    <div class="ambient-glow"></div>
+
+    <div class="engine-shell">
+        <section class="engine-panel">
+            <div>
+                <div class="brand-mark" aria-hidden="true">
+                    <app-svg-brand-logo></app-svg-brand-logo>
+                </div>
+
+                <div class="theme-switch" (click)="themeService.toggleTheme()"
+                    [class.is-dark]="themeService.isDarkMode()"
+                    [title]="themeService.isDarkMode() ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
+                    <div class="switch-icons">
+                        <div class="icon-wrapper sun">
+                            <app-svg-sun></app-svg-sun>
+                        </div>
+                        <div class="icon-wrapper moon">
+                            <app-svg-moon></app-svg-moon>
+                        </div>
+                    </div>
+                    <div class="switch-thumb"></div>
+                </div>
+
+                <!-- <div class="theme-button-setup"> -->
+                <span class="eyebrow">
+                    Engine Setup
+                </span>
+                <!-- </div> -->
+                <h1 class="engine-title">Configure the AI Engine database</h1>
+                <p class="engine-copy">
+                    Enter the database connection details below to complete the initial AI Engine setup.
+                    These values map directly to the backend database configuration model.
+                </p>
+            </div>
+
+            <div class="status-list">
+                <article class="status-item">
+                    <div class="status-icon" aria-hidden="true">
+                        <app-svg-configuration-profile></app-svg-configuration-profile>
+                    </div>
+                    <div>
+                        <h3>Configuration Profile</h3>
+                        <p>Server name, port, and database selection are saved as a single encrypted SQL connection
+                            profile.</p>
+                    </div>
+                </article>
+
+                <article class="status-item">
+                    <div class="status-icon" aria-hidden="true">
+                        <app-svg-credentials></app-svg-credentials>
+                    </div>
+                    <div>
+                        <h3>Credentials Ready</h3>
+                        <p>Use a SQL login that has access to create and manage the AI Engine database.</p>
+                    </div>
+                </article>
+
+                <article class="status-item">
+                    <div class="status-icon" aria-hidden="true">
+                        <app-svg-shield></app-svg-shield>
+                    </div>
+                    <div>
+                        <h3>Encrypted at Rest</h3>
+                        <p>The gateway service encrypts the connection string before saving it to the local
+                            configuration file.</p>
+                    </div>
+                </article>
+            </div>
+
+            <div class="panel-footer">
+                <app-svg-secure-config></app-svg-secure-config>
+                <span>Secure onboarding for your AI Engine database</span>
+            </div>
+        </section>
+
+        <section class="engine-card">
+            <div class="card-header">
+                <div>
+                    <h2>Database Details</h2>
+                    <p>Provide the information required by the gateway service to build the encrypted connection string.
+                    </p>
+                </div>
+                <div class="secure-badge" [ngClass]="{
+                    'secure-badge--success': connectionStatus === 'success',
+                    'secure-badge--error': connectionStatus === 'error'
+                }">
+                    <app-svg-password-icon></app-svg-password-icon>
+                    @if (connectionStatus === 'success') {
+                    <span>Connection Verified</span>
+                    } @else if (connectionStatus === 'error') {
+                    <span>Connection Failed</span>
+                    } @else {
+                    <span>Protected Configuration</span>
+                    }
+                </div>
+            </div>
+
+            <form class="config-form" [formGroup]="engineSetupForm" novalidate>
+                <div class="form-grid">
+                    <!-- Segmented Database Provider Switcher -->
+                    <div class="field field--full">
+                        <label class="provider-label">Database Provider</label>
+                        <div class="provider-switcher">
+                            <button type="button" class="provider-btn" [class.is-active]="selectedProvider === 'mssql'"
+                                (click)="selectProvider('mssql')">
+                                <svg viewBox="0 0 24 24" fill="none" class="provider-svg"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <ellipse cx="12" cy="5" rx="7" ry="2.5" stroke="currentColor" stroke-width="1.8" />
+                                    <path d="M5 5v5c0 1.38 3.13 2.5 7 2.5s7-1.12 7-2.5V5" stroke="currentColor"
+                                        stroke-width="1.8" stroke-linejoin="round" />
+                                    <path d="M5 10v5c0 1.38 3.13 2.5 7 2.5s7-1.12 7-2.5v-5" stroke="currentColor"
+                                        stroke-width="1.8" stroke-linejoin="round" />
+                                    <path d="M5 15v4c0 1.38 3.13 2.5 7 2.5s7-1.12 7-2.5v-4" stroke="currentColor"
+                                        stroke-width="1.8" stroke-linejoin="round" />
+                                    <text x="12" y="14" font-family="'Inter', sans-serif" font-size="6"
+                                        font-weight="800" fill="currentColor" text-anchor="middle">MS</text>
+                                </svg>
+                                <span>Microsoft SQL Server</span>
+                            </button>
+                            <button type="button" class="provider-btn"
+                                [class.is-active]="selectedProvider === 'postgres'"
+                                (click)="selectProvider('postgres')">
+                                <svg viewBox="0 0 24 24" fill="none" class="provider-svg"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <ellipse cx="12" cy="5" rx="7" ry="2.5" stroke="currentColor" stroke-width="1.8" />
+                                    <path d="M5 5v5c0 1.38 3.13 2.5 7 2.5s7-1.12 7-2.5V5" stroke="currentColor"
+                                        stroke-width="1.8" stroke-linejoin="round" />
+                                    <path d="M5 10v5c0 1.38 3.13 2.5 7 2.5s7-1.12 7-2.5v-5" stroke="currentColor"
+                                        stroke-width="1.8" stroke-linejoin="round" />
+                                    <path d="M5 15v4c0 1.38 3.13 2.5 7 2.5s7-1.12 7-2.5v-4" stroke="currentColor"
+                                        stroke-width="1.8" stroke-linejoin="round" />
+                                    <text x="12" y="14" font-family="'Inter', sans-serif" font-size="6"
+                                        font-weight="800" fill="currentColor" text-anchor="middle">PG</text>
+                                </svg>
+                                <span>PostgreSQL</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="field field--full">
+                        <label for="db-server">Server</label>
+                        <div class="input-shell">
+                            <span class="input-icon" aria-hidden="true">
+                                <app-svg-server></app-svg-server>
+                            </span>
+                            <input id="db-server" type="text" formControlName="Server" class="form-input"
+                                [placeholder]="selectedProvider === 'mssql' ? 'localhost or SQLSERVER\\INSTANCE' : 'localhost or host.docker.internal'"
+                                autocomplete="off" />
+                        </div>
+                        @if (engineSetupControls['Server'].touched &&
+                        engineSetupControls['Server'].errors?.['required']) {
+                        <small class="validation-message">Server is required.</small>
+                        } @else {
+                        <small>
+                            @if (selectedProvider === 'mssql') {
+                            Examples: localhost, 127.0.0.1, or SERVER\SQLEXPRESS.
+                            } @else {
+                            Examples: localhost, 127.0.0.1, or database.example.com.
+                            }
+                        </small>
+                        }
+                    </div>
+
+                    <div class="field">
+                        <label for="db-port">Port</label>
+                        <div class="input-shell">
+                            <span class="input-icon" aria-hidden="true">
+                                <app-svg-port></app-svg-port>
+                            </span>
+                            <input id="db-port" type="number" formControlName="Port" class="form-input"
+                                [placeholder]="selectedProvider === 'mssql' ? '1433' : '5432'" min="1" step="1"
+                                inputmode="numeric" />
+                        </div>
+                        @if (engineSetupControls['Port'].touched &&
+                        engineSetupControls['Port'].errors?.['required']) {
+                        <small class="validation-message">Port is required.</small>
+                        } @else if (engineSetupControls['Port'].touched &&
+                        engineSetupControls['Port'].errors?.['min']) {
+                        <small class="validation-message">Port must be greater than 0.</small>
+                        } @else {
+                        <small>
+                            @if (selectedProvider === 'mssql') {
+                            Default SQL Server port is 1433 unless your environment uses a custom port.
+                            } @else {
+                            Default PostgreSQL port is 5432 unless your environment uses a custom port.
+                            }
+                        </small>
+                        }
+                    </div>
+
+                    <div class="field">
+                        <label for="db-name">Database Name</label>
+                        <div class="input-shell">
+                            <span class="input-icon" aria-hidden="true">
+                                <app-svg-db></app-svg-db>
+                            </span>
+                            <input id="db-name" type="text" formControlName="DataBaseName" class="form-input"
+                                [placeholder]="selectedProvider === 'mssql' ? 'AIEngineDB' : 'ai_engine_db'"
+                                autocomplete="off" />
+                        </div>
+                        @if (engineSetupControls['DataBaseName'].touched &&
+                        engineSetupControls['DataBaseName'].errors?.['required']) {
+                        <small class="validation-message">Database name is required.</small>
+                        } @else {
+                        <small>This value maps to the <code>DatabaseName</code> field in your backend.</small>
+                        }
+                    </div>
+
+                    <div class="field">
+                        <label for="db-user">User Name</label>
+                        <div class="input-shell">
+                            <span class="input-icon" aria-hidden="true">
+                                <app-svg-user></app-svg-user>
+                            </span>
+                            <input id="db-user" type="text" formControlName="UserName" class="form-input"
+                                [placeholder]="selectedProvider === 'mssql' ? 'sa or app user' : 'postgres or app user'"
+                                autocomplete="username" />
+                        </div>
+                        @if (engineSetupControls['UserName'].touched &&
+                        engineSetupControls['UserName'].errors?.['required']) {
+                        <small class="validation-message">User name is required.</small>
+                        } @else {
+                        <small>
+                            @if (selectedProvider === 'mssql') {
+                            Use the same casing expected by the target SQL Server login.
+                            } @else {
+                            Use the same casing expected by the target PostgreSQL login.
+                            }
+                        </small>
+                        }
+                    </div>
+
+                    <div class="field">
+                        <label for="db-password">Password</label>
+                        <div class="input-shell">
+                            <span class="input-icon" aria-hidden="true">
+                                <app-svg-password-icon></app-svg-password-icon>
+                            </span>
+                            <input #dbPassword id="db-password" formControlName="Password" type="password"
+                                class="form-input form-input--password" placeholder="Enter database password"
+                                autocomplete="current-password" />
+                            <button type="button" class="pwd-toggle"
+                                (click)="dbPassword.type = dbPassword.type === 'password' ? 'text' : 'password'"
+                                [title]="dbPassword.type === 'password' ? 'Show password' : 'Hide password'">
+                                @if (dbPassword.type === 'password') {
+                                <app-svg-show-password-eye></app-svg-show-password-eye>
+                                } @else {
+                                <app-svg-hide-password-eye></app-svg-hide-password-eye>
+                                }
+                            </button>
+                        </div>
+                        @if (engineSetupControls['Password'].touched &&
+                        engineSetupControls['Password'].errors?.['required']) {
+                        <small class="validation-message">Password is required.</small>
+                        } @else {
+                        <small>The password is used only to build the encrypted connection string.</small>
+                        }
+                    </div>
+                </div>
+
+                <div class="helper-row">
+                    <span class="helper-chip">
+                        <app-svg-clock [width]="'14px'" [height]="'14px'"></app-svg-clock>
+                        First-time setup
+                    </span>
+                    <span class="helper-chip">
+                        <app-svg-secure-config [width]="'14px'" [height]="'14px'"></app-svg-secure-config>
+                        {{ selectedProvider === 'mssql' ? 'SQL Server profile' : 'PostgreSQL profile' }}
+                    </span>
+                    <span class="helper-chip">
+                        <app-svg-verified [width]="'14px'" [height]="'14px'"></app-svg-verified>
+                        Secure Fields
+                    </span>
+                </div>
+
+                <div class="form-actions">
+                    <div class="action-buttons">
+                        <button type="button" (click)="testConnection()" class="secondary-btn"
+                            id="engine-test-connection-btn" [disabled]="engineSetupForm.invalid">
+                            <app-svg-test-connection></app-svg-test-connection>
+                            Test Connection
+                        </button>
+                        <button type="button" (click)="configureEngineDatabase()" class="primary-btn"
+                            id="engine-config-submit-btn" [disabled]="engineSetupForm.invalid">
+                            Save Configuration
+                            <app-svg-right-arrow class="btn-arrow"></app-svg-right-arrow>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </section>
+    </div>
+</div>

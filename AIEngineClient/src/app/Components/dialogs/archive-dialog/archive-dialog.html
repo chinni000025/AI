@@ -1,0 +1,109 @@
+<div class="adm-backdrop" (click)="close()">
+	<section class="adm-panel" role="dialog" aria-modal="true" aria-labelledby="archiveDialogTitle"
+		(click)="$event.stopPropagation(); closeDropdowns()">
+		<header class="adm-header">
+			<div class="adm-header__title-wrap">
+				<span class="adm-header__icon">
+					<app-svg-archive [width]="'16px'" [height]="'16px'"></app-svg-archive>
+				</span>
+				<div>
+					<h2 class="adm-header__title" id="archiveDialogTitle">Archived Chats</h2>
+					<p class="adm-header__subtitle">Browse archived conversations and choose a chat action.</p>
+				</div>
+			</div>
+			<button type="button" class="adm-close-btn" title="Close" (click)="close()">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+					stroke-linejoin="round">
+					<line x1="18" y1="6" x2="6" y2="18" />
+					<line x1="6" y1="6" x2="18" y2="18" />
+				</svg>
+			</button>
+		</header>
+
+		<div class="adm-toolbar">
+			<label class="adm-search">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+					stroke-linejoin="round">
+					<circle cx="11" cy="11" r="8" />
+					<line x1="21" y1="21" x2="16.65" y2="16.65" />
+				</svg>
+				<input type="search" placeholder="Search archived conversations" [(ngModel)]="archiveSearchText"
+					(ngModelChange)="onSearchChange()">
+			</label>
+			<div class="adm-controls">
+				<div class="adm-page-size">
+					<span class="adm-page-size__label">Show:</span>
+					<div class="adm-dropdown" (click)="$event.stopPropagation()">
+						<button class="adm-dropdown__trigger" (click)="toggleDropdown('pagesize', $event)">
+							<span>{{ pageSize }}</span>
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<polyline points="6 9 12 15 18 9" />
+							</svg>
+						</button>
+						@if (activeDropdown === 'pagesize') {
+						<div class="adm-dropdown__menu">
+							<button class="adm-dropdown__item" [class.adm-dropdown__item--active]="pageSize === 5"
+								(click)="selectPageSize(5)">5</button>
+							<button class="adm-dropdown__item" [class.adm-dropdown__item--active]="pageSize === 10"
+								(click)="selectPageSize(10)">10</button>
+							<button class="adm-dropdown__item" [class.adm-dropdown__item--active]="pageSize === 20"
+								(click)="selectPageSize(20)">20</button>
+							<button class="adm-dropdown__item" [class.adm-dropdown__item--active]="pageSize === 100"
+								(click)="selectPageSize(100)">100</button>
+						</div>
+						}
+					</div>
+				</div>
+				<span class="adm-count">Showing {{ displayedChats.Item.length }} of {{
+					archivedChatRows.TotalCount}}</span>
+			</div>
+		</div>
+
+		<div class="adm-list" aria-label="Archived chat list">
+			@for (chat of displayedChats.Item; track chat.title) {
+			<article class="adm-chat-row">
+				<div class="adm-chat-row__main">
+					<div class="adm-chat-row__top">
+						<h3 class="adm-chat-row__title">{{ chat.title }}</h3>
+						<span class="adm-chat-row__date">{{ chat.archivedAt }}</span>
+					</div>
+					<p class="adm-chat-row__preview">{{ chat.preview }}</p>
+					<div class="adm-chat-row__meta">
+						<span>{{ chat.messageCount }} messages</span>
+						<span>Archived</span>
+					</div>
+				</div>
+				<div class="adm-chat-row__actions">
+					<button type="button" class="adm-action-btn adm-action-btn--ghost" title="Open chat"
+						(click)="OpenArchiveConversation($event,chat.conversationId)">
+						<app-svg-chats [width]="'15px'" [height]="'15px'"></app-svg-chats>
+						<span>Open</span>
+					</button>
+					<button type="button" class="adm-action-btn adm-action-btn--primary" title="Unarchive chat"
+						(click)="unarchiveConversation($event, chat.conversationId)">
+						<app-svg-archive [width]="'15px'" [height]="'15px'"></app-svg-archive>
+						<span>Unarchive</span>
+					</button>
+				</div>
+			</article>
+			}
+		</div>
+
+		<footer class="adm-pagination">
+			<button type="button" class="adm-page-btn" [disabled]="currentPage==1" title="Previous page"
+				(click)="previousPage()">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+					stroke-linejoin="round">
+					<polyline points="15 18 9 12 15 6" />
+				</svg>
+			</button>
+			<button type="button" class="adm-page-btn" [disabled]="currentPage==archiveTotalPages" title="Next page"
+				(click)="nextPage()">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+					stroke-linejoin="round">
+					<polyline points="9 18 15 12 9 6" />
+				</svg>
+			</button>
+		</footer>
+	</section>
+</div>

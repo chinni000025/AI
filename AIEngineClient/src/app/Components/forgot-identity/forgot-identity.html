@@ -1,0 +1,70 @@
+<div class="identity-page">
+    <button class="theme-toggle" (click)="themeService.toggleTheme()"
+        [title]="themeService.isDarkMode() ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
+        @if (themeService.isDarkMode()) {
+        <!-- Sun Icon for Light Mode -->
+        <app-svg-sun [width]="'21px'" [height]="'21px'"></app-svg-sun>
+        } @else {
+        <!-- Moon Icon for Dark Mode -->
+        <app-svg-moon [width]="'21px'" [height]="'21px'"></app-svg-moon>
+        }
+    </button>
+    <div class="ps-aurora" aria-hidden="true">
+        <span class="ps-aurora__orb ps-aurora__orb--1"></span>
+        <span class="ps-aurora__orb ps-aurora__orb--2"></span>
+        <span class="ps-aurora__orb ps-aurora__orb--3"></span>
+        <span class="ps-aurora__orb ps-aurora__orb--4"></span>
+    </div>
+
+    <div class="identity-center">
+        <div class="brand-section">
+            <div class="brand-logo">
+                <app-svg-brand-logo></app-svg-brand-logo>
+            </div>
+            <div class="brand-text">
+                <h1 class="brand-name">AI Engine</h1>
+                <p class="brand-tagline">Recover your account</p>
+            </div>
+        </div>
+        <div class="auth-card">
+            <div class="card-header">
+                <h2 class="card-title">Forgot Identity</h2>
+                <p class="card-subtitle">Enter your email address to reset the password</p>
+            </div>
+            <form class="form-section active-form" [formGroup]="forgotForm" novalidate>
+                <div class="input-group">
+                    <span class="input-icon">
+                        <app-svg-email></app-svg-email>
+                    </span>
+                    <input type="email" formControlName="email" placeholder="Email address" class="auth-input"
+                        id="forgot-email" />
+                </div>
+
+                @if (forgotControls['email'].touched && forgotControls['email'].errors?.['required']) {
+                <small class="validation-message">Email address is required.</small>
+                }
+
+                @if (forgotControls['email'].touched && forgotControls['email'].errors?.['email']) {
+                <small class="validation-message">Enter a valid email address.</small>
+                }
+
+                <button type="submit" class="primary-btn" id="forgot-submit-btn" (click)="submitForgotForm()"
+                    [disabled]="forgotForm.invalid">
+                    Reset Password
+                    <app-svg-right-arrow class="btn-arrow"></app-svg-right-arrow>
+                </button>
+
+                <div class="back-to-login">
+                    <a class="back-link" (click)="backToLogIn()">
+                        <app-svg-left-arrow class="back-arrow"></app-svg-left-arrow>
+                        Back to login
+                    </a>
+                </div>
+            </form>
+        </div>
+        <p class="footer-text">
+            By continuing, you agree to our <a class="footer-link">Terms</a> &amp;
+            <a class="footer-link">Privacy Policy</a>
+        </p>
+    </div>
+</div>

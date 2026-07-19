@@ -1,0 +1,35 @@
+@if (visible) {
+<div class="snackbar-host"
+  [ngClass]="currentSnackbar?.position === 'Bottom' ? 'snackbar-host--bottom' : 'snackbar-host--top'">
+  <div class="snackbar" [ngClass]="currentSnackbar?.type?.toLowerCase()">
+
+    <!-- Icon -->
+    <div class="snackbar__icon">
+      @if (currentSnackbar?.type === 'Success') {
+      <app-svg-success></app-svg-success>
+      }
+      @if (currentSnackbar?.type === 'Error') {
+      <app-svg-error></app-svg-error>
+      }
+      @if (currentSnackbar?.type === 'Warning') {
+      <app-svg-warning></app-svg-warning>
+      }
+      @if (currentSnackbar?.type === 'Info' || !currentSnackbar?.type) {
+      <app-svg-info></app-svg-info>
+      }
+    </div>
+
+    <!-- Content -->
+    <div class="snackbar__content">
+      <span class="snackbar__title">{{ currentSnackbar?.type }}</span>
+      <span class="snackbar__message">{{ currentSnackbar?.message }}</span>
+    </div>
+
+    <!-- Close -->
+    <button class="snackbar__close" (click)="close()" aria-label="Dismiss">
+      <app-svg-close></app-svg-close>
+    </button>
+
+  </div>
+</div>
+}

@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\AIEngineConnectivity\AIEngineConnectivity.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Google.GenAI" Version="1.0.0-beta.1" />
+	</ItemGroup>
+</Project>

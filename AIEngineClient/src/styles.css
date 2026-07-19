@@ -1,0 +1,28 @@
+/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import './theme-variables.css';
+
+* {
+	padding: 0px;
+	margin: 0px;
+	box-sizing: border-box;
+	padding: 0px;
+	margin: 0px;
+	box-sizing: border-box;
+}
+
+body {
+	background-color: var(--bg-app);
+	color: var(--text-primary);
+	font-family: 'Inter', sans-serif;
+	min-width: 320px;
+	min-height: 100vh;
+	min-height: 100dvh;
+	transition:
+		background-color var(--transition-base),
+		color var(--transition-base);
+}
+
+svg {
+	display: block;
+}

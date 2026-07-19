@@ -1,0 +1,103 @@
+<div class="identity-page">
+    <button class="theme-toggle" (click)="themeService.toggleTheme()"
+        [title]="themeService.isDarkMode() ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
+        @if (themeService.isDarkMode()) {
+        <!-- Sun Icon for Light Mode -->
+        <app-svg-sun [width]="'21px'" [height]="'21px'"></app-svg-sun>
+        } @else {
+        <!-- Moon Icon for Dark Mode -->
+        <app-svg-moon [width]="'21px'" [height]="'21px'"></app-svg-moon>
+        }
+    </button>
+    <div class="ps-aurora" aria-hidden="true">
+        <span class="ps-aurora__orb ps-aurora__orb--1"></span>
+        <span class="ps-aurora__orb ps-aurora__orb--2"></span>
+        <span class="ps-aurora__orb ps-aurora__orb--3"></span>
+        <span class="ps-aurora__orb ps-aurora__orb--4"></span>
+    </div>
+    <div class="identity-center">
+        <div class="brand-section">
+            <div class="brand-logo">
+                <app-svg-brand-logo></app-svg-brand-logo>
+            </div>
+            <div class="brand-text">
+                <h1 class="brand-name">AI Engine</h1>
+                <p class="brand-tagline">Set your new password</p>
+            </div>
+        </div>
+        <div class="auth-card">
+            <div class="card-header">
+                <h2 class="card-title">Reset Identity</h2>
+            </div>
+            <form class="form-section active-form" [formGroup]="resetForm" novalidate>
+                <div class="input-group">
+                    <span class="input-icon">
+                        <app-svg-password-icon></app-svg-password-icon>
+                    </span>
+                    <input #newPwd type="password" formControlName="newPassword" placeholder="New password"
+                        class="auth-input has-toggle" id="reset-new-password" />
+                    <button type="button" class="pwd-toggle"
+                        (click)="newPwd.type = newPwd.type === 'password' ? 'text' : 'password'"
+                        [title]="newPwd.type === 'password' ? 'Show password' : 'Hide password'">
+                        @if (newPwd.type === 'password') {
+                        <app-svg-show-password-eye></app-svg-show-password-eye>
+                        } @else {
+                        <app-svg-hide-password-eye></app-svg-hide-password-eye>
+                        }
+                    </button>
+                </div>
+
+                @if (resetControls['newPassword'].touched && resetControls['newPassword'].errors?.['required']) {
+                <small class="validation-message">New password is required.</small>
+                }
+
+                @if (resetControls['newPassword'].touched && resetControls['newPassword'].errors?.['minlength']) {
+                <small class="validation-message">New password must be at least 6 characters.</small>
+                }
+
+                <div class="input-group">
+                    <span class="input-icon">
+                        <app-svg-confirm-password-icon></app-svg-confirm-password-icon>
+                    </span>
+                    <input #confirmPwd type="password" formControlName="confirmPassword" placeholder="Confirm password"
+                        class="auth-input has-toggle" id="reset-confirm-password" />
+                    <button type="button" class="pwd-toggle"
+                        (click)="confirmPwd.type = confirmPwd.type === 'password' ? 'text' : 'password'"
+                        [title]="confirmPwd.type === 'password' ? 'Show password' : 'Hide password'">
+                        @if (confirmPwd.type === 'password') {
+                        <app-svg-show-password-eye></app-svg-show-password-eye>
+                        } @else {
+                        <app-svg-hide-password-eye></app-svg-hide-password-eye>
+                        }
+                    </button>
+                </div>
+
+                @if (resetControls['confirmPassword'].touched && resetControls['confirmPassword'].errors?.['required'])
+                {
+                <small class="validation-message">Confirm password is required.</small>
+                }
+
+                @if (resetForm.touched && resetForm.errors?.['passwordMismatch']) {
+                <small class="validation-message">Password and confirm password must match.</small>
+                }
+
+                <button type="submit" class="primary-btn" id="reset-submit-btn" (click)="submitResetForm()"
+                    [disabled]="resetForm.invalid">
+                    Reset Identity
+                    <app-svg-right-arrow class="btn-arrow"></app-svg-right-arrow>
+                </button>
+
+                <div class="back-to-login">
+                    <a class="back-link">
+                        <app-svg-left-arrow class="back-arrow"></app-svg-left-arrow>
+                        Back to login
+                    </a>
+                </div>
+            </form>
+        </div>
+        <p class="footer-text">
+            By continuing, you agree to our <a class="footer-link">Terms</a> &amp;
+            <a class="footer-link">Privacy Policy</a>
+        </p>
+    </div>
+</div>
