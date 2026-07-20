@@ -14,6 +14,7 @@
         {
             _serviceProvider = serviceProvider;
         }
+
         public ISystemCheckService getRequiredContext()
         {
             var context = _serviceProvider.GetRequiredService<RunningEnvironment>();

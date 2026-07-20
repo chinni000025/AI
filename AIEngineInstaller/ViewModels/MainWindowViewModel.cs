@@ -1,9 +1,8 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using System.Threading.Tasks;
-
-namespace AIEngineInstaller.ViewModels
+﻿namespace AIEngineInstaller.ViewModels
 {
+    using CommunityToolkit.Mvvm.ComponentModel;
+    using CommunityToolkit.Mvvm.Input;
+    using System.Threading.Tasks;
     public partial class MainWindowViewModel : ViewModelBase
     {
         [ObservableProperty]
@@ -29,7 +28,12 @@ namespace AIEngineInstaller.ViewModels
             IsInstalling = true;
             StatusText = "Preparing installation...";
 
-            // Simulate installation process
+
+            ///<summary>
+            ///
+            /// Needs to implement State Mechanism.
+            /// 
+            /// </summary>
             for (int i = 0; i <= 100; i += 5)
             {
                 InstallProgress = i;
