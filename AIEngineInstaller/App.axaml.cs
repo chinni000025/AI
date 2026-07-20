@@ -1,14 +1,13 @@
 using AIEngineConnectivity.Services;
 using AIEngineInstaller.ViewModels;
-using AIEngineInstaller.Views;
-using Avalonia;
-using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Markup.Xaml;
-using Microsoft.Extensions.DependencyInjection;
-using System.Linq;
-
 namespace AIEngineInstaller
 {
+    using AIEngineInstaller.Views;
+    using Avalonia;
+    using Avalonia.Controls.ApplicationLifetimes;
+    using Avalonia.Markup.Xaml;
+    using Microsoft.Extensions.DependencyInjection;
+    using System.Linq;
     public partial class App : Application
     {
         public override void Initialize()
@@ -20,8 +19,9 @@ namespace AIEngineInstaller
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                var systemCheck = Program.Services.GetRequiredService<ISystemCheckService>();
-                if (!systemCheck.CanInstallEngine())
+                var context = Program.provider.GetRequiredService<IInstallerService>();
+                var requiredContext = context.getRequiredContext();
+                if (!requiredContext.CanInstallEngine())
                 {
                     desktop.MainWindow = new ErrorWindow();
                 }
@@ -33,7 +33,6 @@ namespace AIEngineInstaller
                     };
                 }
             }
-
             base.OnFrameworkInitializationCompleted();
         }
     }
