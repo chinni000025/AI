@@ -15,15 +15,15 @@
             _serviceProvider = serviceProvider;
         }
 
-        public ISystemCheckService getRequiredContext()
+        public IEnvironment getRequiredContext()
         {
             var context = _serviceProvider.GetRequiredService<RunningEnvironment>();
             return context.CurrentRunningEnvironment switch
             {
                 Platform.Linux
-                    => _serviceProvider.GetRequiredService<LinuxSystemCheck>(),
+                    => _serviceProvider.GetRequiredService<LinuxEnvironment>(),
                 Platform.Window
-                    => _serviceProvider.GetRequiredService<WindowsSystemCheck>(),
+                    => _serviceProvider.GetRequiredService<WindowsEnvironment>(),
                 _ => throw new PlatformNotSupportedException()
             };
         }

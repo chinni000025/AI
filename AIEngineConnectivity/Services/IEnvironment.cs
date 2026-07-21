@@ -1,7 +1,8 @@
 namespace AIEngineConnectivity.Services
 {
-    public interface ISystemCheckService
+    public interface IEnvironment
     {
         bool CanInstallEngine();
+        public Task installDocker();
     }
 }

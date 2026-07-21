@@ -10,8 +10,8 @@
     {
         public static void addServices(this IServiceCollection services)
         {
-            services.AddSingleton<WindowsSystemCheck>();
-            services.AddSingleton<LinuxSystemCheck>();
+            services.AddSingleton<WindowsEnvironment>();
+            services.AddSingleton<LinuxEnvironment>();
             services.AddSingleton<IInstallerService, InstallerService>();
             services.AddSingleton<RunningEnvironment>(serviceProvider =>
             {

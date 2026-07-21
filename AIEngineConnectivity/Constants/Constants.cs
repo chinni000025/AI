@@ -160,4 +160,9 @@
         Window = 1,
         Linux = 2
     }
+
+    public static class InstallerConstants
+    {
+        public const string DockerInstallURL = "https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe";
+    }
 }

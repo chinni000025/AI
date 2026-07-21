@@ -1,8 +1,7 @@
-using Avalonia.Controls;
-using Avalonia.Interactivity;
-
 namespace AIEngineInstaller.Views
 {
+    using Avalonia.Controls;
+    using Avalonia.Interactivity;
     public partial class ErrorWindow : Window
     {
         public ErrorWindow()

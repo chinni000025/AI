@@ -5,6 +5,6 @@
     using System.Text;
     public interface IInstallerService
     {
-        public ISystemCheckService getRequiredContext();
+        public IEnvironment getRequiredContext();
     }
 }

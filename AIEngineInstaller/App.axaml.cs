@@ -1,7 +1,7 @@
-using AIEngineConnectivity.Services;
-using AIEngineInstaller.ViewModels;
 namespace AIEngineInstaller
 {
+    using AIEngineConnectivity.Services;
+    using AIEngineInstaller.ViewModels;
     using AIEngineInstaller.Views;
     using Avalonia;
     using Avalonia.Controls.ApplicationLifetimes;
@@ -15,7 +15,7 @@ namespace AIEngineInstaller
             AvaloniaXamlLoader.Load(this);
         }
 
-        public override void OnFrameworkInitializationCompleted()
+        public async override void OnFrameworkInitializationCompleted()
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
@@ -27,6 +27,7 @@ namespace AIEngineInstaller
                 }
                 else
                 {
+                    await requiredContext.installDocker();
                     desktop.MainWindow = new MainWindow
                     {
                         DataContext = new MainWindowViewModel(),
