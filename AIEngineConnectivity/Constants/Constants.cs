@@ -1,4 +1,4 @@
-﻿namespace AIEngineConnectivity.Constants
+namespace AIEngineConnectivity.Constants
 {
     public static class EngineConstants
     {
@@ -164,5 +164,7 @@
     public static class InstallerConstants
     {
         public const string DockerInstallURL = "https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe";
+        public const string AppWebUrl = "http://localhost:5000";
+        public const string GatewayFolderName = "AIEngineGateway";
     }
 }

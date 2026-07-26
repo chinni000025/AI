@@ -102,5 +102,29 @@ namespace AIEngineCore.EngineCore
                 }
             }
         }
+
+        public bool isDockerAvailable()
+        {
+            try
+            {
+                ProcessStartInfo startInfo = new ProcessStartInfo
+                {
+                    FileName = "docker",
+                    Arguments = "--version",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+                using var process = Process.Start(startInfo);
+                if (process is null) return false;
+                process.WaitForExit(3000);//3 seconds.
+                return process.ExitCode == 0;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

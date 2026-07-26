@@ -1,14 +1,12 @@
-﻿namespace AIEngineInstaller
+namespace AIEngineInstaller
 {
+    using AIEngineInstaller.Extensions;
     using Avalonia;
     using Microsoft.Extensions.DependencyInjection;
     using System;
-    using AIEngineConnectivity.Services;
-    using AIEngineCore.EngineCore;
-    using AIEngineInstaller.Extensions;
     internal sealed class Program
     {
-        public static IServiceProvider provider { get; private set; }
+        public static IServiceProvider provider { get; private set; } = default!;
 
         [STAThread]
         public static void Main(string[] args)
@@ -23,10 +21,15 @@
 
         // Avalonia configuration, don't remove; also used by visual designer.
         public static AppBuilder BuildAvaloniaApp()
-            => AppBuilder.Configure<App>()
+        {
+            var builder = AppBuilder.Configure<App>()
                 .UsePlatformDetect()
-                .WithDeveloperTools()
                 .WithInterFont()
                 .LogToTrace();
+#if DEBUG
+            builder = builder.WithDeveloperTools();
+#endif
+            return builder;
+        }
     }
 }

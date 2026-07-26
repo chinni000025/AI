@@ -13,6 +13,8 @@
             services.AddSingleton<WindowsEnvironment>();
             services.AddSingleton<LinuxEnvironment>();
             services.AddSingleton<IInstallerService, InstallerService>();
+            services.AddSingleton<IAIEngineGatewayManagerService, AIEngineGatewayManagerService>();
+            services.AddSingleton<IBrowserService, WindowsBrowserService>();
             services.AddSingleton<RunningEnvironment>(serviceProvider =>
             {
                 Platform platform;

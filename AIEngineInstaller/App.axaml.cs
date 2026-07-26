@@ -7,7 +7,6 @@ namespace AIEngineInstaller
     using Avalonia.Controls.ApplicationLifetimes;
     using Avalonia.Markup.Xaml;
     using Microsoft.Extensions.DependencyInjection;
-    using System.Linq;
     public partial class App : Application
     {
         public override void Initialize()
@@ -27,7 +26,8 @@ namespace AIEngineInstaller
                 }
                 else
                 {
-                    await requiredContext.installDocker();
+                    if (!requiredContext.isDockerAvailable())
+                        await requiredContext.installDocker();
                     desktop.MainWindow = new MainWindow
                     {
                         DataContext = new MainWindowViewModel(),

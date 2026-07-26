@@ -15,5 +15,10 @@
         {
             throw new NotImplementedException();
         }
+
+        public bool isDockerAvailable()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

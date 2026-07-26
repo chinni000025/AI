@@ -4,5 +4,6 @@ namespace AIEngineConnectivity.Services
     {
         bool CanInstallEngine();
         public Task installDocker();
+        public bool isDockerAvailable();
     }
 }

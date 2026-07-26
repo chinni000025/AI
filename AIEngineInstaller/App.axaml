@@ -22,6 +22,11 @@
                 <GradientStop Color="#00f0ff" Offset="0"/>
                 <GradientStop Color="#0072ff" Offset="1"/>
             </LinearGradientBrush>
+
+            <LinearGradientBrush x:Key="DangerGradient" StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Color="#ff4444" Offset="0"/>
+                <GradientStop Color="#cc0033" Offset="1"/>
+            </LinearGradientBrush>
         </ResourceDictionary>
     </Application.Resources>
 
@@ -44,6 +49,20 @@
         
         <Style Selector="Button.Primary:pointerover /template/ ContentPresenter">
             <Setter Property="Background" Value="{StaticResource AccentGradient}"/>
+            <Setter Property="Opacity" Value="0.8"/>
+        </Style>
+
+        <Style Selector="Button.Danger">
+            <Setter Property="Background" Value="{StaticResource DangerGradient}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="24,12"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        </Style>
+        
+        <Style Selector="Button.Danger:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{StaticResource DangerGradient}"/>
             <Setter Property="Opacity" Value="0.8"/>
         </Style>
         
