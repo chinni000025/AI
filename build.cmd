@@ -17,23 +17,27 @@ if /I "%TARGET%"=="all" goto build_all
 if /I "%TARGET%"=="connectivity" goto build_connectivity
 if /I "%TARGET%"=="core" goto build_core
 if /I "%TARGET%"=="speech" goto build_speech
-if /I "%TARGET%"=="windowsinstaller" goto build_windows_installer
-if /I "%TARGET%"=="linuxinstaller" goto build_linux_installer
-if /I "%TARGET%"=="gateway" goto build_gateway
 if /I "%TARGET%"=="client" goto build_client
+if /I "%TARGET%"=="gateway" goto build_gateway
 if /I "%TARGET%"=="installer" goto build_installer
 
 echo Unknown target: %TARGET%
-echo Usage: build.cmd [all^|connectivity^|core^|speech^|client^|gateway^|installer^|windowsinstaller^|linuxinstaller] [Release^|Debug]
+echo Usage: build.cmd [all^|connectivity^|core^|speech^|client^|gateway^|installer] [Release^|Debug]
 exit /b 1
 
 :build_all
 call :build_connectivity
+if !errorlevel! neq 0 exit /b !errorlevel!
 call :build_core
+if !errorlevel! neq 0 exit /b !errorlevel!
 call :build_speech
+if !errorlevel! neq 0 exit /b !errorlevel!
 call :build_client
+if !errorlevel! neq 0 exit /b !errorlevel!
 call :build_gateway
+if !errorlevel! neq 0 exit /b !errorlevel!
 call :build_installer
+if !errorlevel! neq 0 exit /b !errorlevel!
 echo Build completed successfully for target: all
 goto end
 
@@ -42,6 +46,11 @@ echo.
 echo Building AIEngineConnectivity (%CONFIG%)...
 dotnet build "%CONNECTIVITY_SLN%" -c "%CONFIG%"
 if !errorlevel! neq 0 exit /b !errorlevel!
+echo Updating AIEngineConnectivity references in dependent solutions...
+if not exist "AIEngineGateway\libs" mkdir "AIEngineGateway\libs"
+if not exist "AIEngineInstaller\libs" mkdir "AIEngineInstaller\libs"
+copy /Y "AIEngineConnectivity\bin\%CONFIG%\net10.0\AIEngineConnectivity.*" "AIEngineGateway\libs\"
+copy /Y "AIEngineConnectivity\bin\%CONFIG%\net10.0\AIEngineConnectivity.*" "AIEngineInstaller\libs\"
 goto :eof
 
 :build_core
@@ -49,6 +58,11 @@ echo.
 echo Building AIEngineCore (%CONFIG%)...
 dotnet build "%CORE_SLN%" -c "%CONFIG%"
 if !errorlevel! neq 0 exit /b !errorlevel!
+echo Updating AIEngineCore references in dependent solutions...
+if not exist "AIEngineGateway\libs" mkdir "AIEngineGateway\libs"
+if not exist "AIEngineInstaller\libs" mkdir "AIEngineInstaller\libs"
+copy /Y "AIEngineCore\bin\%CONFIG%\net10.0\AIEngineCore.*" "AIEngineGateway\libs\"
+copy /Y "AIEngineCore\bin\%CONFIG%\net10.0\AIEngineCore.*" "AIEngineInstaller\libs\"
 goto :eof
 
 :build_speech
@@ -72,8 +86,8 @@ goto :eof
 
 :build_gateway
 echo.
-echo Publishing AIEngineGateway (%CONFIG%)...
-dotnet publish "%GATEWAY_PROJ%" -c "%CONFIG%" -o "AIEngineGateway\bin\publish"
+echo Building AIEngineGateway (%CONFIG%)...
+dotnet build "%GATEWAY_SLN%" -c "%CONFIG%"
 if !errorlevel! neq 0 exit /b !errorlevel!
 goto :eof
 
@@ -82,46 +96,6 @@ echo.
 echo Building AIEngineInstaller (%CONFIG%)...
 dotnet build "%INSTALLER_SLN%" -c "%CONFIG%"
 if !errorlevel! neq 0 exit /b !errorlevel!
-goto :eof
-
-:build_windows_installer
-call :build_connectivity
-if !errorlevel! neq 0 exit /b !errorlevel!
-call :build_core
-if !errorlevel! neq 0 exit /b !errorlevel!
-call :build_client
-if !errorlevel! neq 0 exit /b !errorlevel!
-
-echo.
-echo Publishing AIEngineGateway for Windows...
-dotnet publish "%GATEWAY_PROJ%" -c "%CONFIG%" -r win-x64 -o "windows-installer\AIEngineGateway"
-if !errorlevel! neq 0 exit /b !errorlevel!
-
-echo.
-echo Publishing AIEngineInstaller for Windows...
-dotnet publish "%INSTALLER_PROJ%" -c "%CONFIG%" -r win-x64 -o "windows-installer"
-if !errorlevel! neq 0 exit /b !errorlevel!
-echo Windows Installer build completed successfully!
-goto :eof
-
-:build_linux_installer
-call :build_connectivity
-if !errorlevel! neq 0 exit /b !errorlevel!
-call :build_core
-if !errorlevel! neq 0 exit /b !errorlevel!
-call :build_client
-if !errorlevel! neq 0 exit /b !errorlevel!
-
-echo.
-echo Publishing AIEngineGateway for Linux...
-dotnet publish "%GATEWAY_PROJ%" -c "%CONFIG%" -r linux-x64 -o "linux-installer/AIEngineGateway"
-if !errorlevel! neq 0 exit /b !errorlevel!
-
-echo.
-echo Publishing AIEngineInstaller for Linux...
-dotnet publish "%INSTALLER_PROJ%" -c "%CONFIG%" -r linux-x64 -o "linux-installer"
-if !errorlevel! neq 0 exit /b !errorlevel!
-echo Linux Installer build completed successfully!
 goto :eof
 
 :end
