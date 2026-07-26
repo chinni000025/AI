@@ -51,10 +51,12 @@
                 <TextBlock Text="{Binding StatusText}" 
                            FontSize="16" 
                            Foreground="{StaticResource AppTextSecondary}"
-                           HorizontalAlignment="Center"/>
+                           HorizontalAlignment="Center"
+                           TextWrapping="Wrap"
+                           TextAlignment="Center"/>
 
-                <!-- Custom Progress Bar -->
-                <Grid IsVisible="{Binding IsInstalling}">
+                <!-- Progress Bar (visible during install or uninstall) -->
+                <Grid IsVisible="{Binding IsShowingProgress}">
                     <!-- Glow effect for progress bar background -->
                     <Border CornerRadius="4" 
                             BoxShadow="0 0 15 0 #3300f0ff"
@@ -71,23 +73,34 @@
             </StackPanel>
 
             <!-- Action Buttons -->
-            <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="0,20,0,0">
+            <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto" Margin="0,20,0,0">
+
+                <!-- Uninstall Button (left side, visible when installed) -->
+                <Button Grid.Column="0" 
+                        Classes="Danger"
+                        Command="{Binding UninstallCommand}"
+                        IsVisible="{Binding IsInstallComplete}"
+                        IsEnabled="{Binding !IsUninstalling}"
+                        Width="160">
+                    <TextBlock Text="Uninstall" FontSize="16"/>
+                </Button>
                 
-                <!-- Install Button -->
-                <Button Grid.Column="1" 
+                <!-- Install Button (right side) -->
+                <Button Grid.Column="2" 
                         Classes="Primary"
                         Command="{Binding InstallCommand}"
-                        IsVisible="{Binding !IsInstallComplete}"
+                        IsVisible="{Binding CanShowInstallButton}"
                         IsEnabled="{Binding !IsInstalling}"
                         Width="160">
                     <TextBlock Text="Install Now" FontSize="16"/>
                 </Button>
 
-                <!-- Launch Button -->
-                <Button Grid.Column="1" 
+                <!-- Launch Button (right side, visible after install) -->
+                <Button Grid.Column="2" 
                         Classes="Primary"
                         Command="{Binding LaunchCommand}"
                         IsVisible="{Binding IsInstallComplete}"
+                        IsEnabled="{Binding !IsUninstalling}"
                         Width="160">
                     <TextBlock Text="Launch" FontSize="16"/>
                 </Button>

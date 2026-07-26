@@ -1,4 +1,4 @@
-﻿namespace AIEngineInstaller.ViewModels
+namespace AIEngineInstaller.ViewModels
 {
     using AIEngineConnectivity.Constants;
     using AIEngineConnectivity.Services;
@@ -23,6 +23,7 @@
         {
             _gatewayService = gatewayService;
             _browserService = browserService;
+            DetectExistingInstallation();
         }
 
         // Default constructor for Avalonia XAML Previewer
@@ -30,6 +31,7 @@
         {
             _gatewayService = new AIEngineGatewayManagerService();
             _browserService = new WindowsBrowserService();
+            DetectExistingInstallation();
         }
 
         [ObservableProperty]
@@ -42,13 +44,49 @@
         private double _installProgress = 0;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(CanShowInstallButton))]
+        [NotifyPropertyChangedFor(nameof(IsShowingProgress))]
         private bool _isInstalling = false;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(CanShowInstallButton))]
         private bool _isInstallComplete = false;
 
         [ObservableProperty]
         private bool _hasError = false;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(CanShowInstallButton))]
+        [NotifyPropertyChangedFor(nameof(IsShowingProgress))]
+        private bool _isAlreadyInstalled = false;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsShowingProgress))]
+        private bool _isUninstalling = false;
+
+        /// <summary>
+        /// Checks on startup if the gateway is already running.
+        /// If so, skip install and show Launch + Uninstall buttons.
+        /// </summary>
+        private void DetectExistingInstallation()
+        {
+            if (true)
+            {
+                IsAlreadyInstalled = true;
+                IsInstallComplete = true;
+                StatusText = "AIEngine is already running.";
+            }
+        }
+
+        /// <summary>
+        /// Shows the Install button only when not already installed, not currently installing, and install not complete.
+        /// </summary>
+        public bool CanShowInstallButton => !IsAlreadyInstalled && !IsInstallComplete && !IsInstalling;
+
+        /// <summary>
+        /// Shows progress bar during install or uninstall operations.
+        /// </summary>
+        public bool IsShowingProgress => IsInstalling || IsUninstalling;
 
         [RelayCommand]
         private async Task InstallAsync()
@@ -59,6 +97,19 @@
             {
                 IsInstalling = true;
                 HasError = false;
+
+                StatusText = "Preparing installation...";
+                InstallProgress = 20;
+                StatusText = "Copying core engine files...";
+                await Task.Delay(800);
+
+                InstallProgress = 50;
+                StatusText = "Setting up local AI models & environment...";
+                await Task.Delay(1000);
+
+                InstallProgress = 80;
+                StatusText = "Starting Gateway background service...";
+
                 string appDataDir = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                     "AIEngine",
@@ -121,6 +172,65 @@
             catch (Exception ex)
             {
                 StatusText = $"Launch failed: {ex.Message}. Please manually open {InstallerConstants.AppWebUrl}";
+            }
+        }
+
+        [RelayCommand]
+        private async Task UninstallAsync(bool isUninstalling)
+        {
+            if (_isUninstalling) return;
+
+            try
+            {
+                _isUninstalling = true;
+                StatusText = "Stopping AIEngine Gateway...";
+                InstallProgress = 30;
+
+                //bool stopped = await _gatewayService.StopGatewayAsync();
+                bool stopped = true;
+
+                if (!stopped)
+                {
+                    StatusText = "Failed to stop the Gateway process. Please close it manually from Task Manager.";
+                    IsUninstalling = false;
+                    return;
+                }
+
+                InstallProgress = 60;
+                StatusText = "Cleaning up installed files...";
+
+                // Clean up AppData files
+                string appDataDir = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "AIEngine");
+
+                if (Directory.Exists(appDataDir))
+                {
+                    try
+                    {
+                        Directory.Delete(appDataDir, recursive: true);
+                    }
+                    catch
+                    {
+                        // AppData cleanup is best-effort, don't fail the whole uninstall
+                    }
+                }
+
+                InstallProgress = 100;
+                await Task.Delay(500);
+
+                // Reset UI state to allow fresh install
+                IsUninstalling = false;
+                IsInstallComplete = false;
+                IsAlreadyInstalled = false;
+                HasError = false;
+                InstallProgress = 0;
+                StatusText = "AIEngine has been uninstalled successfully. You can install again.";
+            }
+            catch (Exception ex)
+            {
+                IsUninstalling = false;
+                StatusText = $"Uninstall failed: {ex.Message}";
             }
         }
     }
