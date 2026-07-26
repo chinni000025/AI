@@ -70,7 +70,7 @@ namespace AIEngineInstaller.ViewModels
         /// </summary>
         private void DetectExistingInstallation()
         {
-            if (true)
+            if (_gatewayService.IsGatewayRunning())
             {
                 IsAlreadyInstalled = true;
                 IsInstallComplete = true;
@@ -186,9 +186,7 @@ namespace AIEngineInstaller.ViewModels
                 StatusText = "Stopping AIEngine Gateway...";
                 InstallProgress = 30;
 
-                //bool stopped = await _gatewayService.StopGatewayAsync();
-                bool stopped = true;
-
+                bool stopped = await _gatewayService.StopGatewayAsync();
                 if (!stopped)
                 {
                     StatusText = "Failed to stop the Gateway process. Please close it manually from Task Manager.";
