@@ -9,7 +9,6 @@
 
     public interface IConversationRepository
     {
-        public Task AddConversationMessage(Message message, CancellationToken cancellationToken);
 
         public Task<Conversation?> GetConversation(Guid conversationGuid, string userId, CancellationToken cancellationToken);
 

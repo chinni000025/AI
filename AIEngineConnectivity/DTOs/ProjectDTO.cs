@@ -1,4 +1,4 @@
-﻿namespace AIEngineConnectivity.Repositories
+﻿namespace AIEngineConnectivity.DTOs
 {
     using System;
     using System.Collections.Generic;

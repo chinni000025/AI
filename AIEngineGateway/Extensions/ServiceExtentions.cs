@@ -90,6 +90,7 @@ namespace AIEngineGateway.Extensions
         public static void EngineRepositories(IServiceCollection services)
         {
             services.AddScoped<IRepositoryWrapper, RepositoryWrapper>();
+            services.AddScoped(typeof(IEngineRepoBase<>), typeof(EngineRepoBase<>));
             services.AddScoped<IIdentityRepository, IdentityRepository>();
             services.AddScoped<IConversationRepository, ConversationRepository>();
             services.AddScoped<IConnectionRepository, ConnectionRepository>();

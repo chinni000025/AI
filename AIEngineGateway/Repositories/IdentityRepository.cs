@@ -45,11 +45,6 @@
                 .Where(u => u.Id.ToString() == userId).FirstOrDefaultAsync(cancellationToken);
         }
 
-        public async Task AddNewUser(User user, CancellationToken cancellationToken)
-        {
-            await _EngineContext.Users.AddAsync(user, cancellationToken);
-        }
-
         public async Task<ResetPasswordToken?> ResetPasswordTokenExistsOrNot(int userId, CancellationToken cancellationToken)
         {
             return await _EngineContext.ResetPasswordTokens.Where(t => t.UserId == userId).FirstOrDefaultAsync(cancellationToken);

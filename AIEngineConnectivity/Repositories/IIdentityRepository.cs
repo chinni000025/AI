@@ -20,8 +20,6 @@ namespace AIEngineConnectivity.Repositories
 
         public Task<User?> GetUserById(string userId, CancellationToken cancellationToken);
 
-        public Task AddNewUser(User user, CancellationToken cancellationToken);
-
         public Task<ResetPasswordToken?> ResetPasswordTokenExistsOrNot(int userId, CancellationToken cancellationToken);
 
         public Task<User?> GetUserByEmail(string email, CancellationToken cancellationToken);

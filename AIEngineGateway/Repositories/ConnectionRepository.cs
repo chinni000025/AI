@@ -13,10 +13,6 @@
         {
             _EngineContext = EngineContext;
         }
-        public async Task SaveConnection(EngineConnection engineConnection, CancellationToken cancellationToken)
-        {
-            await _EngineContext.EngineConnections.AddAsync(engineConnection, cancellationToken);
-        }
 
         public async Task<EngineConnection?> GetConnectionsByUserId(String userId, String connectionType,
             CancellationToken cancellationToken)

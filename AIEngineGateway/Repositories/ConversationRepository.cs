@@ -15,11 +15,6 @@
             _EngineContext = engineContext;
         }
 
-        public async Task AddConversationMessage(Message message, CancellationToken cancellationToken)
-        {
-            await _EngineContext.AddAsync(message, cancellationToken);
-        }
-
         public async Task AddConversation(Conversation conversation, CancellationToken cancellationToken)
         {
             await _EngineContext.AddAsync(conversation, cancellationToken);

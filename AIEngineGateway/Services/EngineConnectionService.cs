@@ -48,7 +48,7 @@
                     ModifiedAt = DateTime.UtcNow
                 };
 
-                await _Repository.ConnectionRepository.SaveConnection(engineConnection, cancellationToken);
+                await _Repository.GetEngineRepo<EngineConnection>().AddAsync(engineConnection, cancellationToken);
             }
             await _Repository.SaveChangesAsync(cancellationToken);
         }
@@ -111,7 +111,7 @@
                     CreatedAt = DateTime.UtcNow,
                     ModifiedAt = DateTime.UtcNow
                 };
-                await _Repository.ConnectionRepository.SaveConnection(engineConnection, cancellationToken);
+                await _Repository.GetEngineRepo<EngineConnection>().AddAsync(engineConnection, cancellationToken);
             }
             await _Repository.SaveChangesAsync(cancellationToken);
         }

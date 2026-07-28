@@ -114,7 +114,7 @@
             };
             var hashedPassword = _passwordService.HashPassword(newUser, userRegister.Password);
             newUser.Password = hashedPassword;
-            await _Repository.IdentityRepository.AddNewUser(newUser, cancellationToken);
+            await _Repository.GetEngineRepo<User>().AddAsync(newUser, cancellationToken);
             await _Repository.SaveChangesAsync(cancellationToken);
 
             return new
@@ -197,7 +197,7 @@
             }
             else
             {
-                var user = await _Repository.IdentityRepository.GetUserById(refreshToken.userId, cancellationToken);
+                var user = await _Repository.GetEngineRepo<User>().GetByIdAsync(int.Parse(refreshToken.userId), cancellationToken);
                 if (user == null)
                 {
                     throw new Exception("User Not Exist");
@@ -214,7 +214,8 @@
 
         public async Task ForgetPassword(ForgetPasswordRequest forgetPasswordRequest, string scheme, string host, CancellationToken cancellationToken)
         {
-            var user = await _Repository.IdentityRepository.GetUserByEmail(forgetPasswordRequest.Email, cancellationToken);
+            var user = await _Repository.GetEngineRepo<User>()
+                        .FirstOrDefaultAsync(u => u.Email == forgetPasswordRequest.Email, cancellationToken);
             if (user is null)
                 return;
 

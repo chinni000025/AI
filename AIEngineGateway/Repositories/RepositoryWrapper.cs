@@ -1,8 +1,6 @@
-﻿
-namespace AIEngineGateway.Repositories
+﻿namespace AIEngineGateway.Repositories
 {
     using AIEngineConnectivity.Repositories;
-    using AIEngineConnectivity.Services;
     using AIEngineGateway.EngineInfrastructure;
 
     public class RepositoryWrapper : IRepositoryWrapper
@@ -14,17 +12,24 @@ namespace AIEngineGateway.Repositories
         public IConversationRepository ConversationRepository { get; }
         public IConnectionRepository ConnectionRepository { get; }
         public IDataProtectionKeyRepository DataProtectionKeyRepository { get; }
+        public IServiceProvider _ServiceProvider;
 
         public RepositoryWrapper(IIdentityRepository identityRepository, IConversationRepository conversationRepository,
             IConnectionRepository connectionRepository,
             IDataProtectionKeyRepository dataProtectionKeyRepository,
-            EngineContext engineContext)
+            EngineContext engineContext, IServiceProvider serviceProvider)
         {
             IdentityRepository = identityRepository;
             EngineContext = engineContext;
             ConversationRepository = conversationRepository;
             ConnectionRepository = connectionRepository;
             DataProtectionKeyRepository = dataProtectionKeyRepository;
+            _ServiceProvider = serviceProvider;
+        }
+
+        public IEngineRepoBase<TEntity> GetEngineRepo<TEntity>() where TEntity : class
+        {
+            return _ServiceProvider.GetRequiredService<IEngineRepoBase<TEntity>>();
         }
 
         public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

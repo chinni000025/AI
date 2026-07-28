@@ -79,8 +79,6 @@
                 <Button Grid.Column="0" 
                         Classes="Danger"
                         Command="{Binding UninstallCommand}"
-                        IsVisible="{Binding IsInstallComplete}"
-                        IsEnabled="{Binding !IsUninstalling}"
                         Width="160">
                     <TextBlock Text="Uninstall" FontSize="16"/>
                 </Button>

@@ -9,7 +9,7 @@
         IConversationRepository ConversationRepository { get; }
         IConnectionRepository ConnectionRepository { get; }
         IDataProtectionKeyRepository DataProtectionKeyRepository { get; }
-
+        IEngineRepoBase<TEntity> GetEngineRepo<TEntity>() where TEntity : class;
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

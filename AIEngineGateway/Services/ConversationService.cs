@@ -82,7 +82,7 @@
                     ModelUsed = messagePayload.Model,
                 };
 
-                await _Repository.ConversationRepository.AddConversation(conversation, cancellationToken);
+                await _Repository.GetEngineRepo<Conversation>().AddAsync(conversation, cancellationToken);
                 await _Repository.SaveChangesAsync(cancellationToken);
             }
             else
@@ -101,7 +101,7 @@
                 MessageSentAt = DateTime.UtcNow
             };
 
-            await _Repository.ConversationRepository.AddConversationMessage(userMessage, cancellationToken);
+            await _Repository.GetEngineRepo<Message>().AddAsync(userMessage, cancellationToken);
             var history = await _Repository.ConversationRepository.LoadHistory(conversation.Id, cancellationToken);
             var aiRequest = new AIRequest
             {
@@ -122,7 +122,7 @@
                     MessageSentAt = DateTime.UtcNow
                 };
 
-                await _Repository.ConversationRepository.AddConversationMessage(assistantMessage, cancellationToken);
+                await _Repository.GetEngineRepo<Message>().AddAsync(assistantMessage, cancellationToken);
                 conversation.UpdatedAt = DateTime.UtcNow;
                 conversation.LastMessageAt = DateTime.UtcNow;
                 await _Repository.SaveChangesAsync(cancellationToken);
@@ -195,6 +195,7 @@
                 response = "Update Conversation Successfully"
             };
         }
+
         public async Task<object> GetArchiveChatsAsync(ArchiveChatRequest archiveChatRequest, CancellationToken cancellationToken)
         {
             var userId = _UserService.GetCurrentUser;
