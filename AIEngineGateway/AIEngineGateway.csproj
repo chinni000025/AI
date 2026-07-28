@@ -47,7 +47,6 @@
   <ProjectReference Include="..\AIEngineSpeechRecognition\AIEngineSpeechRecognition.csproj" />
 </ItemGroup>
 <ItemGroup>
-  <Folder Include="DAO\" />
   <Folder Include="Template\" />
 </ItemGroup>
 </Project>
