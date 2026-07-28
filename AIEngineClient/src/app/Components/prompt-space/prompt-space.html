@@ -388,7 +388,7 @@
             <div class="ps-input-wrap">
                 <!-- Plus menu -->
                 <div class="ps-plus-dropdown" (click)="$event.stopPropagation()">
-                    <button [disabled]="'true'" type="button" class="ps-input-cmd ps-input-cmd--button"
+                    <button type="button" class="ps-input-cmd ps-input-cmd--button"
                         [class.ps-input-cmd--open]="showPlusMenu" (click)="togglePlusMenu($event)">
                         <app-svg-plus [style.height]="'20px'" [style.width]="'20px'"></app-svg-plus>
                     </button>
@@ -429,7 +429,6 @@
                                 <div class="ps-model-menu__list">
                                     @for(provider of modelCatalog; track provider.name) {
                                     <button type="button" class="ps-provider-item"
-                                        [disabled]="provider.name.toLowerCase() === 'ollama'"
                                         [class.active]="selectedProvider.toLowerCase() === provider.name.toLowerCase()"
                                         (click)="setActiveProvider(provider.name, $event)">
                                         <div class="ps-provider-item__content">

@@ -104,12 +104,12 @@
                     </div>
 
                     <div class="social-btns">
-                        <button [disabled]="'true'" class="social-btn" id="login-google-btn" type="button">
+                        <button class="social-btn" id="login-google-btn" type="button">
                             <app-svg-google></app-svg-google>
                             Google
                         </button>
 
-                        <button [disabled]="'true'" class="social-btn" id="login-microsoft-btn" type="button">
+                        <button class="social-btn" id="login-microsoft-btn" type="button">
                             <app-svg-microsoft></app-svg-microsoft>
                             Microsoft
                         </button>
@@ -166,19 +166,23 @@
                     @if (signUpControls['password'].touched && signUpControls['password'].errors?.['passwordLength']) {
                     <small class="validation-message">Password must be between 8 and 64 characters.</small>
                     }
-                    @if (signUpControls['password'].touched && signUpControls['password'].errors?.['missingUppercase']) {
+                    @if (signUpControls['password'].touched && signUpControls['password'].errors?.['missingUppercase'])
+                    {
                     <small class="validation-message">Password must include at least one uppercase letter.</small>
                     }
-                    @if (signUpControls['password'].touched && signUpControls['password'].errors?.['missingLowercase']) {
+                    @if (signUpControls['password'].touched && signUpControls['password'].errors?.['missingLowercase'])
+                    {
                     <small class="validation-message">Password must include at least one lowercase letter.</small>
                     }
                     @if (signUpControls['password'].touched && signUpControls['password'].errors?.['missingNumber']) {
                     <small class="validation-message">Password must include at least one number.</small>
                     }
-                    @if (signUpControls['password'].touched && signUpControls['password'].errors?.['missingSpecialCharacter']) {
+                    @if (signUpControls['password'].touched &&
+                    signUpControls['password'].errors?.['missingSpecialCharacter']) {
                     <small class="validation-message">Password must include at least one special character.</small>
                     }
-                    @if (signUpControls['password'].touched && signUpControls['password'].errors?.['startsWithSpecialCharacter']) {
+                    @if (signUpControls['password'].touched &&
+                    signUpControls['password'].errors?.['startsWithSpecialCharacter']) {
                     <small class="validation-message">Password should not start with a special character.</small>
                     }
                     @if (signUpControls['password'].touched && signUpControls['password'].errors?.['containsSpace']) {
@@ -223,12 +227,12 @@
                     </div>
 
                     <div class="social-btns">
-                        <button [disabled]="'true'" class="social-btn" id="signup-google-btn" type="button">
+                        <button class="social-btn" id="signup-google-btn" type="button">
                             <app-svg-google></app-svg-google>
                             Google
                         </button>
 
-                        <button [disabled]="'true'" class="social-btn" id="signup-microsoft-btn" type="button">
+                        <button class="social-btn" id="signup-microsoft-btn" type="button">
                             <app-svg-microsoft></app-svg-microsoft>
                             Microsoft
                         </button>
