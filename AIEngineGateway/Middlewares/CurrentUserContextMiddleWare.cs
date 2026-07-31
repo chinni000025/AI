@@ -1,5 +1,4 @@
-﻿
-namespace AIEngineGateway.Middlewares
+﻿namespace AIEngineGateway.Middlewares
 {
     using AIEngineConnectivity.DTOs;
     using AIEngineConnectivity.Models;

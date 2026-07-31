@@ -12,7 +12,7 @@ namespace AIEngineGateway.EngineInfrastructure
         public void ConfigureEngineDataBase(IServiceProvider serviceProvider, DbContextOptionsBuilder dbContextOptionsBuilder, DataBaseProvider dataBaseProvider)
         {
             var engineConfig = serviceProvider.GetRequiredService<EngineConfig>();
-            if (!engineConfig.IsEngineConfig() || engineConfig.GetDatabaseType() != dataBaseProvider) //needs to change.
+            if (!engineConfig.IsEngineConfig() || engineConfig.GetDatabaseType() != dataBaseProvider)
             {
                 if (dataBaseProvider is DataBaseProvider.SqlServer)
                 {
@@ -34,13 +34,10 @@ namespace AIEngineGateway.EngineInfrastructure
                         dbContextOptionsBuilder.UseSqlServer(connectionString
                             , sqlOptions => sqlOptions.MigrationsAssembly(typeof(SqlServerEngineContext).Assembly.FullName));
                         break;
-
-
                     case DataBaseProvider.PostgreSql:
                         dbContextOptionsBuilder.UseNpgsql(connectionString,
                             postgresOptions => postgresOptions.MigrationsAssembly(typeof(PostgreSqlEngineContext).Assembly.FullName));
                         break;
-
                     default:
                         throw new Exception("No such Server available");
                 }

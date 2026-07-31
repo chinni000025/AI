@@ -100,7 +100,6 @@
         [Route("send/message")]
         public async Task<IActionResult> SendNewMessage([FromBody] AIRequest aiRequest, CancellationToken cancellationToken)
         {
-
             try
             {
                 MessagePayload messagePayload = new MessagePayload()
@@ -113,8 +112,6 @@
                 var response = await _conversationService.SendMessage(null, messagePayload, cancellationToken);
                 return Ok(new { response });
             }
-
-
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);

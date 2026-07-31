@@ -1,10 +1,7 @@
-﻿
-namespace AIEngineConnectivity.Repositories
+﻿namespace AIEngineConnectivity.Repositories
 {
     using AIEngineConnectivity.Entities;
     using System;
-    using System.Collections.Generic;
-    using System.Text;
 
     public interface IIdentityRepository
     {

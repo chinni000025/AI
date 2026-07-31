@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="../AIEngineUnitTest/AIEngineUnitTest.csproj" Id="55ad767b-b8df-4fc5-a841-5b43658b30c0" />
   <Project Path="AIEngineGateway.csproj" />
 </Solution>
