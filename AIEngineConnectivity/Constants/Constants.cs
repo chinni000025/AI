@@ -169,12 +169,4 @@ namespace AIEngineConnectivity.Constants
         public const string AppWebUrl = "http://localhost:5000";
         public const string GatewayFolderName = "AIEngineGateway";
     }
-
-    public static class EngineNotificationRouter<T>
-    {
-        static Dictionary<string, string> notificationRouter = new()
-        {
-
-        };
-    }
 }
