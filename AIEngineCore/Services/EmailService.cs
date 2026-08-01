@@ -1,4 +1,4 @@
-﻿namespace AIEngineGateway.Services
+﻿namespace AIEngineCore.Services
 {
     using AIEngineConnectivity.Models;
     using AIEngineConnectivity.Repositories;

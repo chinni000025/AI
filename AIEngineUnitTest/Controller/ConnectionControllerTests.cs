@@ -18,7 +18,6 @@ namespace AIEngineUnitTest.Controller
             _EngineConnectionService = A.Fake<IEngineConnectionService>();
             _EmailService = A.Fake<IEmailService>();
             _Logger = A.Fake<ILogger<ConnectionController>>();
-
             _Sut = new ConnectionController(_EngineConnectionService, _Logger, _EmailService);
         }
 

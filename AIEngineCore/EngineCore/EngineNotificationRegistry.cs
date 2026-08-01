@@ -4,13 +4,14 @@
     using System;
     using System.Collections.Concurrent;
 
-    public class EngineNotificationRegistry
+    public class EngineNotificationRegistry : IEngineNotificationRegistry
     {
-        private readonly ConcurrentDictionary<string, ConcurrentBag<IEngineNotification>> _EventMap =
+        public ConcurrentDictionary<string, ConcurrentBag<IEngineNotification>> EventMap =>
             new(StringComparer.OrdinalIgnoreCase);
+
         public void addOrUpdateNotifications(string Event, IEngineNotification Notification)
         {
-            _EventMap.AddOrUpdate(
+            EventMap.AddOrUpdate(
                 key: Event,
                 addValueFactory: _ => new ConcurrentBag<IEngineNotification> { Notification },
                 updateValueFactory: (_, exitingNotificaion) =>
@@ -22,7 +23,7 @@
 
         public IEnumerable<IEngineNotification> GetNotifications(string Event)
         {
-            if (_EventMap.TryGetValue(Event, out var engineNotifications))
+            if (EventMap.TryGetValue(Event, out var engineNotifications))
             {
                 return engineNotifications;
             }
