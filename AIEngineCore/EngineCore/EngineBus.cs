@@ -2,6 +2,7 @@
 {
     using AIEngineConnectivity.Constants;
     using AIEngineConnectivity.EngineCore;
+    using AIEngineCore.EngineNotifications;
 
     public class EngineBus : IEngineBus
     {

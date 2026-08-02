@@ -28,7 +28,7 @@
             return _channel.Reader.ReadAllAsync(cancellationToken);
         }
 
-        public void complete()
+        public void Complete()
         {
             _channel.Writer.TryComplete();
         }

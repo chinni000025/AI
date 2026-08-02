@@ -1,4 +1,4 @@
-﻿namespace AIEngineCore.EngineCore
+﻿namespace AIEngineCore.EngineNotifications
 {
     using AIEngineConnectivity.Constants;
     using AIEngineConnectivity.EngineCore;

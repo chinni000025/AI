@@ -1,10 +1,12 @@
-﻿namespace AIEngineCore.EngineCore
+﻿namespace AIEngineCore.EngineNotifications
 {
     using AIEngineConnectivity.EngineCore;
     using System;
     using System.Collections.Generic;
     using System.Text;
-    public class EngineSMSNotification : IEngineNotification
+
+    public class EngineEmailNotification : IEngineNotification
     {
+
     }
 }

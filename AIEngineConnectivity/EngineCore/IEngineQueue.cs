@@ -6,5 +6,6 @@
     {
         public ValueTask publishAsync(T scenario, CancellationToken cancellationToken = default);
         public IAsyncEnumerable<T> ReadAsync(CancellationToken cancellationToken = default);
+        public void Complete();
     }
 }
