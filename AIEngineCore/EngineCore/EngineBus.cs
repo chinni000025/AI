@@ -1,5 +1,6 @@
 ﻿namespace AIEngineCore.EngineCore
 {
+    using AIEngineConnectivity.Constants;
     using AIEngineConnectivity.EngineCore;
 
     public class EngineBus : IEngineBus
@@ -13,9 +14,9 @@
             _EngineQueue = engineQueue;
         }
 
-        public async ValueTask ConnectEngineBus(string Event, CancellationToken ct = default)
+        public async ValueTask ConnectEngineBus(EngineEvents @event, CancellationToken ct = default)
         {
-            var notifications = _EngineNotificationRegistry.GetNotifications(Event);
+            var notifications = _EngineNotificationRegistry.GetNotifications(@event);
             foreach (var notification in notifications)
             {
                 await _EngineQueue.publishAsync(notification, ct);

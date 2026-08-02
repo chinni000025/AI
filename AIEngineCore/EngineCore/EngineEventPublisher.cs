@@ -1,17 +1,18 @@
 ﻿namespace AIEngineCore.EngineCore
 {
+    using AIEngineConnectivity.Constants;
     using AIEngineConnectivity.EngineCore;
 
-    public class EngineEventPublisher<T>
+    public class EngineEventPublisher
     {
         private readonly IEngineBus _EngineBus;
         public EngineEventPublisher(IEngineBus engineBus)
         {
             _EngineBus = engineBus;
         }
-        public async Task PublishEvent(string Event, CancellationToken cancellationToken = default)
+        public async Task PublishEvent(EngineEvents @event, CancellationToken cancellationToken = default)
         {
-            await _EngineBus.ConnectEngineBus(Event, cancellationToken);
+            await _EngineBus.ConnectEngineBus(@event, cancellationToken);
         }
     }
 }

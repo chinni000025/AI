@@ -1,7 +1,9 @@
-﻿namespace AIEngineConnectivity.EngineCore
+﻿using AIEngineConnectivity.Constants;
+
+namespace AIEngineConnectivity.EngineCore
 {
     public interface IEngineBus
     {
-        public ValueTask ConnectEngineBus(string Event, CancellationToken ct = default);
+        public ValueTask ConnectEngineBus(EngineEvents Event, CancellationToken ct = default);
     }
 }

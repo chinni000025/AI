@@ -169,4 +169,18 @@ namespace AIEngineConnectivity.Constants
         public const string AppWebUrl = "http://localhost:5000";
         public const string GatewayFolderName = "AIEngineGateway";
     }
+
+    public sealed class EngineEvents
+    {
+        public string Value;
+        public EngineEvents(string value) => Value = value;
+        public static readonly EngineEvents UserCreated = new EngineEvents("User Created");
+        public static readonly EngineEvents ForgetPassword = new EngineEvents("ForgetPassword");
+        public static readonly EngineEvents ShareConversation = new EngineEvents("Share Conversation");
+        public static readonly EngineEvents ShareProject = new EngineEvents("Share Project");
+        public static readonly EngineEvents AddProjectMember = new EngineEvents("Add Project Member");
+        public static readonly EngineEvents RemoveProjectMember = new EngineEvents("Remove Project Member");
+        public static readonly EngineEvents UserTagged = new EngineEvents("User Tagged");
+        public static readonly EngineEvents DeleteUserAccount = new EngineEvents("Delete User Account");
+    }
 }

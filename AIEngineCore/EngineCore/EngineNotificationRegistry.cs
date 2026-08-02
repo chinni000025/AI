@@ -1,29 +1,45 @@
 ﻿namespace AIEngineCore.EngineCore
 {
+    using AIEngineConnectivity.Constants;
     using AIEngineConnectivity.EngineCore;
     using System;
     using System.Collections.Concurrent;
 
     public class EngineNotificationRegistry : IEngineNotificationRegistry
     {
-        public ConcurrentDictionary<string, ConcurrentBag<IEngineNotification>> EventMap =>
-            new(StringComparer.OrdinalIgnoreCase);
+        private readonly ConcurrentDictionary<EngineEvents, ConcurrentBag<IEngineNotification>> _EventMap =
+            new();
 
-        public void addOrUpdateNotifications(string Event, IEngineNotification Notification)
+        public IReadOnlyDictionary<EngineEvents, IReadOnlyCollection<IEngineNotification>> EventMap =>
+            _EventMap.ToDictionary(
+                    e => e.Key,
+                    e => (IReadOnlyCollection<IEngineNotification>)e.Value.ToList().AsReadOnly());
+
+        public void AddOrUpdateNotification(EngineEvents @event, IEnumerable<IEngineNotification> notifications)
         {
-            EventMap.AddOrUpdate(
-                key: Event,
-                addValueFactory: _ => new ConcurrentBag<IEngineNotification> { Notification },
+            ArgumentNullException.ThrowIfNull(@event);
+            ArgumentNullException.ThrowIfNull(notifications);
+            foreach (var notification in notifications)
+            {
+                addOrUpdateNotifications(@event, notification);
+            }
+        }
+
+        public void addOrUpdateNotifications(EngineEvents @event, IEngineNotification notification)
+        {
+            _EventMap.AddOrUpdate(
+                key: @event,
+                addValueFactory: _ => new ConcurrentBag<IEngineNotification> { notification },
                 updateValueFactory: (_, exitingNotificaion) =>
                 {
-                    exitingNotificaion.Add(Notification);
+                    exitingNotificaion.Add(notification);
                     return exitingNotificaion;
                 });
         }
 
-        public IEnumerable<IEngineNotification> GetNotifications(string Event)
+        public IEnumerable<IEngineNotification> GetNotifications(EngineEvents @event)
         {
-            if (EventMap.TryGetValue(Event, out var engineNotifications))
+            if (_EventMap.TryGetValue(@event, out var engineNotifications))
             {
                 return engineNotifications;
             }
