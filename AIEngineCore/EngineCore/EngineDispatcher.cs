@@ -4,7 +4,7 @@
     using System;
     using System.Collections.ObjectModel;
 
-    public sealed class EngineDispatcher<T>
+    public sealed class EngineDispatcher
     {
         private readonly IReadOnlyDictionary<Type, IEngineNotificationRouter> _Router;
 

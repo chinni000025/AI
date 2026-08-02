@@ -5,11 +5,11 @@
     using System.Collections.Generic;
     using System.Text;
 
-    public class EngineEmailNotificationRouter : IEngineNotificationRouter
+    public class EngineEmailRouter : IEngineNotificationRouter
     {
         private IEngineQueue<EngineEmailNotification> _EmailNotificationQueue;
 
-        public EngineEmailNotificationRouter(IEngineQueue<EngineEmailNotification> emailNotificationQueue)
+        public EngineEmailRouter(IEngineQueue<EngineEmailNotification> emailNotificationQueue)
         {
             _EmailNotificationQueue = emailNotificationQueue;
         }
