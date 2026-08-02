@@ -15,6 +15,11 @@
                     e => e.Key,
                     e => (IReadOnlyCollection<IEngineNotification>)e.Value.ToList().AsReadOnly());
 
+        public EngineNotificationRegistry(IEngineNotificationProvider engineNotificationProvider)
+        {
+            engineNotificationProvider.RegisterNotification(this);
+        }
+
         public void AddOrUpdateNotification(EngineEvents @event, IEnumerable<IEngineNotification> notifications)
         {
             ArgumentNullException.ThrowIfNull(@event);
