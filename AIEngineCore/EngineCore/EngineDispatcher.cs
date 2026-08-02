@@ -2,20 +2,26 @@
 {
     using AIEngineConnectivity.EngineCore;
     using System;
+    using System.Collections.ObjectModel;
 
-    public class EngineDispatcher<T>
+    public sealed class EngineDispatcher<T>
     {
-        private IEngineQueue<T> _EngineQueue;
+        private readonly IReadOnlyDictionary<Type, IEngineNotificationRouter> _Router;
 
-        public EngineDispatcher(IEngineQueue<T> engineQueue)
+        public EngineDispatcher(IEnumerable<IEngineNotificationRouter> notifications)
         {
-            _EngineQueue = engineQueue;
+            _Router = notifications.ToDictionary(r => r.EngineNotificationType);
         }
 
-        public ValueTask dispatchNotification()
+        public async Task ExecuteAsync(IEngineQueue<IEngineNotification> mainEngineQueue, CancellationToken cancellationToken = default)
         {
-            //Diversion takes place from here if it is email notification pushes to email notification.
-            throw new NotImplementedException();
+            await foreach (var notification in mainEngineQueue.ReadAsync(cancellationToken))
+            {
+                if (_Router.TryGetValue(notification.GetType(), out var router))
+                {
+                    await router.publishAsync(notification, cancellationToken);
+                }
+            }
         }
     }
 }
