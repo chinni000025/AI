@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace AIEngineConnectivity.EngineCore
+﻿namespace AIEngineConnectivity.EngineCore
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Text;
+
     public interface IEngineNotificationRouter
     {
         public Type EngineNotificationType { get; }

@@ -1,6 +1,9 @@
 ﻿namespace AIEngineCore.Extensions
 {
+    using AIEngineConnectivity.EngineCore;
+    using AIEngineConnectivity.Services;
     using AIEngineCore.Providers;
+    using AIEngineCore.Services;
     using Microsoft.Extensions.DependencyInjection;
     using System;
     using System.Collections.Generic;
@@ -11,12 +14,18 @@
     {
         public static IServiceCollection AddEngineCoreDependencies(this IServiceCollection services)
         {
-            services.AddScoped<GeminiProvider>();
-            services.AddScoped<GroqProvider>();
-            services.AddScoped<HuggingFaceProvider>();
-            services.AddScoped<OllamaProviders>();
-            services.AddScoped<OpenRouterProvider>();
-            services.AddScoped<CohereProvider>();
+            services.AddSingleton<GeminiProvider>();
+            services.AddSingleton<GroqProvider>();
+            services.AddSingleton<HuggingFaceProvider>();
+            services.AddSingleton<OllamaProviders>();
+            services.AddSingleton<OpenRouterProvider>();
+            services.AddSingleton<CohereProvider>();
+            services.AddSingleton<IAIEngineRouter, CohereRouter>();
+            services.AddSingleton<IAIEngineRouter, GeminiRouter>();
+            services.AddSingleton<IAIEngineRouter, GroqRouter>();
+            services.AddSingleton<IAIEngineRouter, HuggingFaceRouter>();
+            services.AddSingleton<IAIEngineRouter, Ollamarouter>();
+            services.AddSingleton<IAIEngineRouter, OpenRouter_Router>();
             return services;
         }
     }

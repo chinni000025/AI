@@ -1,6 +1,7 @@
 ﻿namespace AIEngineCore.Services
 {
     using AIEngineConnectivity.DTOs;
+    using AIEngineConnectivity.EngineCore;
     using AIEngineConnectivity.Helpers;
     using AIEngineConnectivity.Models;
     using AIEngineCore.Extensions;
@@ -11,23 +12,27 @@
     public class AIOrchestrator : IAIOrchestrator
     {
         private readonly IServiceProvider _serviceProvider;
-        ModelSelectionStrategy modelStrategy;
         private ILogger<AIOrchestrator> _logger;
+        private IAIEngineRouter _AIEngineRouter;
+        private readonly IReadOnlyDictionary<string, IAIEngineRouter> _Router;
 
         public AIOrchestrator(IServiceProvider serviceProvider,
-            ILogger<AIOrchestrator> logger)
+            ILogger<AIOrchestrator> logger, IEnumerable<IAIEngineRouter> aIEngineRouter)
         {
             _serviceProvider = serviceProvider;
-            modelStrategy = new ModelSelectionStrategy(_serviceProvider);
             _logger = logger;
+            _Router = aIEngineRouter.ToDictionary(a => a.AIProviderType, StringComparer.OrdinalIgnoreCase);
         }
 
         public async Task<AIResponse?> ChatAsync(AIRequest aiRequest)
         {
             try
             {
-                AIExtension aIService = new AIExtension(modelStrategy.GetModelContext(aiRequest.Provider)());
-                var response = await aIService.GenerateResponse(aiRequest);
+                AIResponse response = null;
+                if (_Router.TryGetValue(aiRequest.Provider, out var router))
+                {
+                    response = await router.GenerateAIResponse(aiRequest);
+                }
                 return new AIResponse
                 {
                     Output = response?.Output,

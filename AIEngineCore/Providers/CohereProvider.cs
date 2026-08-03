@@ -7,7 +7,7 @@
     using Microsoft.Extensions.Options;
     using System.Text.Json;
 
-    internal class CohereProvider : ProviderBase.ProviderBase
+    public class CohereProvider : ProviderBase.ProviderBase
     {
         private readonly CohereApiKeyConfiguration _cohereApiKeyConfiguration;
         public CohereProvider(IOptions<CohereApiKeyConfiguration> options)
