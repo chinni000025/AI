@@ -182,5 +182,6 @@ namespace AIEngineConnectivity.Constants
         public static readonly EngineEvents RemoveProjectMember = new EngineEvents("Remove Project Member");
         public static readonly EngineEvents UserTagged = new EngineEvents("User Tagged");
         public static readonly EngineEvents DeleteUserAccount = new EngineEvents("Delete User Account");
+        public static readonly EngineEvents DeleteProject = new EngineEvents("Delete Project");
     }
 }

@@ -1,0 +1,16 @@
+🎉 *Welcome to {{AppName}}!*
+
+Hello *{{Name}}*,
+
+Your account has been successfully created and is ready to use!
+
+📋 *Account Details:*
+• *Email:* `{{Email}}`
+• *Status:* Active & Verified
+
+🚀 Click below to sign in and launch your AI workspace:
+{{ActionUrl}}
+
+If you need any assistance, reach out to our team at {{SupportEmail}}.
+
+— *The {{AppName}} Team*

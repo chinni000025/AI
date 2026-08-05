@@ -1,0 +1,14 @@
+📁 *Project Shared on {{AppName}}*
+
+Hello *{{Name}}*,
+
+👤 *{{SenderName}}* has granted you access to a project!
+
+📋 *Project Summary:*
+• *Project Name:* *{{ProjectName}}*
+• *Assigned Role:* _{{ProjectRole}}_
+
+🚀 Access the project workspace and start collaborating:
+{{ActionUrl}}
+
+— *{{AppName}} Team*

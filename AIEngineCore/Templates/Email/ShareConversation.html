@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversation Shared with You - {{AppName}}</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #0f172a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;">
+    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #0f172a; padding: 40px 10px;">
+        <tr>
+            <td align="center">
+                <!-- Container Card -->
+                <table role="presentation" width="100%" style="max-width: 600px; background-color: #1e293b; border-radius: 16px; border: 1px solid #334155; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);">
+                    <!-- Brand Header -->
+                    <tr>
+                        <td style="padding: 32px 32px 24px 32px; background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%); text-align: center;">
+                            <img src="{{LogoUrl}}" alt="{{AppName}} Logo" style="max-height: 48px; width: auto; margin-bottom: 12px; display: inline-block;" onerror="this.style.display='none';" />
+                            <h1 style="margin: 0; color: #ffffff; font-size: 26px; font-weight: 700; tracking-style: tight;">New Conversation Shared</h1>
+                        </td>
+                    </tr>
+                    <!-- Body Content -->
+                    <tr>
+                        <td style="padding: 32px; color: #e2e8f0; font-size: 16px; line-height: 1.6;">
+                            <p style="margin-top: 0; font-size: 18px; font-weight: 600; color: #f8fafc;">Hello {{Name}},</p>
+                            <p style="color: #cbd5e1;"><strong style="color: #38bdf8;">{{SenderName}}</strong> has shared an AI conversation session with you on <strong>{{AppName}}</strong>.</p>
+                            
+                            <!-- Detail Card -->
+                            <div style="background-color: #0f172a; border: 1px solid #334155; border-left: 4px solid #38bdf8; border-radius: 12px; padding: 20px; margin: 24px 0;">
+                                <span style="display: block; color: #94a3b8; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">Conversation Title</span>
+                                <span style="font-size: 20px; font-weight: 700; color: #f8fafc;">&ldquo;{{ConversationTitle}}&rdquo;</span>
+                            </div>
+
+                            <p style="color: #cbd5e1;">You can view the full transcript, AI insights, and continue the conversation directly by clicking below:</p>
+
+                            <!-- CTA Button -->
+                            <div style="text-align: center; margin: 32px 0;">
+                                <a href="{{ActionUrl}}" target="_blank" style="background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 16px; display: inline-block; box-shadow: 0 4px 14px 0 rgba(56, 189, 248, 0.39);">Open Conversation &rarr;</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding: 24px 32px; background-color: #0f172a; border-top: 1px solid #334155; text-align: center; color: #64748b; font-size: 13px;">
+                            <p style="margin: 0 0 8px 0;">&copy; {{Year}} {{AppName}}. All rights reserved.</p>
+                            <p style="margin: 0;">Collaborate smarter with AI engine insights.</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

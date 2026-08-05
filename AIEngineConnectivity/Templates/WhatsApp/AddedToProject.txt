@@ -1,0 +1,15 @@
+👥 *You've Been Added to a Project!*
+
+Hello *{{Name}}*,
+
+👤 *{{AddedBy}}* added you to the project team on *{{AppName}}*.
+
+📋 *Membership Details:*
+• *Project Name:* *{{ProjectName}}*
+• *Team Role:* *{{Role}}*
+• *Added By:* {{AddedBy}}
+
+🚀 Open your project workspace to get started:
+{{ActionUrl}}
+
+— *{{AppName}} Team*
