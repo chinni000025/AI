@@ -1,1 +1,1 @@
-NOTICE: Project "{{ProjectName}}" was deleted on {{AppName}} by {{DeletedBy}} at {{DeletionTime}}. Dashboard: {{ActionUrl}}
+NOTICE: Project "{{ProjectName}}" was deleted on AIEngine by {{DeletedBy}} at {{DeletionTime}}. Dashboard: {{ActionUrl}}

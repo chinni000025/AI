@@ -1,4 +1,4 @@
-📁 *Project Shared on {{AppName}}*
+📁 *Project Shared on AIEngine*
 
 Hello *{{Name}}*,
 
@@ -11,4 +11,4 @@ Hello *{{Name}}*,
 🚀 Access the project workspace and start collaborating:
 {{ActionUrl}}
 
-— *{{AppName}} Team*
+— *AIEngine Team*

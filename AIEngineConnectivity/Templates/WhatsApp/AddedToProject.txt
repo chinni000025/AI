@@ -2,7 +2,7 @@
 
 Hello *{{Name}}*,
 
-👤 *{{AddedBy}}* added you to the project team on *{{AppName}}*.
+👤 *{{AddedBy}}* added you to the project team on *AIEngine*.
 
 📋 *Membership Details:*
 • *Project Name:* *{{ProjectName}}*
@@ -12,4 +12,4 @@ Hello *{{Name}}*,
 🚀 Open your project workspace to get started:
 {{ActionUrl}}
 
-— *{{AppName}} Team*
+— *AIEngine Team*

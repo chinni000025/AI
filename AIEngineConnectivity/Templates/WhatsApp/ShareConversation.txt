@@ -2,11 +2,11 @@
 
 Hello *{{Name}}*,
 
-👤 *{{SenderName}}* has shared an AI conversation session with you on *{{AppName}}*.
+👤 *{{SenderName}}* has shared an AI conversation session with you on *AIEngine*.
 
 📌 *Title:* *{{ConversationTitle}}*
 
 👉 View full conversation transcript and AI insights here:
 {{ActionUrl}}
 
-— *{{AppName}} Workspace*
+— *AIEngine Workspace*

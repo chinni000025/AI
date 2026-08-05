@@ -1,1 +1,1 @@
-{{SenderName}} shared conversation "{{ConversationTitle}}" with you on {{AppName}}. Open chat: {{ActionUrl}}
+{{SenderName}} shared conversation "{{ConversationTitle}}" with you on AIEngine. Open chat: {{ActionUrl}}

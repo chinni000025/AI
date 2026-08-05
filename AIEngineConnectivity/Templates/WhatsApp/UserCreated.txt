@@ -1,4 +1,4 @@
-🎉 *Welcome to {{AppName}}!*
+🎉 *Welcome to AIEngine!*
 
 Hello *{{Name}}*,
 
@@ -13,4 +13,4 @@ Your account has been successfully created and is ready to use!
 
 If you need any assistance, reach out to our team at {{SupportEmail}}.
 
-— *The {{AppName}} Team*
+— *The AIEngine Team*

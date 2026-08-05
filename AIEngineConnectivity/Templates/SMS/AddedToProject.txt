@@ -1,1 +1,1 @@
-You've been added to project "{{ProjectName}}" as {{Role}} by {{AddedBy}} on {{AppName}}. Open workspace: {{ActionUrl}}
+You've been added to project "{{ProjectName}}" as {{Role}} by {{AddedBy}} on AIEngine. Open workspace: {{ActionUrl}}

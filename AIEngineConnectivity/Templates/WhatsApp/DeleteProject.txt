@@ -2,7 +2,7 @@
 
 Hello *{{Name}}*,
 
-The project *{{ProjectName}}* has been deleted from *{{AppName}}*.
+The project *{{ProjectName}}* has been deleted from *AIEngine*.
 
 ⚠️ *Event Summary:*
 • *Deleted Project:* *{{ProjectName}}*
@@ -12,4 +12,4 @@ The project *{{ProjectName}}* has been deleted from *{{AppName}}*.
 🔗 View your active projects dashboard:
 {{ActionUrl}}
 
-— *{{AppName}} Notifications*
+— *AIEngine Notifications*
