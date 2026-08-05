@@ -10,7 +10,7 @@
         {
             _EngineBus = engineBus;
         }
-        public async Task PublishEvent(EngineEvents @event, CancellationToken cancellationToken = default)
+        public async Task PublishEvent(EngineNotification @event, CancellationToken cancellationToken = default)
         {
             await _EngineBus.RouteAsync(@event, cancellationToken);
         }

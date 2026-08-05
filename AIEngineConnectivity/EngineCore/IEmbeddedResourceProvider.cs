@@ -3,7 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Text;
-    internal interface IEmbeddedResourceProvider
+    public interface IEmbeddedResourceProvider
     {
+        Task<string> GetResourceAsync(string ResourceName, CancellationToken cancellationToken = default);
     }
 }

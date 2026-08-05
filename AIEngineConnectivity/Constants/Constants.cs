@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Authentication.OAuth.Claims;
-
 namespace AIEngineConnectivity.Constants
 {
     public static class EngineConstants
@@ -174,14 +172,46 @@ namespace AIEngineConnectivity.Constants
     {
         public string Value;
         public EngineEvents(string value) => Value = value;
-        public static readonly EngineEvents UserCreated = new EngineEvents("User Created");
+        public static readonly EngineEvents UserCreated = new EngineEvents("UserCreated");
         public static readonly EngineEvents ForgetPassword = new EngineEvents("ForgetPassword");
-        public static readonly EngineEvents ShareConversation = new EngineEvents("Share Conversation");
-        public static readonly EngineEvents ShareProject = new EngineEvents("Share Project");
-        public static readonly EngineEvents AddProjectMember = new EngineEvents("Add Project Member");
-        public static readonly EngineEvents RemoveProjectMember = new EngineEvents("Remove Project Member");
-        public static readonly EngineEvents UserTagged = new EngineEvents("User Tagged");
-        public static readonly EngineEvents DeleteUserAccount = new EngineEvents("Delete User Account");
-        public static readonly EngineEvents DeleteProject = new EngineEvents("Delete Project");
+        public static readonly EngineEvents ShareConversation = new EngineEvents("ShareConversation");
+        public static readonly EngineEvents ShareProject = new EngineEvents("ShareProject");
+        public static readonly EngineEvents AddProjectMember = new EngineEvents("AddProjectMember");
+        public static readonly EngineEvents RemoveProjectMember = new EngineEvents("RemoveProjectMember");
+        public static readonly EngineEvents UserTagged = new EngineEvents("UserTagged");
+        public static readonly EngineEvents DeleteUserAccount = new EngineEvents("DeleteUserAccount");
+        public static readonly EngineEvents DeleteProject = new EngineEvents("DeleteProject");
+    }
+
+    public static class Templates
+    {
+        public static class EmailTemplates
+        {
+            public const string UserCreated = "AIEngineGateway.Templates.Email.UserCreated.html";
+            public const string ForgetPassword = "AIEngineGateway.Templates.Email.ForgetPassword.html";
+            public const string AddedToProject = "AIEngineGateway.Templates.Email.AddedToProject.html";
+            public const string ShareProject = "AIEngineGateway.Templates.Email.ShareProject.html";
+            public const string ShareConversation = "AIEngineGateway.Templates.Email.ShareConversation.html";
+            public const string DeleteProject = "AIEngineGateway.Templates.Email.DeleteProject.html";
+        }
+        public static class WhatsAppTemplates
+        {
+            public const string UserCreated = "AIEngineGateway.Templates.WhatsApp.UserCreated.txt";
+            public const string ForgetPassword = "AIEngineGateway.Templates.WhatsApp.ForgetPassword.txt";
+            public const string AddedToProject = "AIEngineGateway.Templates.WhatsApp.AddedToProject.txt";
+            public const string ShareProject = "AIEngineGateway.Templates.WhatsApp.ShareProject.txt";
+            public const string ShareConversation = "AIEngineGateway.Templates.WhatsApp.ShareConversation.txt";
+            public const string DeleteProject = "AIEngineGateway.Templates.WhatsApp.DeleteProject.txt";
+        }
+
+        public static class SMSTemplates
+        {
+            public const string UserCreated = "AIEngineGateway.Templates.SMS.UserCreated.txt";
+            public const string ForgetPassword = "AIEngineGateway.Templates.SMS.ForgetPassword.txt";
+            public const string AddedToProject = "AIEngineGateway.Templates.SMS.AddedToProject.txt";
+            public const string ShareProject = "AIEngineGateway.Templates.SMS.ShareProject.txt";
+            public const string ShareConversation = "AIEngineGateway.Templates.SMS.ShareConversation.txt";
+            public const string DeleteProject = "AIEngineGateway.Templates.SMS.DeleteProject.txt";
+        }
     }
 }

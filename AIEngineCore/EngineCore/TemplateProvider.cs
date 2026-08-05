@@ -1,15 +1,17 @@
 ﻿namespace AIEngineCore.EngineCore
 {
-    using AIEngineConnectivity.Constants;
     using AIEngineConnectivity.EngineCore;
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
     public class TemplateProvider : ITemplateProvider
     {
-        public Task<string> GetTemplate(EngineEvents @event, CancellationToken ct = default)
+        private IEmbeddedResourceProvider _EmbeddedResourceProvider;
+
+        public TemplateProvider(IEmbeddedResourceProvider embeddedResourceProvider)
         {
-            throw new NotImplementedException();
+            _EmbeddedResourceProvider = embeddedResourceProvider;
+        }
+        public Task<string> GetTemplate(EngineNotification @event, CancellationToken ct = default)
+        {
+            return _EmbeddedResourceProvider.GetResourceAsync(@event.EngineEvents.Value);
         }
     }
 }

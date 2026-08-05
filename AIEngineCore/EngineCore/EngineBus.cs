@@ -1,6 +1,5 @@
 ﻿namespace AIEngineCore.EngineCore
 {
-    using AIEngineConnectivity.Constants;
     using AIEngineConnectivity.EngineCore;
     using AIEngineCore.EngineNotifications;
 
@@ -15,9 +14,9 @@
             _EngineQueue = engineQueue;
         }
 
-        public async ValueTask RouteAsync(EngineEvents @event, CancellationToken ct = default)
+        public async ValueTask RouteAsync(EngineNotification @event, CancellationToken ct = default)
         {
-            var notifications = _EngineNotificationRegistry.GetNotifications(@event);
+            var notifications = _EngineNotificationRegistry.GetNotifications(@event.EngineEvents);
             foreach (var notification in notifications)
             {
                 await _EngineQueue.publishAsync(notification, ct);
