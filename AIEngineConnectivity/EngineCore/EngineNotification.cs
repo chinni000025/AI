@@ -7,6 +7,6 @@
     public sealed class EngineNotification
     {
         public required EngineEvents EngineEvents { get; set; }
-        public required IEngineNotification Notification { get; set; }
+        public required INotification Notification { get; set; }
     }
 }

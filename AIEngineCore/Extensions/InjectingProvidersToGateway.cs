@@ -25,6 +25,7 @@
             services.AddSingleton<IAIEngineRouter, OpenRouter_Router>();
             services.AddHostedService<EngineDispatcher>();
             services.AddHostedService<EngineEmailWorker>();
+            services.AddHostedService<EngineEmailRetryWorker>();
             return services;
         }
     }
