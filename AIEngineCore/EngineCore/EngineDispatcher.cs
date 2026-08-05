@@ -15,11 +15,11 @@
 
         public async Task ExecuteAsync(IEngineQueue<IEngineNotification> mainEngineQueue, CancellationToken cancellationToken = default)
         {
-            await foreach (var notification in mainEngineQueue.ReadAsync(cancellationToken))
+            await foreach (var engineNotifications in mainEngineQueue.ReadAsync(cancellationToken))
             {
-                if (_Router.TryGetValue(notification.GetType(), out var router))
+                if (_Router.TryGetValue(engineNotifications.GetType(), out var router))
                 {
-                    await router.publishAsync(notification, cancellationToken);
+                    await router.publishAsync(engineNotifications, cancellationToken);
                 }
             }
         }
