@@ -185,33 +185,38 @@ namespace AIEngineConnectivity.Constants
 
     public static class Templates
     {
-        public static class EmailTemplates
-        {
-            public const string UserCreated = "AIEngineGateway.Templates.Email.UserCreated.html";
-            public const string ForgetPassword = "AIEngineGateway.Templates.Email.ForgetPassword.html";
-            public const string AddedToProject = "AIEngineGateway.Templates.Email.AddedToProject.html";
-            public const string ShareProject = "AIEngineGateway.Templates.Email.ShareProject.html";
-            public const string ShareConversation = "AIEngineGateway.Templates.Email.ShareConversation.html";
-            public const string DeleteProject = "AIEngineGateway.Templates.Email.DeleteProject.html";
-        }
-        public static class WhatsAppTemplates
-        {
-            public const string UserCreated = "AIEngineGateway.Templates.WhatsApp.UserCreated.txt";
-            public const string ForgetPassword = "AIEngineGateway.Templates.WhatsApp.ForgetPassword.txt";
-            public const string AddedToProject = "AIEngineGateway.Templates.WhatsApp.AddedToProject.txt";
-            public const string ShareProject = "AIEngineGateway.Templates.WhatsApp.ShareProject.txt";
-            public const string ShareConversation = "AIEngineGateway.Templates.WhatsApp.ShareConversation.txt";
-            public const string DeleteProject = "AIEngineGateway.Templates.WhatsApp.DeleteProject.txt";
-        }
+        public static readonly IReadOnlyDictionary<EngineEvents, string> EmailTemplates =
+            new Dictionary<EngineEvents, string>
+            {
+                [EngineEvents.UserCreated] = "AIEngineGateway.Templates.Email.UserCreated.html",
+                [EngineEvents.ForgetPassword] = "AIEngineGateway.Templates.Email.ForgetPassword.html",
+                [EngineEvents.AddProjectMember] = "AIEngineGateway.Templates.Email.AddedToProject.html",
+                [EngineEvents.ShareProject] = "AIEngineGateway.Templates.Email.ShareProject.html",
+                [EngineEvents.ShareConversation] = "AIEngineGateway.Templates.Email.ShareConversation.html",
+                [EngineEvents.DeleteProject] = "AIEngineGateway.Templates.Email.DeleteProject.html"
+            };
 
-        public static class SMSTemplates
-        {
-            public const string UserCreated = "AIEngineGateway.Templates.SMS.UserCreated.txt";
-            public const string ForgetPassword = "AIEngineGateway.Templates.SMS.ForgetPassword.txt";
-            public const string AddedToProject = "AIEngineGateway.Templates.SMS.AddedToProject.txt";
-            public const string ShareProject = "AIEngineGateway.Templates.SMS.ShareProject.txt";
-            public const string ShareConversation = "AIEngineGateway.Templates.SMS.ShareConversation.txt";
-            public const string DeleteProject = "AIEngineGateway.Templates.SMS.DeleteProject.txt";
-        }
+        public static readonly IReadOnlyDictionary<EngineEvents, string> WhatsAppTemplates =
+            new Dictionary<EngineEvents, string>
+            {
+                [EngineEvents.UserCreated] = "AIEngineGateway.Templates.WhatsApp.UserCreated.txt",
+                [EngineEvents.ForgetPassword] = "AIEngineGateway.Templates.WhatsApp.ForgetPassword.txt",
+                [EngineEvents.AddProjectMember] = "AIEngineGateway.Templates.WhatsApp.AddedToProject.txt",
+                [EngineEvents.ShareProject] = "AIEngineGateway.Templates.WhatsApp.ShareProject.txt",
+                [EngineEvents.ShareConversation] = "AIEngineGateway.Templates.WhatsApp.ShareConversation.txt",
+                [EngineEvents.DeleteProject] = "AIEngineGateway.Templates.WhatsApp.DeleteProject.txt"
+            };
+
+        public static readonly IReadOnlyDictionary<EngineEvents, string> SMSTemplates =
+            new Dictionary<EngineEvents, string>
+            {
+                [EngineEvents.UserCreated] = "AIEngineGateway.Templates.SMS.UserCreated.txt",
+                [EngineEvents.ForgetPassword] = "AIEngineGateway.Templates.SMS.ForgetPassword.txt",
+                [EngineEvents.AddProjectMember] = "AIEngineGateway.Templates.SMS.AddedToProject.txt",
+                [EngineEvents.ShareProject] = "AIEngineGateway.Templates.SMS.ShareProject.txt",
+                [EngineEvents.ShareConversation] = "AIEngineGateway.Templates.SMS.ShareConversation.txt",
+                [EngineEvents.DeleteProject] = "AIEngineGateway.Templates.SMS.DeleteProject.txt"
+            };
+
     }
 }

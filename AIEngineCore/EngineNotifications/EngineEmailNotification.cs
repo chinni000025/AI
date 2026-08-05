@@ -1,12 +1,15 @@
 ﻿namespace AIEngineCore.EngineNotifications
 {
+    using AIEngineConnectivity.Constants;
     using AIEngineConnectivity.EngineCore;
-    using System;
     using System.Collections.Generic;
-    using System.Text;
 
     public class EngineEmailNotification : IEngineNotification
     {
-
+        public string ToAddress { get; init; } = string.Empty;
+        public string Subject { get; init; } = string.Empty;
+        public string Body { get; init; }
+        public EngineEvents EngineEvent { get; init; }
+        public Dictionary<string, string> parameters { get; init; } = [];
     }
 }

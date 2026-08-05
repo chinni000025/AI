@@ -28,7 +28,10 @@
 
         public async Task ConsumeAsync(CancellationToken cancellationToken)
         {
-            //Email Service.
+            await foreach (var notification in _EmailQueue.ReadAsync(cancellationToken))
+            {
+                //Process overhere.
+            }
         }
     }
 }
