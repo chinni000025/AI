@@ -1,1 +1,0 @@
-{{SenderName}} shared conversation "{{ConversationTitle}}" with you on {{AppName}}. Open chat: {{ActionUrl}}

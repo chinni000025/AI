@@ -1,1 +1,0 @@
-{{SenderName}} shared project "{{ProjectName}}" (Role: {{ProjectRole}}) with you on {{AppName}}. View project: {{ActionUrl}}

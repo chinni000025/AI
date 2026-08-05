@@ -1,1 +1,0 @@
-NOTICE: Project "{{ProjectName}}" was deleted on {{AppName}} by {{DeletedBy}} at {{DeletionTime}}. Dashboard: {{ActionUrl}}

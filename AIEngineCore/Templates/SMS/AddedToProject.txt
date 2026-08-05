@@ -1,1 +1,0 @@
-You've been added to project "{{ProjectName}}" as {{Role}} by {{AddedBy}} on {{AppName}}. Open workspace: {{ActionUrl}}
