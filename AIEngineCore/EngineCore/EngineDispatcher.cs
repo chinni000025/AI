@@ -13,11 +13,11 @@
             _Router = notifications.ToDictionary(r => r.EngineNotificationType);
         }
 
-        public async Task ExecuteAsync(IEngineQueue<IEngineNotification> mainEngineQueue, CancellationToken cancellationToken = default)
+        public async Task ExecuteAsync(IEngineQueue<EngineNotification> mainEngineQueue, CancellationToken cancellationToken = default)
         {
             await foreach (var engineNotifications in mainEngineQueue.ReadAsync(cancellationToken))
             {
-                if (_Router.TryGetValue(engineNotifications.GetType(), out var router))
+                if (_Router.TryGetValue(engineNotifications.Notification.GetType(), out var router))
                 {
                     await router.publishAsync(engineNotifications, cancellationToken);
                 }

@@ -7,6 +7,6 @@
     public interface IEngineNotificationRouter
     {
         public Type EngineNotificationType { get; }
-        public ValueTask publishAsync(IEngineNotification notification, CancellationToken cancellationToken = default);
+        public ValueTask publishAsync(EngineNotification notification, CancellationToken cancellationToken = default);
     }
 }

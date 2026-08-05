@@ -7,11 +7,11 @@
 
     public class EngineEmailWorker : BackgroundService
     {
-        private IEngineQueue<EngineEmailNotification> _EmailQueue;
+        private IEngineQueue<EngineNotification> _EmailQueue;
         private IEmailService _EmailService;
         private WorkerConfiguration _WorkerConfiguration;
 
-        public EngineEmailWorker(IEngineQueue<EngineEmailNotification> emailQueue,
+        public EngineEmailWorker(IEngineQueue<EngineNotification> emailQueue,
             IEmailService emailService,
             IOptions<WorkerConfiguration> options)
         {
