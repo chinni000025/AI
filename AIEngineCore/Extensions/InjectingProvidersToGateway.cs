@@ -1,6 +1,8 @@
 ﻿namespace AIEngineCore.Extensions
 {
     using AIEngineConnectivity.EngineCore;
+    using AIEngineCore.EngineCore;
+    using AIEngineCore.EngineNotifications;
     using AIEngineCore.Providers;
     using AIEngineCore.Services;
     using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +23,8 @@
             services.AddSingleton<IAIEngineRouter, HuggingFaceRouter>();
             services.AddSingleton<IAIEngineRouter, Ollamarouter>();
             services.AddSingleton<IAIEngineRouter, OpenRouter_Router>();
+            services.AddHostedService<EngineDispatcher>();
+            services.AddHostedService<EngineEmailWorker>();
             return services;
         }
     }

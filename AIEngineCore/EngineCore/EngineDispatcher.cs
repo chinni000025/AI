@@ -1,21 +1,24 @@
 ﻿namespace AIEngineCore.EngineCore
 {
     using AIEngineConnectivity.EngineCore;
+    using Microsoft.Extensions.Hosting;
     using System;
     using System.Collections.ObjectModel;
 
-    public sealed class EngineDispatcher
+    public sealed class EngineDispatcher : BackgroundService
     {
         private readonly IReadOnlyDictionary<Type, IEngineNotificationRouter> _Router;
+        private readonly IEngineQueue<EngineNotification> _MainEngineQueue;
 
-        public EngineDispatcher(IEnumerable<IEngineNotificationRouter> notifications)
+        public EngineDispatcher(IEnumerable<IEngineNotificationRouter> notifications, IEngineQueue<EngineNotification> engineQueue)
         {
             _Router = notifications.ToDictionary(r => r.EngineNotificationType);
+            _MainEngineQueue = engineQueue;
         }
 
-        public async Task ExecuteAsync(IEngineQueue<EngineNotification> mainEngineQueue, CancellationToken cancellationToken = default)
+        protected override async Task ExecuteAsync(CancellationToken cancellationToken = default)
         {
-            await foreach (var engineNotifications in mainEngineQueue.ReadAsync(cancellationToken))
+            await foreach (var engineNotifications in _MainEngineQueue.ReadAsync(cancellationToken))
             {
                 if (_Router.TryGetValue(engineNotifications.Notification.GetType(), out var router))
                 {
