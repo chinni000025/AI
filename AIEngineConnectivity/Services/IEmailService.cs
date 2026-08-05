@@ -1,13 +1,14 @@
-﻿using AIEngineConnectivity.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace AIEngineConnectivity.Services
+﻿namespace AIEngineConnectivity.Services
 {
+    using AIEngineConnectivity.EngineCore;
+    using AIEngineConnectivity.Models;
+    using AIEngineCore.EngineNotifications;
+    using System;
+    using System.Collections.Generic;
+    using System.Text;
     public interface IEmailService
     {
-        public Task SendEmail(string to, string body);
+        public Task SendEmail(EngineNotification engineEmailNotification);
         public Task SendTestMail(SmtpConfiguration smtpConfiguration);
     }
 }

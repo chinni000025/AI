@@ -30,7 +30,7 @@
         {
             await foreach (var notification in _EmailQueue.ReadAsync(cancellationToken))
             {
-                //Process overhere.
+                await _EmailService.SendEmail(notification);
             }
         }
     }

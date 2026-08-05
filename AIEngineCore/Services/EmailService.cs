@@ -1,8 +1,10 @@
 ﻿namespace AIEngineCore.Services
 {
+    using AIEngineConnectivity.EngineCore;
     using AIEngineConnectivity.Models;
     using AIEngineConnectivity.Repositories;
     using AIEngineConnectivity.Services;
+    using AIEngineCore.EngineNotifications;
     using Microsoft.Extensions.Options;
     using System.Net;
     using System.Net.Mail;
@@ -12,17 +14,29 @@
         private readonly SmtpConfiguration _smtpConfiguration;
         private readonly IUserService _userService;
         private readonly IRepositoryWrapper _repository;
-        public EmailService(IOptions<SmtpConfiguration> options, IUserService userService, IRepositoryWrapper repositoryWrapper)
+        private readonly ITemplateProvider _TemplateProvider;
+        private readonly ITemplateRenderer _TemplateRender;
+        public EmailService(IOptions<SmtpConfiguration> options, IUserService userService,
+            IRepositoryWrapper repositoryWrapper, ITemplateProvider templateProvider,
+            ITemplateRenderer templateRenderer)
         {
             _smtpConfiguration = options.Value;
             _userService = userService;
             _repository = repositoryWrapper;
+            _TemplateProvider = templateProvider;
+            _TemplateRender = templateRenderer;
         }
 
-        public async Task SendEmail(string to, string body)
+        public async Task SendEmail(EngineNotification notification)
         {
             try
             {
+                if (notification.Notification is not EngineEmailNotification EmailData)
+                    throw new NotSupportedException("Internal Server Error");
+
+                var rawTemplate = await _TemplateProvider.GetTemplate(notification.EngineEvents);
+                string renderedBody = _TemplateRender.Render(rawTemplate, EmailData.parameters);
+
                 using var client = new SmtpClient
                 {
                     Host = _smtpConfiguration.Host,
@@ -34,12 +48,12 @@
                 var email = new MailMessage
                 {
                     From = new MailAddress(_smtpConfiguration.User),
-                    Body = body,
-                    Subject = $"AI Engine Password Reset Confirmation",
+                    Body = renderedBody,
+                    Subject = EmailData.Subject,
                     IsBodyHtml = true,
                 };
 
-                email.To.Add(to);
+                email.To.Add(EmailData.ToAddress);
                 await client.SendMailAsync(email);
             }
             catch

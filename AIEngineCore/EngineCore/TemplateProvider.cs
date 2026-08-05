@@ -1,5 +1,6 @@
 ﻿namespace AIEngineCore.EngineCore
 {
+    using AIEngineConnectivity.Constants;
     using AIEngineConnectivity.EngineCore;
     public class TemplateProvider : ITemplateProvider
     {
@@ -9,9 +10,9 @@
         {
             _EmbeddedResourceProvider = embeddedResourceProvider;
         }
-        public Task<string> GetTemplate(EngineNotification @event, CancellationToken ct = default)
+        public Task<string> GetTemplate(EngineEvents @event, CancellationToken ct = default)
         {
-            return _EmbeddedResourceProvider.GetResourceAsync(@event.EngineEvents.Value);
+            return _EmbeddedResourceProvider.GetResourceAsync(@event.Value);
         }
     }
 }
