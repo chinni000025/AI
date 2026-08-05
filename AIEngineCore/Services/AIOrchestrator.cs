@@ -29,9 +29,9 @@
             try
             {
                 AIResponse response = null;
-                if (_Router.TryGetValue(aiRequest.Provider, out var router))
+                if (_Router.TryGetValue(aiRequest.Provider, out var provider))
                 {
-                    response = await router.GenerateAIResponse(aiRequest);
+                    response = await provider.GenerateAIResponse(aiRequest);
                 }
                 return new AIResponse
                 {

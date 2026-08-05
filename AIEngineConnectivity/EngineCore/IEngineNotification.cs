@@ -3,7 +3,5 @@
     using System;
     using System.Collections.Generic;
     using System.Text;
-    public interface IEngineNotification
-    {
-    }
+    public interface IEngineNotification { }
 }
