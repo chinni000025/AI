@@ -2,6 +2,7 @@ namespace AIEngineGateway.Extensions
 {
     using AIEngineConnectivity.Constants;
     using AIEngineConnectivity.DTOs;
+    using AIEngineConnectivity.EngineCore;
     using AIEngineConnectivity.Helpers;
     using AIEngineConnectivity.Models;
     using AIEngineConnectivity.Repositories;
@@ -129,6 +130,7 @@ namespace AIEngineGateway.Extensions
             services.Configure<HuggingFaceApiKeyConfiguration>(config.GetSection("HuggingFace"));
             services.Configure<OpenRouterAPiKeyConfiguration>(config.GetSection("OpenRouter"));
             services.Configure<CohereApiKeyConfiguration>(config.GetSection("Cohere"));
+            services.Configure<WorkerConfiguration>(config.GetSection("WorkersConfiguration"));
         }
 
         public static void EncryptionExtensions(IServiceCollection services)

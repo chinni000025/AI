@@ -3,6 +3,6 @@
     using AIEngineConnectivity.Constants;
     public interface IEngineBus
     {
-        public ValueTask ConnectEngineBus(EngineEvents Event, CancellationToken ct = default);
+        public ValueTask RouteAsync(EngineEvents Event, CancellationToken ct = default);
     }
 }

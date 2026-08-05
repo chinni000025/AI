@@ -15,7 +15,7 @@
             _EngineQueue = engineQueue;
         }
 
-        public async ValueTask ConnectEngineBus(EngineEvents @event, CancellationToken ct = default)
+        public async ValueTask RouteAsync(EngineEvents @event, CancellationToken ct = default)
         {
             var notifications = _EngineNotificationRegistry.GetNotifications(@event);
             foreach (var notification in notifications)

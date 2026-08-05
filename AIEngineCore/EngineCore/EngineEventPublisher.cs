@@ -12,7 +12,7 @@
         }
         public async Task PublishEvent(EngineEvents @event, CancellationToken cancellationToken = default)
         {
-            await _EngineBus.ConnectEngineBus(@event, cancellationToken);
+            await _EngineBus.RouteAsync(@event, cancellationToken);
         }
     }
 }
