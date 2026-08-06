@@ -27,14 +27,14 @@
             _TemplateRender = templateRenderer;
         }
 
-        public async Task SendEmail(EngineNotification notification)
+        public async Task SendEmail(EngineNotification notification, CancellationToken cancellation)
         {
             try
             {
                 if (notification.Notification is not EngineEmailNotification EmailData)
                     throw new NotSupportedException("Internal Server Error");
 
-                var rawTemplate = await _TemplateProvider.GetTemplate(notification.EngineEvents);
+                var rawTemplate = await _TemplateProvider.GetTemplate(notification.EngineEvents, cancellation);
                 string renderedBody = _TemplateRender.Render(rawTemplate, EmailData.parameters);
 
                 using var client = new SmtpClient
@@ -54,7 +54,7 @@
                 };
 
                 email.To.Add(EmailData.ToAddress);
-                await client.SendMailAsync(email);
+                await client.SendMailAsync(email, cancellation);
             }
             catch
             {

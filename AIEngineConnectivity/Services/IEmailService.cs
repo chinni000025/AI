@@ -8,7 +8,7 @@
     using System.Text;
     public interface IEmailService
     {
-        public Task SendEmail(EngineNotification engineEmailNotification);
+        public Task SendEmail(EngineNotification engineEmailNotification, CancellationToken cancellation);
         public Task SendTestMail(SmtpConfiguration smtpConfiguration);
     }
 }
