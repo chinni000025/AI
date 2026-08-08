@@ -1,7 +1,6 @@
 ﻿namespace AIEngineCore.Extensions
 {
     using AIEngineConnectivity.EngineCore;
-    using AIEngineConnectivity.Services;
     using AIEngineCore.EngineCore;
     using AIEngineCore.EngineNotifications;
     using AIEngineCore.Providers;
