@@ -2,11 +2,14 @@
 {
     using AIEngineConnectivity.Constants;
     using AIEngineConnectivity.DTOs;
+    using AIEngineConnectivity.EngineCore;
     using AIEngineConnectivity.Entities;
     using AIEngineConnectivity.Helpers;
     using AIEngineConnectivity.Models;
     using AIEngineConnectivity.Repositories;
     using AIEngineConnectivity.Services;
+    using AIEngineCore.EngineCore;
+    using AIEngineCore.EngineNotifications;
     using AIEngineGateway.Hub;
     using Microsoft.AspNetCore.Antiforgery;
     using Microsoft.AspNetCore.SignalR;
@@ -23,31 +26,31 @@
         private readonly ITokenService _TokenService;
         private readonly JWTConfiguration _jWTConfiguration;
         private readonly IRepositoryWrapper _Repository;
-        private readonly IEmailService _EmailService;
         private readonly IUserSessionManager _userSessionManager;
         private readonly IHubContext<NotificationHub> _hubContext;
         private readonly IAntiforgery _antiforgery;
+        private readonly IServiceProvider _ServiceProvider;
 
         public IdentityService(IPasswordService passwordService,
             IIdentityHelper identityHelper, IHttpContextAccessor httpContextAccessor,
             IOptions<JWTConfiguration> options,
             ITokenService tokenService,
             IRepositoryWrapper repositoryWrapper,
-            IEmailService emailService,
             IIdentityRepository identityRepository,
             IUserSessionManager userSessionManager,
             IAntiforgery antiforgery,
-            IHubContext<NotificationHub> hubContext)
+            IHubContext<NotificationHub> hubContext,
+            IServiceProvider serviceProvider)
         {
             _passwordService = passwordService;
             _httpContextAccessor = httpContextAccessor;
             _TokenService = tokenService;
             _jWTConfiguration = options.Value;
             _Repository = repositoryWrapper;
-            _EmailService = emailService;
             _userSessionManager = userSessionManager;
             _hubContext = hubContext;
             _antiforgery = antiforgery;
+            _ServiceProvider = serviceProvider;
         }
 
         public async Task<object> AllowEngineAccess(User user, CancellationToken cancellationToken)
@@ -112,6 +115,25 @@
                 CreatedAt = DateTime.UtcNow,
                 IsActive = true,
             };
+            var eventPublisher = _ServiceProvider.GetRequiredService<EngineEventPublisher>();
+            await eventPublisher.PublishEvent(new EngineNotification
+            {
+                EngineEvents = EngineEvents.UserCreated,
+                Notification = new EngineEmailNotification
+                {
+                    ToAddress = newUser.Email,
+                    Subject = "Account Created Successfully",
+                    parameters = new Dictionary<string, string>
+                    {
+                        ["LogoUrl"] = "https://your-domain.com/assets/logo.png",
+                        ["Name"] = newUser.UserName,
+                        ["Email"] = newUser.Email,
+                        ["ActionUrl"] = "https://your-domain.com",
+                        ["SupportEmail"] = "support@your-domain.com",
+                        ["Year"] = DateTime.UtcNow.Year.ToString()
+                    }
+                }
+            });
             var hashedPassword = _passwordService.HashPassword(newUser, userRegister.Password);
             newUser.Password = hashedPassword;
             await _Repository.GetEngineRepo<User>().AddAsync(newUser, cancellationToken);
@@ -259,7 +281,6 @@
 
             try
             {
-                //await _EmailService.SendEmail(user.Email, body);
             }
             catch
             {

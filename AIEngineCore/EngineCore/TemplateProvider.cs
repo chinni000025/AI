@@ -12,7 +12,10 @@
         }
         public Task<string> GetTemplate(EngineEvents @event, CancellationToken ct = default)
         {
-            return _EmbeddedResourceProvider.GetResourceAsync(@event.Value);
+            if (Templates.EmailTemplates.TryGetValue(@event, out var resourcePath))
+                return _EmbeddedResourceProvider.GetResourceAsync(resourcePath);
+
+            throw new KeyNotFoundException($"Template for event {@event.Value} not found.");
         }
     }
 }

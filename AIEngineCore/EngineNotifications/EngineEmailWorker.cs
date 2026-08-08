@@ -2,6 +2,7 @@
 {
     using AIEngineConnectivity.EngineCore;
     using AIEngineConnectivity.Services;
+    using AIEngineCore.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Options;
@@ -39,12 +40,16 @@
                     var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
                     await emailService.SendEmail(notification, cancellationToken);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    if (!ex.CanRetryEmailNotification())
+                    {
+                        continue;
+                    }
                     var engineEmailRetryNotification = new EngineRetryNotification
                     {
                         EngineNotification = notification,
-                        Retries = 1
+                        Retries = 0
                     };
                     await _EngineRetryQueue.publishAsync(engineEmailRetryNotification, cancellationToken);
                 }

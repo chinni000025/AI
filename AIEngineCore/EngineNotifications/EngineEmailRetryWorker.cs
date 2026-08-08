@@ -41,7 +41,7 @@
                 }
                 catch (Exception ex)
                 {
-                    if (!ShouldRetry(ex))
+                    if (!ex.CanRetryEmailNotification())
                     {
                         //logging or some thing.
                         continue;
@@ -57,19 +57,6 @@
                     await _EmailQueue.publishAsync(retryNotification);
                 }
             }
-        }
-        private static bool ShouldRetry(Exception exception)
-        {
-            return exception switch
-            {
-                TimeoutException => true,
-                SocketException => true,
-                SmtpException smtp
-                    when smtp.StatusCode == SmtpStatusCode.MailboxBusy
-                      || smtp.StatusCode == SmtpStatusCode.MailboxUnavailable
-                      || smtp.StatusCode == SmtpStatusCode.TransactionFailed => true,
-                _ => false
-            };
         }
     }
 }
