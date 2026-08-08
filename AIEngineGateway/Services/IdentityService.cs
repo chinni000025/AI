@@ -259,7 +259,7 @@
 
             try
             {
-                await _EmailService.SendEmail(user.Email, body);
+                //await _EmailService.SendEmail(user.Email, body);
             }
             catch
             {

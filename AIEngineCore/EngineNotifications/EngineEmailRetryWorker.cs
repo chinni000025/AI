@@ -3,6 +3,7 @@
     using AIEngineConnectivity.EngineCore;
     using AIEngineConnectivity.Services;
     using AIEngineCore.Extensions;
+    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Options;
     using System.Net.Mail;
@@ -11,14 +12,14 @@
     public class EngineEmailRetryWorker : BackgroundService
     {
         private IEngineQueue<EngineRetryNotification> _EmailQueue;
-        private IEmailService _EmailService;
         private WorkerConfiguration _WorkerConfiguration;
+        private IServiceScopeFactory _ServiceScopeFactory;
         public EngineEmailRetryWorker(IEngineQueue<EngineRetryNotification> emailQueue,
-            IEmailService emailService, IOptions<WorkerConfiguration> options)
+            IOptions<WorkerConfiguration> options, IServiceScopeFactory serviceProvider)
         {
             _EmailQueue = emailQueue;
-            _EmailService = emailService;
             _WorkerConfiguration = options.Value;
+            _ServiceScopeFactory = serviceProvider;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -34,7 +35,9 @@
             {
                 try
                 {
-                    await _EmailService.SendEmail(retryNotification.EngineNotification, cancellation);
+                    await using var scope = _ServiceScopeFactory.CreateAsyncScope();
+                    var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
+                    await emailService.SendEmail(retryNotification.EngineNotification, cancellation);
                 }
                 catch (Exception ex)
                 {

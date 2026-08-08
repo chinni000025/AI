@@ -23,6 +23,11 @@
             services.AddSingleton<IAIEngineRouter, HuggingFaceRouter>();
             services.AddSingleton<IAIEngineRouter, Ollamarouter>();
             services.AddSingleton<IAIEngineRouter, OpenRouter_Router>();
+            services.AddSingleton<IEmbeddedResourceProvider>(sp =>
+                new EmbeddedResourceProvider(typeof(EmbeddedResourceProvider).Assembly));
+            services.AddSingleton<ITemplateProvider, TemplateProvider>();
+            services.AddSingleton<ITemplateRenderer, TemplateRenderer>();
+            services.AddSingleton(typeof(IEngineQueue<>), typeof(EngineQueue<>));
             services.AddHostedService<EngineDispatcher>();
             services.AddHostedService<EngineEmailWorker>();
             services.AddHostedService<EngineEmailRetryWorker>();

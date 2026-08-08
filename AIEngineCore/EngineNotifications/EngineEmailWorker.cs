@@ -2,24 +2,25 @@
 {
     using AIEngineConnectivity.EngineCore;
     using AIEngineConnectivity.Services;
+    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Options;
 
     public class EngineEmailWorker : BackgroundService
     {
         private IEngineQueue<EngineNotification> _EmailQueue;
-        private IEmailService _EmailService;
         private WorkerConfiguration _WorkerConfiguration;
         private IEngineQueue<EngineRetryNotification> _EngineRetryQueue;
+        private IServiceScopeFactory _ServiceScopeFactory;
 
-        public EngineEmailWorker(IEngineQueue<EngineNotification> emailQueue,
-            IEmailService emailService, IEngineQueue<EngineRetryNotification> engineRetryQueue,
-            IOptions<WorkerConfiguration> options)
+        public EngineEmailWorker(IEngineQueue<EngineNotification> emailQueue, IEngineQueue<EngineRetryNotification> engineRetryQueue,
+            IOptions<WorkerConfiguration> options,
+            IServiceScopeFactory serviceProvider)
         {
             _EmailQueue = emailQueue;
-            _EmailService = emailService;
             _WorkerConfiguration = options.Value;
             _EngineRetryQueue = engineRetryQueue;
+            _ServiceScopeFactory = serviceProvider;
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -30,12 +31,13 @@
 
         public async Task ConsumeAsync(CancellationToken cancellationToken)
         {
-
             await foreach (var notification in _EmailQueue.ReadAsync(cancellationToken))
             {
                 try
                 {
-                    await _EmailService.SendEmail(notification, cancellationToken);
+                    await using var scope = _ServiceScopeFactory.CreateAsyncScope();
+                    var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
+                    await emailService.SendEmail(notification, cancellationToken);
                 }
                 catch
                 {
