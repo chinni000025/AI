@@ -113,6 +113,7 @@ namespace AIEngineGateway.Extensions
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IPasswordService, PasswordServices>();
             services.AddScoped<IEmailService, EmailService>();
+            services.AddSingleton<IEngineScheduler, EngineScheduler>();
         }
 
         public static void AIExtensions(IServiceCollection services)
