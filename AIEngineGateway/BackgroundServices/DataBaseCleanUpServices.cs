@@ -11,6 +11,7 @@
         {
             _serviceScopeFactory = serviceProviderFactory;
         }
+
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
             var timer = new PeriodicTimer(TimeSpan.FromSeconds(30));

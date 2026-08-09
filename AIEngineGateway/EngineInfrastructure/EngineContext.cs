@@ -3,6 +3,7 @@ namespace AIEngineGateway.EngineInfrastructure
     using Microsoft.EntityFrameworkCore;
     using AIEngineConnectivity.Models;
     using AIEngineConnectivity.Entities;
+    using AIEngineConnectivity.EngineCore;
 
     public abstract class EngineContext : DbContext
     {
@@ -43,6 +44,8 @@ namespace AIEngineGateway.EngineInfrastructure
         public DbSet<EngineConnection> EngineConnections { get; set; }
 
         public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
+
+        public DbSet<AIEngineConnectivity.Entities.EngineNotification> EngineNotifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
