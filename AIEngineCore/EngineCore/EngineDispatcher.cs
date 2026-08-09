@@ -18,12 +18,19 @@
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken = default)
         {
-            await foreach (var engineNotifications in _MainEngineQueue.ReadAsync(cancellationToken))
+            try
             {
-                if (_Router.TryGetValue(engineNotifications.Notification.GetType(), out var router))
+                await foreach (var engineNotifications in _MainEngineQueue.ReadAsync(cancellationToken))
                 {
-                    await router.publishAsync(engineNotifications, cancellationToken);
+                    if (_Router.TryGetValue(engineNotifications.Notification.GetType(), out var router))
+                    {
+                        await router.publishAsync(engineNotifications, cancellationToken);
+                    }
                 }
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+
             }
         }
     }

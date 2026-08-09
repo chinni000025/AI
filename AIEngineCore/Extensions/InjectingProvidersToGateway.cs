@@ -19,7 +19,7 @@
             return services;
         }
 
-        public static void InitializeEngineCore(this IServiceCollection services)
+        public static void InitializeEngineCore(IServiceCollection services)
         {
             services.AddSingleton<EngineEventPublisher>();
             services.AddSingleton<IEngineBus, EngineBus>();
@@ -31,7 +31,7 @@
             services.AddSingleton(typeof(IEngineQueue<>), typeof(EngineQueue<>));
         }
 
-        public static void InitailzeProviders(this IServiceCollection services)
+        public static void InitailzeProviders(IServiceCollection services)
         {
             services.AddSingleton<GeminiProvider>();
             services.AddSingleton<GroqProvider>();
@@ -41,14 +41,14 @@
             services.AddSingleton<CohereProvider>();
         }
 
-        public static void AddingHostingServices(this IServiceCollection services)
+        public static void AddingHostingServices(IServiceCollection services)
         {
             services.AddHostedService<EngineDispatcher>();
             services.AddHostedService<EngineEmailWorker>();
             services.AddHostedService<EngineEmailRetryWorker>();
         }
 
-        public static void InitializingRouters(this IServiceCollection services)
+        public static void InitializingRouters(IServiceCollection services)
         {
             services.AddSingleton<IAIEngineRouter, CohereRouter>();
             services.AddSingleton<IAIEngineRouter, GeminiRouter>();

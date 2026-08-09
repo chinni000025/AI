@@ -1,4 +1,4 @@
-﻿namespace AIEngineGateway.Services
+﻿namespace AIEngineGateway.EngineInfrastructure
 {
     using AIEngineGateway.Extensions;
     using Microsoft.Data.SqlClient;

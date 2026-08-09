@@ -24,9 +24,13 @@
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var tasks = Enumerable.Range(0, _WorkerConfiguration.ConsumerCount)
-                            .Select(async _ => await SendEmail(stoppingToken));
-            await Task.WhenAll(tasks);
+            try
+            {
+                var tasks = Enumerable.Range(0, _WorkerConfiguration.ConsumerCount)
+                                .Select(async _ => await SendEmail(stoppingToken));
+                await Task.WhenAll(tasks);
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested) { }
         }
 
         public async Task SendEmail(CancellationToken cancellation)

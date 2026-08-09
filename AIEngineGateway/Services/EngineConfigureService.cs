@@ -2,6 +2,7 @@
 {
     using AIEngineConnectivity.DTOs;
     using AIEngineConnectivity.Services;
+    using AIEngineGateway.EngineInfrastructure;
     using AIEngineGateway.Extensions;
     using Microsoft.EntityFrameworkCore;
 

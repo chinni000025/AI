@@ -17,6 +17,8 @@ namespace AIEngineGateway.Extensions
     using AIEngineGateway.Repositories;
     using AIEngineGateway.Services;
     using AIEngineSpeechRecognition.Services;
+    using Quartz;
+    using Quartz.Simpl;
     using Serilog;
     using static AIEngineConnectivity.Constants.EngineConstants;
 
@@ -34,6 +36,7 @@ namespace AIEngineGateway.Extensions
             CleanUpJobs(services);
             CorsOrigin(services);
             Logger();
+            AddEngineQuartzServices(services);
         }
 
         public static void EngineDataBaseServices(IServiceCollection services)
@@ -176,6 +179,48 @@ namespace AIEngineGateway.Extensions
                     retainedFileCountLimit: 5,
                     outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff}] [{Level:u3}] {Message:lj}{NewLine}{Exception}")
                 .CreateLogger();
+        }
+
+        public static void AddEngineQuartzServices(IServiceCollection services)
+        {
+            var serviceProvider = services.BuildServiceProvider();
+            var engineConfig = serviceProvider.GetRequiredService<EngineConfig>();
+            services.AddQuartz(p =>
+            {
+                if (engineConfig.IsEngineConfig())
+                {
+                    var dbProvider = engineConfig.GetDatabaseType();
+                    var connectionString = engineConfig.ConnectionString();
+                    p.UsePersistentStore(store =>
+                    {
+                        store.UseProperties = true;
+                        store.UseSystemTextJsonSerializer();
+                        store.PerformSchemaValidation = false;
+                        if (dbProvider == DataBaseProvider.SqlServer)
+                        {
+                            store.UseSqlServer(sql =>
+                            {
+                                sql.ConnectionString = connectionString;
+                                sql.TablePrefix = "QRTZ_";
+                            });
+                        }
+                        else if (dbProvider == DataBaseProvider.PostgreSql)
+                        {
+                            store.UsePostgres(postgres =>
+                            {
+                                postgres.ConnectionString = connectionString;
+                                postgres.TablePrefix = "qrtz_";
+                            });
+                        }
+                    });
+                }
+                else { return; }
+            });
+
+            services.AddQuartzHostedService(options =>
+            {
+                options.WaitForJobsToComplete = true;
+            });
         }
     }
 }

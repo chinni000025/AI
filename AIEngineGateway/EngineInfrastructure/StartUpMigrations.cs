@@ -1,8 +1,10 @@
-﻿
+
 namespace AIEngineGateway.EngineInfrastructure
 {
-    using AIEngineGateway.Services;
+    using AIEngineGateway.EngineInfrastructure.DatabaseScripts;
     using Microsoft.EntityFrameworkCore;
+    using static AIEngineConnectivity.Constants.EngineConstants;
+
     public class StartUpMigrations
     {
         private readonly IServiceProvider _serviceProvider;
@@ -28,15 +30,27 @@ namespace AIEngineGateway.EngineInfrastructure
 
                 if (pendingMigrations.Any())
                     await EngineScheme.Database.MigrateAsync();
-
+                await EnsureQuartzTablesExistAsync(EngineScheme, _engineConfig.GetDatabaseType());
                 var postMigrationsRunner = new PostMigrationRunner(EngineScheme);
                 await postMigrationsRunner.RunAsync();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                throw;
+                throw new Exception(ex.Message);
             }
+        }
+
+        private async Task EnsureQuartzTablesExistAsync(EngineContext context, DataBaseProvider dbProvider)
+        {
+            var scriptFile = dbProvider switch
+            {
+                DataBaseProvider.SqlServer => "Quartz_SqlServer.sql",
+                DataBaseProvider.PostgreSql => "Quartz_Postgres.sql",
+                _ => throw new NotSupportedException($"Unsupported database provider: {dbProvider}")
+            };
+            var sqlScripts = await ScriptLoader.LoadScriptsAsync(scriptFile);
+            await context.Database.ExecuteSqlRawAsync(sqlScripts);
         }
     }
 }

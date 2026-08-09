@@ -51,8 +51,9 @@
             catch (Exception ex)
             {
                 _engineState.IsEngineReady = false;
-                _engineState.ErrorMessage = "Engine setup failed. Please check your internet connectivity.";
+                _engineState.ErrorMessage = $"Engine setup failed. Please check your internet connectivity.{ex.Message}";
                 _logger.LogError($"Error Occured On EngineStartup Service  {ex.Message}");
+                throw new Exception(ex.Message);
             }
             finally
             {
