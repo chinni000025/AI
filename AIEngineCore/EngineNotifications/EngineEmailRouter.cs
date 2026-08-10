@@ -7,16 +7,16 @@
 
     public class EngineEmailRouter : IEngineNotificationRouter
     {
-        private IEngineQueue<EngineNotification> _EmailNotificationQueue;
+        private IEngineQueue<EngineNotificationMessage> _EmailNotificationQueue;
 
-        public EngineEmailRouter(IEngineQueue<EngineNotification> emailNotificationQueue)
+        public EngineEmailRouter(IEngineQueue<EngineNotificationMessage> emailNotificationQueue)
         {
             _EmailNotificationQueue = emailNotificationQueue;
         }
 
         public Type EngineNotificationType => typeof(EngineEmailNotification);
 
-        public async ValueTask publishAsync(EngineNotification notification, CancellationToken
+        public async ValueTask publishAsync(EngineNotificationMessage notification, CancellationToken
             cancellationToken = default)
         {
             await _EmailNotificationQueue.publishAsync(notification, cancellationToken);

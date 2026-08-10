@@ -116,7 +116,7 @@
                 IsActive = true,
             };
             var eventPublisher = _ServiceProvider.GetRequiredService<EngineEventPublisher>();
-            await eventPublisher.PublishEvent(new AIEngineConnectivity.EngineCore.EngineNotification
+            await eventPublisher.PublishEvent(new EngineNotificationMessage
             {
                 EngineEvents = EngineEvents.UserCreated,
                 Notification = new EngineEmailNotification

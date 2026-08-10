@@ -9,12 +9,12 @@
 
     public class EngineEmailWorker : BackgroundService
     {
-        private IEngineQueue<EngineNotification> _EmailQueue;
+        private IEngineQueue<EngineNotificationMessage> _EmailQueue;
         private WorkerConfiguration _WorkerConfiguration;
         private IEngineQueue<EngineRetryNotification> _EngineRetryQueue;
         private IServiceScopeFactory _ServiceScopeFactory;
 
-        public EngineEmailWorker(IEngineQueue<EngineNotification> emailQueue, IEngineQueue<EngineRetryNotification> engineRetryQueue,
+        public EngineEmailWorker(IEngineQueue<EngineNotificationMessage> emailQueue, IEngineQueue<EngineRetryNotification> engineRetryQueue,
             IOptions<WorkerConfiguration> options,
             IServiceScopeFactory serviceProvider)
         {

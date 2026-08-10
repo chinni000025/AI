@@ -5,13 +5,13 @@
 
     public class EngineBus : IEngineBus
     {
-        private readonly IEngineQueue<EngineNotification> _EngineQueue;
-        public EngineBus(IEngineQueue<EngineNotification> engineQueue)
+        private readonly IEngineQueue<EngineNotificationMessage> _EngineQueue;
+        public EngineBus(IEngineQueue<EngineNotificationMessage> engineQueue)
         {
             _EngineQueue = engineQueue;
         }
 
-        public async ValueTask RouteAsync(EngineNotification @event, CancellationToken ct = default)
+        public async ValueTask RouteAsync(EngineNotificationMessage @event, CancellationToken ct = default)
         {
             await _EngineQueue.publishAsync(@event, ct);
         }

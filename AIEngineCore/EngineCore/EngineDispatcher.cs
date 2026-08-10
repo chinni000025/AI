@@ -8,9 +8,9 @@
     public sealed class EngineDispatcher : BackgroundService
     {
         private readonly IReadOnlyDictionary<Type, IEngineNotificationRouter> _Router;
-        private readonly IEngineQueue<EngineNotification> _MainEngineQueue;
+        private readonly IEngineQueue<EngineNotificationMessage> _MainEngineQueue;
 
-        public EngineDispatcher(IEnumerable<IEngineNotificationRouter> notifications, IEngineQueue<EngineNotification> engineQueue)
+        public EngineDispatcher(IEnumerable<IEngineNotificationRouter> notifications, IEngineQueue<EngineNotificationMessage> engineQueue)
         {
             _Router = notifications.ToDictionary(r => r.EngineNotificationType);
             _MainEngineQueue = engineQueue;

@@ -6,7 +6,7 @@
 
     public class EngineRetryNotification
     {
-        public required EngineNotification EngineNotification { get; set; }
+        public required EngineNotificationMessage EngineNotification { get; set; }
         public required int Retries { get; set; } = 0;
     }
 }

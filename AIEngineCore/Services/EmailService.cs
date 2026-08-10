@@ -27,7 +27,7 @@
             _TemplateRender = templateRenderer;
         }
 
-        public async Task SendEmail(EngineNotification notification, CancellationToken cancellation)
+        public async Task SendEmail(EngineNotificationMessage notification, CancellationToken cancellation)
         {
             try
             {
