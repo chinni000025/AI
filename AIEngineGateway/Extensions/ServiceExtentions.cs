@@ -3,6 +3,7 @@ namespace AIEngineGateway.Extensions
     using AIEngineConnectivity.Constants;
     using AIEngineConnectivity.DTOs;
     using AIEngineConnectivity.EngineCore;
+    using AIEngineConnectivity.Entities;
     using AIEngineConnectivity.Helpers;
     using AIEngineConnectivity.Models;
     using AIEngineConnectivity.Repositories;
@@ -114,6 +115,7 @@ namespace AIEngineGateway.Extensions
             services.AddScoped<IPasswordService, PasswordServices>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddSingleton<IEngineScheduler, EngineScheduler>();
+            services.AddSingleton<IEngineNotificationService, EngineNotificationService>();
         }
 
         public static void AIExtensions(IServiceCollection services)
@@ -122,7 +124,7 @@ namespace AIEngineGateway.Extensions
             services.AddScoped<IConversationService, ConversationService>();
             services.AddSingleton<IWhisperService, WhisperService>();
             services.AddEngineCoreDependencies();
-            services.AddScoped<IEngineLatch, EngineLatch>();
+            services.AddSingleton<IEngineLatch, EngineLatch>();
         }
 
         public static void EngineConfiguration(IServiceCollection services, IConfiguration config)
