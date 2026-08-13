@@ -1,5 +1,6 @@
 ﻿namespace AIEngineCore.EngineNotifications
 {
+    using AIEngineConnectivity.Constants;
     using AIEngineConnectivity.EngineCore;
     using AIEngineConnectivity.Services;
     using AIEngineCore.Extensions;
@@ -13,15 +14,18 @@
         private WorkerConfiguration _WorkerConfiguration;
         private IEngineQueue<EngineRetryNotification> _EngineRetryQueue;
         private IServiceScopeFactory _ServiceScopeFactory;
+        private IEngineNotificationService _EngineNotificationService;
 
         public EngineEmailWorker(IEngineQueue<EngineNotificationMessage> emailQueue, IEngineQueue<EngineRetryNotification> engineRetryQueue,
             IOptions<WorkerConfiguration> options,
-            IServiceScopeFactory serviceProvider)
+            IServiceScopeFactory serviceProvider,
+            IEngineNotificationService engineNotificationService)
         {
             _EmailQueue = emailQueue;
             _WorkerConfiguration = options.Value;
             _EngineRetryQueue = engineRetryQueue;
             _ServiceScopeFactory = serviceProvider;
+            _EngineNotificationService = engineNotificationService;
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -51,6 +55,8 @@
                         EngineNotification = notification,
                         Retries = 0
                     };
+                    await _EngineNotificationService.AddOrUpdateNotificationAsync(engineEmailRetryNotification, NotificationType.EmailNotification,
+                        "Pending", DateTime.Now, cancellationToken);
                     await _EngineRetryQueue.publishAsync(engineEmailRetryNotification, cancellationToken);
                 }
             }

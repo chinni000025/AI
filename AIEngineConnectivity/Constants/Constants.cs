@@ -219,4 +219,10 @@ namespace AIEngineConnectivity.Constants
             };
 
     }
+
+    public enum NotificationType
+    {
+        EmailNotification = 0,
+        SmsNotification = 1,
+    }
 }

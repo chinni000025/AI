@@ -1,5 +1,6 @@
 ﻿namespace AIEngineCore.EngineNotifications
 {
+    using AIEngineConnectivity.Constants;
     using AIEngineConnectivity.EngineCore;
     using AIEngineConnectivity.Entities;
     using AIEngineConnectivity.Services;
@@ -14,18 +15,15 @@
         private WorkerConfiguration _WorkerConfiguration;
         private IServiceScopeFactory _ServiceScopeFactory;
         private IEngineNotificationService _EngineNotificationService;
-        private IEngineLatch _EngineLatch;
 
         public EngineEmailRetryWorker(IEngineQueue<EngineRetryNotification> emailQueue,
             IEngineNotificationService engineNoitificationService,
-            IEngineLatch engineLatch,
             IOptions<WorkerConfiguration> options, IServiceScopeFactory serviceProvider)
         {
             _EmailQueue = emailQueue;
             _WorkerConfiguration = options.Value;
             _ServiceScopeFactory = serviceProvider;
             _EngineNotificationService = engineNoitificationService;
-            _EngineLatch = engineLatch;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -63,46 +61,13 @@
                         continue;
                     }
                     var delay = retryNotification.Retries.GetExponentialBackoff();
-                    await AddOrUpdateNotificationAsync(retryNotification, DateTime.UtcNow.Add(delay), cancellation);
+                    await _EngineNotificationService.AddOrUpdateNotificationAsync(retryNotification, NotificationType.EmailNotification,
+                        "Pending", DateTime.UtcNow.Add(delay), cancellation);
+                    //Quartz.
                     await Task.Delay(delay, cancellation);
                     await _EmailQueue.publishAsync(retryNotification);
                 }
             }
-        }
-
-        private async Task AddOrUpdateNotificationAsync(EngineRetryNotification engineRetryNotification,
-            DateTime retryAt, CancellationToken cancellationToken)
-        {
-            if (engineRetryNotification.EngineNotificationId is null)
-            {
-                var NotificationId = Guid.NewGuid();
-                engineRetryNotification.EngineNotificationId = NotificationId;
-                var dateTime = DateTime.Now;
-                var engineNotification = new EngineNotification
-                {
-                    Id = NotificationId,
-                    NotificationData = _EngineLatch.Serialize(engineRetryNotification),
-                    NotificationType = "Email Notification",
-                    NotificationStatus = "Pending",
-                    RetryAt = retryAt,
-                    CreatedAt = dateTime,
-                    ModifiedAt = dateTime
-                };
-                await _EngineNotificationService.AddEngineNotificationAsync(engineNotification, cancellationToken);
-            }
-            else
-            {
-                var exitingNotification = await _EngineNotificationService
-                                            .GetEngineNotificationAsync(engineRetryNotification.EngineNotificationId.Value,
-                                            cancellationToken);
-                if (exitingNotification is null)
-                    throw new Exception($"Notificaion {engineRetryNotification.EngineNotificationId.Value} is not present");
-                exitingNotification.ModifiedAt = DateTime.Now;
-                exitingNotification.NotificationData = _EngineLatch.Serialize(engineRetryNotification);
-                exitingNotification.LastRetryAt = exitingNotification.RetryAt;
-                exitingNotification.RetryAt = retryAt;
-            }
-            await _EngineNotificationService.SaveChangesAsync(cancellationToken);
         }
     }
 }
