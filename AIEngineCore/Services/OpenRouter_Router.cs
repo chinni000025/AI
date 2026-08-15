@@ -18,6 +18,7 @@
         {
             _AIProvider = openRouterProvider;
         }
+
         public string AIProviderType => EngineModelProviders.OpenRouter;
 
         public async Task<AIResponse> GenerateAIResponse(AIRequest aIRequest)
