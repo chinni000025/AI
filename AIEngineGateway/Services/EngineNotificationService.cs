@@ -5,8 +5,6 @@
     using AIEngineConnectivity.Entities;
     using AIEngineConnectivity.Repositories;
     using AIEngineConnectivity.Services;
-    using AIEngineCore.Services;
-    using AIEngineGateway.Repositories;
 
     public class EngineNotificationService : IEngineNotificationService
     {
@@ -19,39 +17,81 @@
             _EngineLatch = engineLatch;
         }
 
-        public async Task AddOrUpdateNotificationAsync(EngineRetryNotification engineRetryNotification,
-            NotificationType NotificaionType, string NotificationStatus,
-            DateTime retryAt, CancellationToken cancellationToken)
+        public async Task AddOrUpdateNotificationAsync(EngineNotificationMessage engineRetryNotification,
+            NotificationType NotificaionType, EngineNotificationStatus NotificationStatus,
+            DateTime? retryAt, string ErrorMessage, CancellationToken cancellationToken)
         {
-            if (engineRetryNotification.EngineNotificationId is null)
+            var UtcNow = DateTime.UtcNow;
+            if (engineRetryNotification.NotificationId is null)
             {
                 var NotificationId = Guid.NewGuid();
-                engineRetryNotification.EngineNotificationId = NotificationId;
-                var dateTime = DateTime.Now;
+                engineRetryNotification.NotificationId = NotificationId;
                 var engineNotification = new EngineNotification
                 {
                     Id = NotificationId,
                     NotificationData = _EngineLatch.Serialize(engineRetryNotification),
                     NotificationType = NotificaionType.ToString(),
-                    NotificationStatus = NotificationStatus,
+                    NotificationStatus = NotificationStatus.ToString(),
                     RetryAt = retryAt,
-                    CreatedAt = dateTime,
-                    ModifiedAt = dateTime
+                    CreatedAt = UtcNow,
+                    ModifiedAt = UtcNow,
+                    ErrorMessage = ErrorMessage
                 };
                 await _Repository.GetEngineRepo<EngineNotification>().AddAsync(engineNotification, cancellationToken);
             }
             else
             {
-                var exitingNotification = await GetEngineNotificationAsync(engineRetryNotification.EngineNotificationId.Value,
+                var exitingNotification = await GetEngineNotificationAsync(engineRetryNotification.NotificationId.Value,
                                             cancellationToken);
                 if (exitingNotification is null)
-                    throw new Exception($"Notificaion {engineRetryNotification.EngineNotificationId.Value} is not present");
-                exitingNotification.ModifiedAt = DateTime.Now;
+                    throw new Exception($"Notificaion {engineRetryNotification.NotificationId.Value} is not present");
+                exitingNotification.ModifiedAt = UtcNow;
                 exitingNotification.NotificationData = _EngineLatch.Serialize(engineRetryNotification);
+                exitingNotification.NotificationStatus = NotificationStatus.ToString();
                 exitingNotification.LastRetryAt = exitingNotification.RetryAt;
                 exitingNotification.RetryAt = retryAt;
+                exitingNotification.ErrorMessage = ErrorMessage;
             }
             await _Repository.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task NotificationSent(Guid engineNotificationId, CancellationToken cancellation)
+        {
+            var notification = await GetEngineNotificationAsync(engineNotificationId, cancellation);
+            if (notification is not null)
+            {
+                notification.NotificationStatus = EngineNotificationStatus.Completed.ToString();
+                notification.CompletedAt = DateTime.UtcNow;
+                notification.ErrorMessage = null;
+                notification.ModifiedAt = DateTime.UtcNow;
+                await _Repository.SaveChangesAsync(cancellation);
+            }
+        }
+
+        public async Task NotificationFailed(Guid notificationId, string errorMessage, CancellationToken cancellation)
+        {
+            var notification = await GetEngineNotificationAsync(notificationId, cancellation);
+            if (notification is not null)
+            {
+                notification.NotificationStatus = EngineNotificationStatus.Failed.ToString();
+                notification.CompletedAt = DateTime.UtcNow;
+                notification.ErrorMessage = errorMessage;
+                notification.ModifiedAt = DateTime.UtcNow;
+                await _Repository.SaveChangesAsync(cancellation);
+            }
+        }
+
+        public async Task NotificationDeadLettered(Guid notificationId, string errorMessage, CancellationToken cancellationToken)
+        {
+            var notification = await GetEngineNotificationAsync(notificationId, cancellationToken);
+            if (notification is not null)
+            {
+                notification.NotificationStatus = EngineNotificationStatus.DeadLettered.ToString();
+                notification.CompletedAt = DateTime.UtcNow;
+                notification.ErrorMessage = errorMessage;
+                notification.ModifiedAt = DateTime.UtcNow;
+                await _Repository.SaveChangesAsync(cancellationToken);
+            }
         }
 
         public async Task<EngineNotification?> GetEngineNotificationAsync(Guid engineNotificationId, CancellationToken cancellation)
@@ -66,6 +106,7 @@
             if (engineNotification is not null)
             {
                 _Repository.GetEngineRepo<EngineNotification>().delete(engineNotification);
+                await _Repository.SaveChangesAsync(cancellationToken);
             }
         }
     }

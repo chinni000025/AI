@@ -12,12 +12,21 @@ namespace AIEngineCore.Extensions
         {
             return exception switch
             {
+                OperationCanceledException => false,
+                NotSupportedException => false,
+                ArgumentException => false,
+                FormatException => false,
                 TimeoutException => true,
                 SocketException => true,
-                SmtpException smtp
-                    when smtp.StatusCode == SmtpStatusCode.MailboxBusy
-                      || smtp.StatusCode == SmtpStatusCode.MailboxUnavailable
-                      || smtp.StatusCode == SmtpStatusCode.TransactionFailed => true,
+                SmtpException smtp => smtp.StatusCode switch
+                {
+                    SmtpStatusCode.MailboxBusy => true,
+                    SmtpStatusCode.MailboxUnavailable => true,
+                    SmtpStatusCode.TransactionFailed => true,
+                    SmtpStatusCode.InsufficientStorage => true,
+                    SmtpStatusCode.ServiceNotAvailable => true,
+                    _ => false
+                },
                 _ => false
             };
         }

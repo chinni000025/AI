@@ -1,6 +1,10 @@
 ﻿namespace AIEngineGateway.Services
 {
+    using
+
+using AIEngineConnectivity.DTOs;
     using AIEngineConnectivity.Services;
+    using AIEngineGateway.BackgroundServices.Jobs;
     using Quartz;
 
     public class EngineScheduler : IEngineScheduler
@@ -30,6 +34,22 @@
                 throw new Exception($"Job Not Exists with jobKey '{jobKey}'");
 
             await scheduler.DeleteJob(jobKey, ct);
+        }
+
+        public async Task ScheduleEngineNotification(ScheduleEngineNotificationDTO scheduleEngineNotification,
+            CancellationToken ct = default)
+        {
+            var jobKey = new JobKey($"Notification-{scheduleEngineNotification.NotificationId}", "EngineNotifications");
+
+            var triggerKey = new TriggerKey($"NotificationTrigger-{scheduleEngineNotification.NotificationId}", "EngineNotifications");
+
+            var job = JobBuilder.Create<EngineNotificationJob>().WithIdentity(jobKey)
+                .UsingJobData("NotificationId", scheduleEngineNotification.NotificationId.ToString()).Build();
+
+            var trigger = TriggerBuilder.Create().WithIdentity(triggerKey).ForJob(job)
+                .StartAt(scheduleEngineNotification.RetryAt).Build();
+
+            await ScheduleJobAsync(job, trigger, ct);
         }
     }
 }

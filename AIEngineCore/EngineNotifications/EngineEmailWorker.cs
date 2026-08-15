@@ -12,20 +12,17 @@
     {
         private IEngineQueue<EngineNotificationMessage> _EmailQueue;
         private WorkerConfiguration _WorkerConfiguration;
-        private IEngineQueue<EngineRetryNotification> _EngineRetryQueue;
+        private IEngineQueue<EngineNotificationMessage> _EngineRetryQueue;
         private IServiceScopeFactory _ServiceScopeFactory;
-        private IEngineNotificationService _EngineNotificationService;
 
-        public EngineEmailWorker(IEngineQueue<EngineNotificationMessage> emailQueue, IEngineQueue<EngineRetryNotification> engineRetryQueue,
+        public EngineEmailWorker(IEngineQueue<EngineNotificationMessage> emailQueue, IEngineQueue<EngineNotificationMessage> engineRetryQueue,
             IOptions<WorkerConfiguration> options,
-            IServiceScopeFactory serviceProvider,
-            IEngineNotificationService engineNotificationService)
+            IServiceScopeFactory serviceProvider)
         {
             _EmailQueue = emailQueue;
             _WorkerConfiguration = options.Value;
             _EngineRetryQueue = engineRetryQueue;
             _ServiceScopeFactory = serviceProvider;
-            _EngineNotificationService = engineNotificationService;
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -38,11 +35,18 @@
         {
             await foreach (var notification in _EmailQueue.ReadAsync(cancellationToken))
             {
+                await using var scope = _ServiceScopeFactory.CreateAsyncScope();
+                var engineNotificationService = scope.ServiceProvider.GetRequiredService<IEngineNotificationService>();
                 try
                 {
-                    await using var scope = _ServiceScopeFactory.CreateAsyncScope();
                     var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
+
+                    await engineNotificationService.AddOrUpdateNotificationAsync(notification,
+                        NotificationType.EmailNotification,
+                        EngineNotificationStatus.Processing, null, null, cancellationToken);
+
                     await emailService.SendEmail(notification, cancellationToken);
+                    await engineNotificationService.NotificationSent(notification.NotificationId.Value, cancellationToken);
                 }
                 catch (Exception ex)
                 {
@@ -50,14 +54,9 @@
                     {
                         continue;
                     }
-                    var engineEmailRetryNotification = new EngineRetryNotification
-                    {
-                        EngineNotification = notification,
-                        Retries = 0
-                    };
-                    await _EngineNotificationService.AddOrUpdateNotificationAsync(engineEmailRetryNotification, NotificationType.EmailNotification,
-                        "Pending", DateTime.Now, cancellationToken);
-                    await _EngineRetryQueue.publishAsync(engineEmailRetryNotification, cancellationToken);
+                    await engineNotificationService.AddOrUpdateNotificationAsync(notification, NotificationType.EmailNotification,
+                        EngineNotificationStatus.RetryScheduled, DateTime.UtcNow, ex.Message, cancellationToken);
+                    await _EngineRetryQueue.publishAsync(notification, cancellationToken);
                 }
             }
         }

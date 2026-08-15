@@ -225,4 +225,12 @@ namespace AIEngineConnectivity.Constants
         EmailNotification = 0,
         SmsNotification = 1,
     }
+    public enum EngineNotificationStatus
+    {
+        Processing,
+        Completed,
+        RetryScheduled,
+        Failed,
+        DeadLettered
+    }
 }

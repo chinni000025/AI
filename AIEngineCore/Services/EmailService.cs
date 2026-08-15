@@ -9,6 +9,7 @@
     using System.Net;
     using System.Net.Mail;
 #nullable disable
+
     public class EmailService : IEmailService
     {
         private readonly SmtpConfiguration _smtpConfiguration;
@@ -16,6 +17,7 @@
         private readonly IRepositoryWrapper _repository;
         private readonly ITemplateProvider _TemplateProvider;
         private readonly ITemplateRenderer _TemplateRender;
+
         public EmailService(IOptions<SmtpConfiguration> options, IUserService userService,
             IRepositoryWrapper repositoryWrapper, ITemplateProvider templateProvider,
             ITemplateRenderer templateRenderer)

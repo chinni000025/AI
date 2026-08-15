@@ -1,29 +1,26 @@
 ﻿namespace AIEngineCore.EngineNotifications
 {
     using AIEngineConnectivity.Constants;
+    using AIEngineConnectivity.DTOs;
     using AIEngineConnectivity.EngineCore;
-    using AIEngineConnectivity.Entities;
     using AIEngineConnectivity.Services;
     using AIEngineCore.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Options;
-
+#nullable disable
     public class EngineEmailRetryWorker : BackgroundService
     {
-        private IEngineQueue<EngineRetryNotification> _EmailQueue;
+        private IEngineQueue<EngineNotificationMessage> _EmailQueue;
         private WorkerConfiguration _WorkerConfiguration;
         private IServiceScopeFactory _ServiceScopeFactory;
-        private IEngineNotificationService _EngineNotificationService;
 
-        public EngineEmailRetryWorker(IEngineQueue<EngineRetryNotification> emailQueue,
-            IEngineNotificationService engineNoitificationService,
+        public EngineEmailRetryWorker(IEngineQueue<EngineNotificationMessage> emailQueue,
             IOptions<WorkerConfiguration> options, IServiceScopeFactory serviceProvider)
         {
             _EmailQueue = emailQueue;
             _WorkerConfiguration = options.Value;
             _ServiceScopeFactory = serviceProvider;
-            _EngineNotificationService = engineNoitificationService;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -41,11 +38,15 @@
         {
             await foreach (var retryNotification in _EmailQueue.ReadAsync(cancellation))
             {
+                await using var scope = _ServiceScopeFactory.CreateAsyncScope();
+                var engineNotificationService = scope.ServiceProvider.GetRequiredService<IEngineNotificationService>();
                 try
                 {
-                    await using var scope = _ServiceScopeFactory.CreateAsyncScope();
+                    await engineNotificationService.AddOrUpdateNotificationAsync(retryNotification, NotificationType.EmailNotification,
+                        EngineNotificationStatus.Processing, null, null, cancellation);
                     var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
-                    await emailService.SendEmail(retryNotification.EngineNotification, cancellation);
+                    await emailService.SendEmail(retryNotification, cancellation);
+                    await engineNotificationService.NotificationSent(retryNotification.NotificationId.Value, cancellation);
                 }
                 catch (Exception ex)
                 {
@@ -61,10 +62,17 @@
                         continue;
                     }
                     var delay = retryNotification.Retries.GetExponentialBackoff();
-                    await _EngineNotificationService.AddOrUpdateNotificationAsync(retryNotification, NotificationType.EmailNotification,
-                        "Pending", DateTime.UtcNow.Add(delay), cancellation);
-                    //Quartz.
-                    await Task.Delay(delay, cancellation);
+                    await engineNotificationService.AddOrUpdateNotificationAsync(retryNotification, NotificationType.EmailNotification,
+                        EngineNotificationStatus.RetryScheduled, DateTime.UtcNow.Add(delay), ex.Message, cancellation);
+
+                    var scheduler = scope.ServiceProvider.GetRequiredService<IEngineScheduler>();
+                    await scheduler.ScheduleEngineNotification(new ScheduleEngineNotificationDTO
+                    {
+                        NotificationType = NotificationType.EmailNotification,
+                        RetryAt = DateTime.UtcNow.Add(delay),
+                        NotificationId = retryNotification.NotificationId.Value
+                    }, cancellation);
+
                     await _EmailQueue.publishAsync(retryNotification);
                 }
             }
