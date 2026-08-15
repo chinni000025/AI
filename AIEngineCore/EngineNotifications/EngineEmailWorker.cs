@@ -1,34 +1,52 @@
 ﻿namespace AIEngineCore.EngineNotifications
 {
     using AIEngineConnectivity.Constants;
+    using AIEngineConnectivity.DTOs;
     using AIEngineConnectivity.EngineCore;
     using AIEngineConnectivity.Services;
     using AIEngineCore.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
+    using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
-
+    using Quartz.Logging;
+# nullable disable
     public class EngineEmailWorker : BackgroundService
     {
         private IEngineQueue<EngineNotificationMessage> _EmailQueue;
         private WorkerConfiguration _WorkerConfiguration;
         private IEngineQueue<EngineNotificationMessage> _EngineRetryQueue;
         private IServiceScopeFactory _ServiceScopeFactory;
+        private readonly ILogger<EngineEmailWorker> _Logger;
 
         public EngineEmailWorker(IEngineQueue<EngineNotificationMessage> emailQueue, IEngineQueue<EngineNotificationMessage> engineRetryQueue,
-            IOptions<WorkerConfiguration> options,
+            IOptions<WorkerConfiguration> options, ILogger<EngineEmailWorker> logger,
             IServiceScopeFactory serviceProvider)
         {
             _EmailQueue = emailQueue;
             _WorkerConfiguration = options.Value;
             _EngineRetryQueue = engineRetryQueue;
             _ServiceScopeFactory = serviceProvider;
+            _Logger = logger;
         }
+
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var tasks = Enumerable.Range(0, _WorkerConfiguration.ConsumerCount)
+            _Logger.LogInformation("EngineEmailWorker starting with {ConsumerCount} consumers.", _WorkerConfiguration.ConsumerCount);
+            try
+            {
+                var tasks = Enumerable.Range(0, _WorkerConfiguration.ConsumerCount)
                         .Select(async _ => await ConsumeAsync(stoppingToken));
-            await Task.WhenAll(tasks);
+                await Task.WhenAll(tasks);
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                _Logger.LogInformation("EngineEmailWorker is stopping gracefully due to host shutdown");
+            }
+            catch (Exception ex)
+            {
+                _Logger.LogCritical($"Unhandled Exception was caugth in Email worker : {ex}");
+            }
         }
 
         public async Task ConsumeAsync(CancellationToken cancellationToken)
@@ -42,21 +60,44 @@
                     var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
 
                     await engineNotificationService.AddOrUpdateNotificationAsync(notification,
-                        NotificationType.EmailNotification,
-                        EngineNotificationStatus.Processing, null, null, cancellationToken);
+                        NotificationType.EmailNotification, EngineNotificationStatus.Processing, null, null, cancellationToken);
 
                     await emailService.SendEmail(notification, cancellationToken);
                     await engineNotificationService.NotificationSent(notification.NotificationId.Value, cancellationToken);
+                    _Logger.LogInformation("Notification {NotificationId} successfully processed and marked Completed.", notification.NotificationId.Value);
+                }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                {
+                    _Logger.LogWarning("Cancellation triggered during processing for {NotificationId}. Leaving for restart recovery.", notification.NotificationId);
+                    throw;
                 }
                 catch (Exception ex)
                 {
-                    if (!ex.CanRetryEmailNotification())
+                    if (ex.CanRetryEmailNotification())
                     {
+                        notification.Retries = 1;
+                        var delay = notification.Retries.GetExponentialBackoff();
+                        await engineNotificationService.AddOrUpdateNotificationAsync(notification, NotificationType.EmailNotification,
+                            EngineNotificationStatus.RetryScheduled, DateTime.UtcNow.Add(delay), ex.Message, cancellationToken);
+
+                        var scheduler = scope.ServiceProvider.GetRequiredService<IEngineScheduler>();
+                        await scheduler.ScheduleEngineNotification(new ScheduleEngineNotificationDTO
+                        {
+                            NotificationType = NotificationType.EmailNotification,
+                            RetryAt = DateTime.UtcNow.Add(delay),
+                            NotificationId = notification.NotificationId.Value
+                        }, cancellationToken);
+                        _Logger.LogInformation("Scheduled retry #1 for notification {NotificationId} at {RetryAt} (delay: {DelaySeconds}s).",
+                           notification.NotificationId.Value, DateTime.UtcNow.Add(delay), delay.TotalSeconds);
                         continue;
                     }
-                    await engineNotificationService.AddOrUpdateNotificationAsync(notification, NotificationType.EmailNotification,
-                        EngineNotificationStatus.RetryScheduled, DateTime.UtcNow, ex.Message, cancellationToken);
-                    await _EngineRetryQueue.publishAsync(notification, cancellationToken);
+
+                    _Logger.LogError($"Can't Retry Notification with Notification Id {notification.NotificationId.Value} with Exception : " + ex.Message);
+                    if (notification.NotificationId.HasValue)
+                    {
+                        await engineNotificationService.NotificationDeadLettered(notification.NotificationId.Value,
+                            ex.Message, cancellationToken);
+                    }
                 }
             }
         }

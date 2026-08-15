@@ -1,8 +1,7 @@
 ﻿namespace AIEngineGateway.Services
 {
-    using
 
-using AIEngineConnectivity.DTOs;
+    using AIEngineConnectivity.DTOs;
     using AIEngineConnectivity.Services;
     using AIEngineGateway.BackgroundServices.Jobs;
     using Quartz;

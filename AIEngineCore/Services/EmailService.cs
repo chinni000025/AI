@@ -44,10 +44,11 @@
                     Host = _smtpConfiguration.Host,
                     Port = _smtpConfiguration.Port,
                     EnableSsl = _smtpConfiguration.EnableSSL,
-                    Credentials = new NetworkCredential(_smtpConfiguration.User, _smtpConfiguration.Password)
+                    Credentials = new NetworkCredential(_smtpConfiguration.User, _smtpConfiguration.Password),
+                    Timeout = 10000 //==> 10 Seconds.
                 };
 
-                var email = new MailMessage
+                using var email = new MailMessage
                 {
                     From = new MailAddress(_smtpConfiguration.User),
                     Body = renderedBody,

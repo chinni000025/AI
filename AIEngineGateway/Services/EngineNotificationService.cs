@@ -5,7 +5,7 @@
     using AIEngineConnectivity.Entities;
     using AIEngineConnectivity.Repositories;
     using AIEngineConnectivity.Services;
-
+#nullable disable
     public class EngineNotificationService : IEngineNotificationService
     {
         private readonly IRepositoryWrapper _Repository;
@@ -74,7 +74,7 @@
             if (notification is not null)
             {
                 notification.NotificationStatus = EngineNotificationStatus.Failed.ToString();
-                notification.CompletedAt = DateTime.UtcNow;
+                notification.CompletedAt = null;
                 notification.ErrorMessage = errorMessage;
                 notification.ModifiedAt = DateTime.UtcNow;
                 await _Repository.SaveChangesAsync(cancellation);
@@ -87,7 +87,7 @@
             if (notification is not null)
             {
                 notification.NotificationStatus = EngineNotificationStatus.DeadLettered.ToString();
-                notification.CompletedAt = DateTime.UtcNow;
+                notification.CompletedAt = null;
                 notification.ErrorMessage = errorMessage;
                 notification.ModifiedAt = DateTime.UtcNow;
                 await _Repository.SaveChangesAsync(cancellationToken);

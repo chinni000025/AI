@@ -13,5 +13,7 @@
         public Task NotificationSent(Guid engineNotificationId, CancellationToken cancellation);
         public Task<EngineNotification?> GetEngineNotificationAsync(Guid engineNotificationId, CancellationToken cancellation);
         public Task RemoveEngineNotification(Guid engineNotificationId, CancellationToken cancellationToken);
+        public Task NotificationDeadLettered(Guid notificationId, string errorMessage, CancellationToken cancellationToken);
+        Task NotificationFailed(Guid notificationId, string errorMessage, CancellationToken cancellationToken);
     }
 }

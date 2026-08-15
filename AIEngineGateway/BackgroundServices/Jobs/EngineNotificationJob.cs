@@ -1,5 +1,6 @@
 ﻿namespace AIEngineGateway.BackgroundServices.Jobs
 {
+    using AIEngineConnectivity.Constants;
     using AIEngineConnectivity.EngineCore;
     using AIEngineConnectivity.Services;
     using Quartz;
@@ -7,9 +8,11 @@
     public class EngineNotificationJob : IJob
     {
         private readonly IServiceScopeFactory _ServiceScopeFactory;
-        public EngineNotificationJob(IServiceScopeFactory serviceScopeFactory)
+        private readonly ILogger<EngineNotificationJob> _Logger;
+        public EngineNotificationJob(IServiceScopeFactory serviceScopeFactory, ILogger<EngineNotificationJob> logger)
         {
             _ServiceScopeFactory = serviceScopeFactory;
+            _Logger = logger;
         }
 
         public async Task Execute(IJobExecutionContext context)
@@ -18,6 +21,12 @@
             var notificationService = scope.ServiceProvider.GetRequiredService<IEngineNotificationService>();
             var notificationId = context.MergedJobDataMap.GetGuid("NotificationId");
             var notification = await notificationService.GetEngineNotificationAsync(notificationId, context.CancellationToken);
+            if (notification?.NotificationStatus != EngineNotificationStatus.RetryScheduled.ToString())
+            {
+                _Logger.LogInformation("Notification {NotificationId} is currently '{Status}'. Skipping enqueue.",
+                    notificationId, notification?.NotificationStatus);
+                return;
+            }
             if (notification is not null)
             {
                 var engineLatch = scope.ServiceProvider.GetRequiredService<IEngineLatch>();
