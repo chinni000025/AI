@@ -58,10 +58,8 @@
 
                     var existingNotification = await engineNotificationService.GetEngineNotificationAsync(retryNotification.NotificationId.Value, cancellation);
 
-                    if (existingNotification.NotificationStatus !=
-                        EngineNotificationStatus.Completed.ToString()
-                        || existingNotification.NotificationStatus !=
-                        EngineNotificationStatus.DeadLettered.ToString())
+                    if (existingNotification.NotificationStatus != EngineNotificationStatus.Completed.ToString()
+                        || existingNotification.NotificationStatus != EngineNotificationStatus.DeadLettered.ToString())
                     {
                         await emailService.SendEmail(retryNotification, cancellation);
 
