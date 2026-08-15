@@ -81,12 +81,9 @@
                             EngineNotificationStatus.RetryScheduled, DateTime.UtcNow.Add(delay), ex.Message, cancellationToken);
 
                         var scheduler = scope.ServiceProvider.GetRequiredService<IEngineScheduler>();
-                        await scheduler.ScheduleEngineNotification(new ScheduleEngineNotificationDTO
-                        {
-                            NotificationType = NotificationType.EmailNotification,
-                            RetryAt = DateTime.UtcNow.Add(delay),
-                            NotificationId = notification.NotificationId.Value
-                        }, cancellationToken);
+                        await scheduler.ScheduleNotification(notification, DateTime.UtcNow.Add(delay), NotificationType.EmailNotification,
+                            cancellationToken);
+
                         _Logger.LogInformation("Scheduled retry #1 for notification {NotificationId} at {RetryAt} (delay: {DelaySeconds}s).",
                            notification.NotificationId.Value, DateTime.UtcNow.Add(delay), delay.TotalSeconds);
                         continue;

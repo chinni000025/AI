@@ -1,7 +1,6 @@
 ﻿namespace AIEngineCore.EngineNotifications
 {
     using AIEngineConnectivity.Constants;
-    using AIEngineConnectivity.DTOs;
     using AIEngineConnectivity.EngineCore;
     using AIEngineConnectivity.Services;
     using AIEngineCore.Extensions;
@@ -32,7 +31,7 @@
             try
             {
                 var tasks = Enumerable.Range(0, _WorkerConfiguration.ConsumerCount)
-                                .Select(async _ => await SendEmail(stoppingToken));
+                                .Select(async _ => await ConsumeAsync(stoppingToken));
                 await Task.WhenAll(tasks);
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
@@ -45,7 +44,7 @@
             }
         }
 
-        public async Task SendEmail(CancellationToken cancellation)
+        public async Task ConsumeAsync(CancellationToken cancellation)
         {
             await foreach (var retryNotification in _EmailQueue.ReadAsync(cancellation))
             {
@@ -58,6 +57,7 @@
                     var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
 
                     var existingNotification = await engineNotificationService.GetEngineNotificationAsync(retryNotification.NotificationId.Value, cancellation);
+
                     if (existingNotification.NotificationStatus !=
                         EngineNotificationStatus.Completed.ToString()
                         || existingNotification.NotificationStatus !=
@@ -86,12 +86,8 @@
                             EngineNotificationStatus.RetryScheduled, DateTime.UtcNow.Add(delay), ex.Message, cancellation);
 
                         var scheduler = scope.ServiceProvider.GetRequiredService<IEngineScheduler>();
-                        await scheduler.ScheduleEngineNotification(new ScheduleEngineNotificationDTO
-                        {
-                            NotificationType = NotificationType.EmailNotification,
-                            RetryAt = DateTime.UtcNow.Add(delay),
-                            NotificationId = retryNotification.NotificationId.Value
-                        }, cancellation);
+                        await scheduler.ScheduleNotification(retryNotification, DateTime.UtcNow.Add(delay),
+                            NotificationType.EmailNotification, cancellation);
                         continue;
                     }
                     _Logger.LogError($"Can't Retry Notification with Notification Id {retryNotification.NotificationId.Value} with Exception : " + ex.Message);
