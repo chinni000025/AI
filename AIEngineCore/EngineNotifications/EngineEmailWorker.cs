@@ -1,7 +1,6 @@
 ﻿namespace AIEngineCore.EngineNotifications
 {
     using AIEngineConnectivity.Constants;
-    using AIEngineConnectivity.DTOs;
     using AIEngineConnectivity.EngineCore;
     using AIEngineConnectivity.Services;
     using AIEngineCore.Extensions;
@@ -9,7 +8,6 @@
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
-    using Quartz.Logging;
 # nullable disable
     public class EngineEmailWorker : BackgroundService
     {
