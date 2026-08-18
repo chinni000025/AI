@@ -3,14 +3,17 @@
     public sealed class UserBucket
     {
         private readonly int _initialCapacity;
-        private readonly TimeSpan _refillInterval;
+        private readonly TimeSpan _leakInterval;
         private readonly Queue<Token> _bucket;
         private Object _lock = new Object();
+
+        private DateTime _nextLeakInterval;
 
         public UserBucket(int initialCapacity, TimeSpan refillInterval)
         {
             _initialCapacity = initialCapacity;
-            _refillInterval = refillInterval;
+            _leakInterval = refillInterval;
+            _bucket = new Queue<Token>();
         }
 
         public bool TryAddRequest()
@@ -28,24 +31,10 @@
 
         public void leakTokens()
         {
-            Thread leakThread = new Thread(() =>
-            {
-                while (true)
-                {
-                    lock (_lock)
-                    {
-                        if (_bucket.Count > 0)
-                        {
-                            _bucket.Dequeue();
-                        }
-                    }
-                    Thread.Sleep(_refillInterval * 1000);
-                }
-            });
-            leakThread.IsBackground = true;
-            leakThread.Start();
+
         }
     }
+}
 
-    public sealed record Token(DateTime CreatedAt);
+public sealed record Token(DateTime CreatedAt);
 }
