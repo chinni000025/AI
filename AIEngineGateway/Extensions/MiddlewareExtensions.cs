@@ -10,7 +10,8 @@
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseCors("AllowAngular");
-            app.UseMiddleware<RateLimitMiddleware>();
+            app.UseMiddleware<ServerRateLimitingMiddleware>();
+            app.UseMiddleware<SpecificUserRateLimitingMiddleware>();
             app.UseAuthentication();
             app.UseMiddleware<CurrentUserContextMiddleWare>();
             app.UseAuthorization();

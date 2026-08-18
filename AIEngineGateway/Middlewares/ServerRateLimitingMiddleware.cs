@@ -2,11 +2,12 @@
 {
     using AIEngineGateway.Services;
 #nullable disable
-    public class RateLimitMiddleware
+    public class ServerRateLimitingMiddleware
     {
-        private ILogger<RateLimitMiddleware> _logger;
+        private ILogger<ServerRateLimitingMiddleware> _logger;
         private RequestDelegate _next;
-        public RateLimitMiddleware(RequestDelegate next, ILogger<RateLimitMiddleware> logger)
+
+        public ServerRateLimitingMiddleware(RequestDelegate next, ILogger<ServerRateLimitingMiddleware> logger)
         {
             _next = next;
             _logger = logger;

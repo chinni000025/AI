@@ -3,7 +3,6 @@ namespace AIEngineGateway.Extensions
     using AIEngineConnectivity.Constants;
     using AIEngineConnectivity.DTOs;
     using AIEngineConnectivity.EngineCore;
-    using AIEngineConnectivity.Entities;
     using AIEngineConnectivity.Helpers;
     using AIEngineConnectivity.Models;
     using AIEngineConnectivity.Repositories;
@@ -14,12 +13,12 @@ namespace AIEngineGateway.Extensions
     using AIEngineGateway.BackgroundServices.Jobs;
     using AIEngineGateway.Contracts;
     using AIEngineGateway.EngineInfrastructure;
+    using AIEngineGateway.EngineInfrastructure.UserRateLimiter;
     using AIEngineGateway.Helpers;
     using AIEngineGateway.Repositories;
     using AIEngineGateway.Services;
     using AIEngineSpeechRecognition.Services;
     using Quartz;
-    using Quartz.Simpl;
     using Serilog;
     using static AIEngineConnectivity.Constants.EngineConstants;
 
@@ -82,6 +81,8 @@ namespace AIEngineGateway.Extensions
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
             services.AddSignalR();
+            services.AddSingleton<UserBucketStore>();
+            services.AddSingleton<UserRateLimiter>();
             LeakyBucket.InitializeBucket(150, 1);
             LeakyBucket.StartLeakProcessor();
             services.AddControllers().AddNewtonsoftJson();
@@ -137,6 +138,7 @@ namespace AIEngineGateway.Extensions
             services.Configure<OpenRouterAPiKeyConfiguration>(config.GetSection("OpenRouter"));
             services.Configure<CohereApiKeyConfiguration>(config.GetSection("Cohere"));
             services.Configure<WorkerConfiguration>(config.GetSection("WorkersConfiguration"));
+            services.Configure<UserRateLimiterOptions>(config.GetSection("UserRateLimiter"));
         }
 
         public static void EncryptionExtensions(IServiceCollection services)
