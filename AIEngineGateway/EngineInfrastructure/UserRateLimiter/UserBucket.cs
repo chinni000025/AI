@@ -14,12 +14,14 @@
             _initialCapacity = initialCapacity;
             _leakInterval = refillInterval;
             _bucket = new Queue<Token>();
+            _nextLeakInterval = DateTime.UtcNow;
         }
 
         public bool TryAddRequest()
         {
             lock (_lock)
             {
+                leakTokens();
                 if (_bucket.Count < _initialCapacity)
                 {
                     _bucket.Enqueue(new Token(DateTime.Now));
@@ -31,10 +33,18 @@
 
         public void leakTokens()
         {
-
+            var now = DateTime.UtcNow;
+            if (_bucket.Count > 0 && now >= _nextLeakInterval)
+            {
+                _bucket.Dequeue();
+                _nextLeakInterval = now.Add(_leakInterval);
+            }
+            if (_bucket.Count == 0)
+            {
+                _nextLeakInterval = now.Add(_leakInterval);
+            }
         }
     }
 }
 
 public sealed record Token(DateTime CreatedAt);
-}
