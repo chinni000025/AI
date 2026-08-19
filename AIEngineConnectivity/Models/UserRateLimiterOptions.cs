@@ -8,5 +8,6 @@
     {
         public int InitialCapacity { get; set; }
         public int LeakIntervalSeconds { get; set; }
+        public int InActiveInterval { get; set; }
     }
 }

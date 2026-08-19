@@ -75,6 +75,7 @@ namespace AIEngineGateway.Extensions
         {
             services.AddSingleton<EngineConfig>();
             services.AddSingleton<DataBaseIntialiationServices>();
+            services.AddSingleton<UserBucketCleanUpHostedService>();
             services.AddSingleton<StartUpMigrations>();
             services.AddSingleton<EngineState>();
             services.AddHttpContextAccessor();

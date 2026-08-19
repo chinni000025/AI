@@ -38,8 +38,8 @@ namespace AIEngineGateway.Middlewares
                     _logger.LogError("Client Request To Many Requests");
                     return;
                 }
-                await _next(context);
             }
+            await _next(context);
         }
     }
 }
