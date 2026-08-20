@@ -12,6 +12,7 @@
         private readonly EngineConfig _engineConfig;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly EngineState _engineState;
+
         public EngineConfigureService(DataBaseIntialiationServices dataBaseSetupServices,
             EngineConfig engineConfig, IServiceScopeFactory serviceScopeFactory, EngineState engineState)
         {
@@ -20,6 +21,7 @@
             _serviceScopeFactory = serviceScopeFactory;
             _engineState = engineState;
         }
+
         public async Task ConfigureDataBase(DataBaseConfiguration dataBaseConfiguration)
         {
             try

@@ -18,7 +18,7 @@
             _leakyBucket = new Queue<Tokens>();
         }
 
-        private static readonly Object _lock = new object();
+        private static readonly object _lock = new();
         public static void StartLeakProcessor()
         {
             Thread leakprocessor = new Thread(() =>

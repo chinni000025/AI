@@ -12,7 +12,7 @@ namespace AIEngineCore.ProviderBase
     {
         public abstract Task<AIResponse?> GenerateAsync(AIRequest request);
 
-        public HttpClient CreateHttpClient(String baseAddress, String? bearerToken = null, int timeOut = 5)
+        public HttpClient CreateHttpClient(string baseAddress, string? bearerToken = null, int timeOut = 5)
         {
             var client = new HttpClient
             {
