@@ -13,6 +13,7 @@ namespace AIEngineGateway.Extensions
     using AIEngineGateway.BackgroundServices.Jobs;
     using AIEngineGateway.Contracts;
     using AIEngineGateway.EngineInfrastructure;
+    using AIEngineGateway.EngineInfrastructure.RateLimiter;
     using AIEngineGateway.EngineInfrastructure.UserRateLimiter;
     using AIEngineGateway.Helpers;
     using AIEngineGateway.Repositories;
@@ -84,8 +85,7 @@ namespace AIEngineGateway.Extensions
             services.AddSignalR();
             services.AddSingleton<UserBucketStore>();
             services.AddSingleton<UserRateLimiter>();
-            LeakyBucket.InitializeBucket(150, 1);
-            LeakyBucket.StartLeakProcessor();
+            services.AddSingleton<ServerRateLimiter>();
             services.AddControllers().AddNewtonsoftJson();
             services.AddScoped<IDataBaseProviderFactory, DataBaseProviderFactory>();
             services.AddScoped<PostgreServerProvider>();
@@ -140,6 +140,7 @@ namespace AIEngineGateway.Extensions
             services.Configure<CohereApiKeyConfiguration>(config.GetSection("Cohere"));
             services.Configure<WorkerConfiguration>(config.GetSection("WorkersConfiguration"));
             services.Configure<UserRateLimiterOptions>(config.GetSection("UserRateLimiter"));
+            services.Configure<ServerRateLimiterOptions>(config.GetSection("ServerRateLimiter"));
         }
 
         public static void EncryptionExtensions(IServiceCollection services)

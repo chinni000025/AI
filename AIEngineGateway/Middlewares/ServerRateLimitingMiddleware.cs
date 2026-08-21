@@ -1,23 +1,28 @@
 ﻿namespace AIEngineGateway.Middlewares
 {
+    using AIEngineGateway.EngineInfrastructure.RateLimiter;
+    using AIEngineGateway.PostMigrations;
     using AIEngineGateway.Services;
 #nullable disable
     public class ServerRateLimitingMiddleware
     {
         private ILogger<ServerRateLimitingMiddleware> _logger;
         private RequestDelegate _next;
+        private ServerRateLimiter _serverRateLimiter;
 
-        public ServerRateLimitingMiddleware(RequestDelegate next, ILogger<ServerRateLimitingMiddleware> logger)
+        public ServerRateLimitingMiddleware(RequestDelegate next, ILogger<ServerRateLimitingMiddleware> logger,
+            ServerRateLimiter serverRateLimiter)
         {
             _next = next;
             _logger = logger;
+            _serverRateLimiter = serverRateLimiter;
         }
 
         public async Task InvokeAsync(HttpContext context)
         {
             var clientId = context.Connection.RemoteIpAddress.ToString();
 
-            var allowed = LeakyBucket.EnqueueRequest(clientId);
+            var allowed = _serverRateLimiter.AllowRequest();
             if (!allowed)
             {
                 context.Response.StatusCode = 429;

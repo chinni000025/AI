@@ -4,7 +4,7 @@
     {
         private readonly int _initialCapacity;
         private readonly TimeSpan _leakInterval;
-        private readonly Queue<Token> _bucket;
+        private int _bucket;
         private readonly Object _lock = new();
 
         private DateTime _nextLeakInterval;
@@ -14,7 +14,7 @@
         {
             _initialCapacity = initialCapacity;
             _leakInterval = refillInterval;
-            _bucket = new Queue<Token>();
+            _bucket = 0;
             _nextLeakInterval = DateTime.UtcNow.Add(_leakInterval);
             _lastActivity = DateTime.UtcNow;
             _cleanUpInterval = cleanUpInterval;
@@ -28,9 +28,9 @@
                 var now = DateTime.UtcNow;
                 leakTokens(now);
                 _lastActivity = now;
-                if (_bucket.Count < _initialCapacity)
+                if (_bucket < _initialCapacity)
                 {
-                    _bucket.Enqueue(new Token(now));
+                    _bucket++;
                     return true;
                 }
                 return false;
@@ -47,17 +47,15 @@
 
         private void leakTokens(DateTime now)
         {
-            if (_bucket.Count > 0 && now >= _nextLeakInterval)
+            if (_bucket > 0 && now >= _nextLeakInterval)
             {
-                _bucket.Dequeue();
-                _nextLeakInterval = now.Add(_leakInterval);
+                _bucket--;
+                _nextLeakInterval = _nextLeakInterval.Add(_leakInterval);
             }
-            if (_bucket.Count == 0)
+            if (_bucket == 0)
             {
                 _nextLeakInterval = now.Add(_leakInterval);
             }
         }
     }
 }
-
-public sealed record Token(DateTime CreatedAt);
