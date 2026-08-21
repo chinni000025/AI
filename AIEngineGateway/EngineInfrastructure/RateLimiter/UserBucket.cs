@@ -5,7 +5,7 @@
         private readonly int _initialCapacity;
         private readonly TimeSpan _leakInterval;
         private int _bucket;
-        private readonly Object _lock = new();
+        private readonly object _lock = new();
 
         private DateTime _nextLeakInterval;
         private DateTime _lastActivity;
