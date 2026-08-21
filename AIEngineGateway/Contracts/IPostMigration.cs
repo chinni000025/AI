@@ -1,6 +1,7 @@
-﻿namespace AIEngineGateway.Contracts
+﻿using AIEngineGateway.EngineInfrastructure;
+
+namespace AIEngineGateway.Contracts
 {
-    using AIEngineGateway.EngineInfrastructure;
 #nullable disable
     public interface IPostMigration
     {

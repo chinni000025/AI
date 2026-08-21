@@ -1,8 +1,9 @@
-﻿namespace AIEngineGateway.BackgroundServices.Jobs
+﻿using AIEngineGateway.Contracts;
+using AIEngineGateway.EngineInfrastructure;
+using Microsoft.EntityFrameworkCore;
+
+namespace AIEngineGateway.BackgroundServices.Jobs
 {
-    using AIEngineGateway.Contracts;
-    using AIEngineGateway.EngineInfrastructure;
-    using Microsoft.EntityFrameworkCore;
 #nullable disable
     public class DeleteConversationsJob : ICleanUpJob
     {

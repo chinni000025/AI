@@ -1,10 +1,10 @@
-﻿namespace AIEngineGateway.Middlewares
-{
-    using System.Text;
-    using System.Text.Json;
-    using AIEngineConnectivity.Models;
-    using AIEngineConnectivity.Services;
+﻿using System.Text;
+using System.Text.Json;
+using AIEngineConnectivity.Models;
+using AIEngineConnectivity.Services;
 
+namespace AIEngineGateway.Middlewares
+{
     public class EncryptionMiddleware
     {
         private readonly RequestDelegate _next;

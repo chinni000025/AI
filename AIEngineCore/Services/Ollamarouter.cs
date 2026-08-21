@@ -1,15 +1,15 @@
-﻿namespace AIEngineCore.Services
-{
-    using AIEngineConnectivity.Constants;
-    using AIEngineConnectivity.DTOs;
-    using AIEngineConnectivity.EngineCore;
-    using AIEngineConnectivity.Models;
-    using AIEngineConnectivity.Services;
-    using AIEngineCore.Providers;
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
+﻿using AIEngineConnectivity.Constants;
+using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.EngineCore;
+using AIEngineConnectivity.Models;
+using AIEngineConnectivity.Services;
+using AIEngineCore.Providers;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
+namespace AIEngineCore.Services
+{
 #nullable disable
     public class Ollamarouter : IAIEngineRouter
     {

@@ -1,17 +1,17 @@
+using AIEngineConnectivity.Constants;
+using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.Models;
+using AIEngineConnectivity.Services;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using System;
+using System.Collections.Generic;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
+
 namespace AIEngineCore.Providers
 {
-    using AIEngineConnectivity.Constants;
-    using AIEngineConnectivity.DTOs;
-    using AIEngineConnectivity.Models;
-    using AIEngineConnectivity.Services;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.Options;
-    using System;
-    using System.Collections.Generic;
-    using System.Net.Http.Headers;
-    using System.Text;
-    using System.Text.Json;
-
     public class GroqProvider : ProviderBase.ProviderBase
     {
         private readonly GroqApiKeyConfiguration _groqApiKeyConfiguration;

@@ -1,13 +1,13 @@
+using AIEngineConnectivity.Constants;
+using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.Models;
+using Microsoft.Extensions.Options;
+using System;
+using System.Net.Http.Headers;
+using System.Text.Json;
+
 namespace AIEngineCore.Providers
 {
-    using AIEngineConnectivity.Constants;
-    using AIEngineConnectivity.DTOs;
-    using AIEngineConnectivity.Models;
-    using Microsoft.Extensions.Options;
-    using System;
-    using System.Net.Http.Headers;
-    using System.Text.Json;
-
     public class HuggingFaceProvider : ProviderBase.ProviderBase
     {
         private readonly HuggingFaceApiKeyConfiguration _huggingFaceApiKeyConfiguration;

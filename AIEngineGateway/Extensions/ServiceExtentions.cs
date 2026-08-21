@@ -1,28 +1,28 @@
+using AIEngineConnectivity.Constants;
+using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.EngineCore;
+using AIEngineConnectivity.Helpers;
+using AIEngineConnectivity.Models;
+using AIEngineConnectivity.Repositories;
+using AIEngineConnectivity.Services;
+using AIEngineCore.Extensions;
+using AIEngineCore.Services;
+using AIEngineGateway.BackgroundServices;
+using AIEngineGateway.BackgroundServices.Jobs;
+using AIEngineGateway.Contracts;
+using AIEngineGateway.EngineInfrastructure;
+using AIEngineGateway.EngineInfrastructure.RateLimiter;
+using AIEngineGateway.EngineInfrastructure.UserRateLimiter;
+using AIEngineGateway.Helpers;
+using AIEngineGateway.Repositories;
+using AIEngineGateway.Services;
+using AIEngineSpeechRecognition.Services;
+using Quartz;
+using Serilog;
+using static AIEngineConnectivity.Constants.EngineConstants;
+
 namespace AIEngineGateway.Extensions
 {
-    using AIEngineConnectivity.Constants;
-    using AIEngineConnectivity.DTOs;
-    using AIEngineConnectivity.EngineCore;
-    using AIEngineConnectivity.Helpers;
-    using AIEngineConnectivity.Models;
-    using AIEngineConnectivity.Repositories;
-    using AIEngineConnectivity.Services;
-    using AIEngineCore.Extensions;
-    using AIEngineCore.Services;
-    using AIEngineGateway.BackgroundServices;
-    using AIEngineGateway.BackgroundServices.Jobs;
-    using AIEngineGateway.Contracts;
-    using AIEngineGateway.EngineInfrastructure;
-    using AIEngineGateway.EngineInfrastructure.RateLimiter;
-    using AIEngineGateway.EngineInfrastructure.UserRateLimiter;
-    using AIEngineGateway.Helpers;
-    using AIEngineGateway.Repositories;
-    using AIEngineGateway.Services;
-    using AIEngineSpeechRecognition.Services;
-    using Quartz;
-    using Serilog;
-    using static AIEngineConnectivity.Constants.EngineConstants;
-
     public static class ServiceExtentions
     {
         public static void AddEngineServices(this IServiceCollection services, IConfiguration config)

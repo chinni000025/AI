@@ -1,9 +1,9 @@
-﻿namespace AIEngineConnectivity.Entities
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
+namespace AIEngineConnectivity.Entities
+{
     public class EngineNotification
     {
         public Guid Id { get; set; }

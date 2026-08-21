@@ -1,13 +1,13 @@
-﻿namespace AIEngineCore.Extensions
-{
-    using AIEngineConnectivity.EngineCore;
-    using AIEngineCore.EngineCore;
-    using AIEngineCore.EngineNotifications;
-    using AIEngineCore.Providers;
-    using AIEngineCore.Services;
-    using Microsoft.Extensions.DependencyInjection;
-    using System.Reflection;
+﻿using AIEngineConnectivity.EngineCore;
+using AIEngineCore.EngineCore;
+using AIEngineCore.EngineNotifications;
+using AIEngineCore.Providers;
+using AIEngineCore.Services;
+using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
+namespace AIEngineCore.Extensions
+{
     public static class InjectingProvidersToGateway
     {
         public static IServiceCollection AddEngineCoreDependencies(this IServiceCollection services)

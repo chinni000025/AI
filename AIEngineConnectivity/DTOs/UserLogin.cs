@@ -1,6 +1,7 @@
-﻿namespace AIEngineConnectivity.DTOs
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace AIEngineConnectivity.DTOs
 {
-    using System.ComponentModel.DataAnnotations;
     public class UserLogin
     {
         [Required(ErrorMessage = "UserName is Required")]

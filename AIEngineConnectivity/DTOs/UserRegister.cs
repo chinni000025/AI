@@ -1,7 +1,7 @@
-﻿
+﻿using System.ComponentModel.DataAnnotations;
+
 namespace AIEngineConnectivity.DTOs
 {
-    using System.ComponentModel.DataAnnotations;
     public class UserRegister
     {
         [Required]

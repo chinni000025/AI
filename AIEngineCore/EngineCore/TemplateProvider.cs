@@ -1,7 +1,8 @@
-﻿namespace AIEngineCore.EngineCore
+﻿using AIEngineConnectivity.Constants;
+using AIEngineConnectivity.EngineCore;
+
+namespace AIEngineCore.EngineCore
 {
-    using AIEngineConnectivity.Constants;
-    using AIEngineConnectivity.EngineCore;
     public class TemplateProvider : ITemplateProvider
     {
         private IEmbeddedResourceProvider _EmbeddedResourceProvider;

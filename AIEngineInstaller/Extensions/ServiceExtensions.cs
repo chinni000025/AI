@@ -1,11 +1,12 @@
-﻿namespace AIEngineInstaller.Extensions
+﻿using AIEngineConnectivity.Constants;
+using AIEngineConnectivity.Services;
+using AIEngineCore.EngineCore;
+using AIEngineInstaller.Models;
+using AIEngineInstaller.Services;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace AIEngineInstaller.Extensions
 {
-    using AIEngineConnectivity.Constants;
-    using AIEngineConnectivity.Services;
-    using AIEngineCore.EngineCore;
-    using AIEngineInstaller.Models;
-    using AIEngineInstaller.Services;
-    using Microsoft.Extensions.DependencyInjection;
     public static class ServiceExtensions
     {
         public static void addServices(this IServiceCollection services)

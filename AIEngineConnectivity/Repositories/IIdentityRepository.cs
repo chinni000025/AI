@@ -1,8 +1,8 @@
-﻿namespace AIEngineConnectivity.Repositories
-{
-    using AIEngineConnectivity.Entities;
-    using System;
+﻿using AIEngineConnectivity.Entities;
+using System;
 
+namespace AIEngineConnectivity.Repositories
+{
     public interface IIdentityRepository
     {
         public Task<User?> GetUserByName(string userName, CancellationToken cancellationToken);

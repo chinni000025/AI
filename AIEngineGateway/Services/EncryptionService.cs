@@ -1,11 +1,12 @@
-﻿namespace AIEngineGateway.Services
+﻿using AIEngineConnectivity.Constants;
+using AIEngineConnectivity.Models;
+using AIEngineConnectivity.Repositories;
+using AIEngineConnectivity.Services;
+using System.Security.Cryptography;
+using System.Text;
+
+namespace AIEngineGateway.Services
 {
-    using AIEngineConnectivity.Constants;
-    using AIEngineConnectivity.Models;
-    using AIEngineConnectivity.Repositories;
-    using AIEngineConnectivity.Services;
-    using System.Security.Cryptography;
-    using System.Text;
 #nullable disable
     public class EncryptionService : IEncryptionService
     {

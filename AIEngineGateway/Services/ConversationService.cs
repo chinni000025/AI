@@ -1,15 +1,15 @@
-﻿namespace AIEngineGateway.Services
-{
-    using AIEngineConnectivity.Constants;
-    using AIEngineConnectivity.DTOs;
-    using AIEngineConnectivity.Entities;
-    using AIEngineConnectivity.Helpers;
-    using AIEngineConnectivity.Models;
-    using AIEngineConnectivity.Repositories;
-    using AIEngineConnectivity.Services;
-    using Microsoft.AspNetCore.JsonPatch;
-    using Microsoft.AspNetCore.Mvc;
+﻿using AIEngineConnectivity.Constants;
+using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.Entities;
+using AIEngineConnectivity.Helpers;
+using AIEngineConnectivity.Models;
+using AIEngineConnectivity.Repositories;
+using AIEngineConnectivity.Services;
+using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Mvc;
 
+namespace AIEngineGateway.Services
+{
 #nullable disable
     public class ConversationService : IConversationService
     {

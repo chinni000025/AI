@@ -1,13 +1,14 @@
-﻿namespace AIEngineCore.Services
+﻿using AIEngineConnectivity.EngineCore;
+using AIEngineConnectivity.Models;
+using AIEngineConnectivity.Repositories;
+using AIEngineConnectivity.Services;
+using AIEngineCore.EngineNotifications;
+using Microsoft.Extensions.Options;
+using System.Net;
+using System.Net.Mail;
+
+namespace AIEngineCore.Services
 {
-    using AIEngineConnectivity.EngineCore;
-    using AIEngineConnectivity.Models;
-    using AIEngineConnectivity.Repositories;
-    using AIEngineConnectivity.Services;
-    using AIEngineCore.EngineNotifications;
-    using Microsoft.Extensions.Options;
-    using System.Net;
-    using System.Net.Mail;
 #nullable disable
 
     public class EmailService : IEmailService

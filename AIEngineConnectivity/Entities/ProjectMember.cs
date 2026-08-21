@@ -1,9 +1,10 @@
-﻿namespace AIEngineConnectivity.Entities
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection.Metadata;
+using System.Text;
+
+namespace AIEngineConnectivity.Entities
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Reflection.Metadata;
-    using System.Text;
 #nullable disable
     public class ProjectMember
     {

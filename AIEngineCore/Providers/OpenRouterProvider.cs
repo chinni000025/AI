@@ -1,11 +1,11 @@
-﻿namespace AIEngineCore.Providers
-{
-    using System.Text.Json;
-    using AIEngineConnectivity.Constants;
-    using AIEngineConnectivity.DTOs;
-    using AIEngineConnectivity.Models;
-    using Microsoft.Extensions.Options;
+﻿using System.Text.Json;
+using AIEngineConnectivity.Constants;
+using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.Models;
+using Microsoft.Extensions.Options;
 
+namespace AIEngineCore.Providers
+{
     public class OpenRouterProvider : ProviderBase.ProviderBase
     {
         private readonly OpenRouterAPiKeyConfiguration _openRouterAPiKeyConfiguration;

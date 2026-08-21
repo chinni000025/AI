@@ -1,9 +1,9 @@
-﻿namespace AIEngineGateway.Controllers
-{
-    using AIEngineConnectivity.Services;
-    using Microsoft.AspNetCore.Authorization;
-    using Microsoft.AspNetCore.Mvc;
+﻿using AIEngineConnectivity.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
+namespace AIEngineGateway.Controllers
+{
     [ApiController]
     [Route("api/[controller]")]
     public class EncryptionController : ControllerBase

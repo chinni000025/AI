@@ -1,10 +1,10 @@
-﻿namespace AIEngineConnectivity.DTOs
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Globalization;
-    using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Text;
 
+namespace AIEngineConnectivity.DTOs
+{
     public class ProjectDTO
     {
         public string ProjectName { get; set; }

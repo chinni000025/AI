@@ -1,10 +1,9 @@
 ﻿using AIEngineGateway.Services;
+using AIEngineConnectivity.Constants;
+using AIEngineConnectivity.Services;
 
 namespace AIEngineGateway.EngineInfrastructure
 {
-    using AIEngineConnectivity.Constants;
-    using AIEngineConnectivity.Services;
-
     public class DataBaseProviderFactory : IDataBaseProviderFactory
     {
         private readonly IServiceProvider _serviceProvider;

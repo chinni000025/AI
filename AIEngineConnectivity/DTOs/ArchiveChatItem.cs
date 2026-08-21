@@ -1,9 +1,9 @@
-﻿namespace AIEngineConnectivity.DTOs
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
+namespace AIEngineConnectivity.DTOs
+{
     public class ArchiveChatItem
     {
         public Guid ConversationId { get; set; }

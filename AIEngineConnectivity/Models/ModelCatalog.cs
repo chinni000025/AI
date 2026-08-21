@@ -1,7 +1,7 @@
-﻿namespace AIEngineConnectivity.Models
-{
-    using AIEngineConnectivity.Constants;
+﻿using AIEngineConnectivity.Constants;
 
+namespace AIEngineConnectivity.Models
+{
     public static class ModelCatalog
     {
         public static IReadOnlyList<ModelProvider> Providers =

@@ -1,8 +1,9 @@
-﻿namespace AIEngineConnectivity.DTOs
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace AIEngineConnectivity.DTOs
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
 #nullable disable
     public class AIRequest
     {

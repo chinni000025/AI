@@ -1,7 +1,7 @@
-﻿namespace AIEngineGateway.EngineInfrastructure.DatabaseScripts
-{
-    using Microsoft.Extensions.AI;
+﻿using Microsoft.Extensions.AI;
 
+namespace AIEngineGateway.EngineInfrastructure.DatabaseScripts
+{
     public static class ScriptLoader
     {
         public static async Task<string> LoadScriptsAsync(string scriptName)

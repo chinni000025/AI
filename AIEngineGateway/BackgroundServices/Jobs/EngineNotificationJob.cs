@@ -1,10 +1,10 @@
-﻿namespace AIEngineGateway.BackgroundServices.Jobs
-{
-    using AIEngineConnectivity.Constants;
-    using AIEngineConnectivity.EngineCore;
-    using AIEngineConnectivity.Services;
-    using Quartz;
+﻿using AIEngineConnectivity.Constants;
+using AIEngineConnectivity.EngineCore;
+using AIEngineConnectivity.Services;
+using Quartz;
 
+namespace AIEngineGateway.BackgroundServices.Jobs
+{
     public class EngineNotificationJob : IJob
     {
         private readonly IServiceScopeFactory _ServiceScopeFactory;

@@ -1,9 +1,9 @@
-﻿namespace AIEngineGateway.EngineInfrastructure.UserRateLimiter
-{
-    using AIEngineConnectivity.Models;
-    using Microsoft.Extensions.Options;
-    using System.Collections.Concurrent;
+﻿using AIEngineConnectivity.Models;
+using Microsoft.Extensions.Options;
+using System.Collections.Concurrent;
 
+namespace AIEngineGateway.EngineInfrastructure.UserRateLimiter
+{
     public sealed class UserBucketStore
     {
         private readonly ConcurrentDictionary<string, UserBucket> _userBucketStore;

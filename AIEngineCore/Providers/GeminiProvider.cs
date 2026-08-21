@@ -1,13 +1,13 @@
-﻿namespace AIEngineCore.Providers
-{
-    using AIEngineConnectivity.Constants;
-    using AIEngineConnectivity.DTOs;
-    using AIEngineConnectivity.Models;
-    using Google.GenAI;
-    using Google.GenAI.Types;
-    using Microsoft.Extensions.Options;
-    using System;
+﻿using AIEngineConnectivity.Constants;
+using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.Models;
+using Google.GenAI;
+using Google.GenAI.Types;
+using Microsoft.Extensions.Options;
+using System;
 
+namespace AIEngineCore.Providers
+{
     public class GeminiProvider : ProviderBase.ProviderBase
     {
         private readonly Client _client;

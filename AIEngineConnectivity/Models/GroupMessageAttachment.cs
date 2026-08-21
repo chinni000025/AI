@@ -1,9 +1,10 @@
-﻿namespace AIEngineConnectivity.Models
+﻿using AIEngineConnectivity.Entities;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace AIEngineConnectivity.Models
 {
-    using AIEngineConnectivity.Entities;
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
     public class GroupMessageAttachment
     {
         public int Id { get; set; }

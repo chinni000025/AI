@@ -1,10 +1,10 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Migrations;
+using static AIEngineConnectivity.Constants.EngineConstants;
+
 namespace AIEngineGateway.EngineInfrastructure
 {
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.EntityFrameworkCore.Diagnostics;
-    using Microsoft.EntityFrameworkCore.Migrations;
-    using static AIEngineConnectivity.Constants.EngineConstants;
-
     public class EngineDbConfigurator
     {
         public void ConfigureEngineDataBase(IServiceProvider serviceProvider, DbContextOptionsBuilder dbContextOptionsBuilder, DataBaseProvider dataBaseProvider)

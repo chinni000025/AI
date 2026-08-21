@@ -1,23 +1,23 @@
-﻿namespace AIEngineGateway.Services
-{
-    using AIEngineConnectivity.Constants;
-    using AIEngineConnectivity.DTOs;
-    using AIEngineConnectivity.EngineCore;
-    using AIEngineConnectivity.Entities;
-    using AIEngineConnectivity.Helpers;
-    using AIEngineConnectivity.Models;
-    using AIEngineConnectivity.Repositories;
-    using AIEngineConnectivity.Services;
-    using AIEngineCore.EngineCore;
-    using AIEngineCore.EngineNotifications;
-    using AIEngineGateway.Hub;
-    using Microsoft.AspNetCore.Antiforgery;
-    using Microsoft.AspNetCore.SignalR;
-    using Microsoft.AspNetCore.WebUtilities;
-    using Microsoft.Extensions.Options;
-    using System.Security.Cryptography;
-    using System.Text;
+﻿using AIEngineConnectivity.Constants;
+using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.EngineCore;
+using AIEngineConnectivity.Entities;
+using AIEngineConnectivity.Helpers;
+using AIEngineConnectivity.Models;
+using AIEngineConnectivity.Repositories;
+using AIEngineConnectivity.Services;
+using AIEngineCore.EngineCore;
+using AIEngineCore.EngineNotifications;
+using AIEngineGateway.Hub;
+using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Options;
+using System.Security.Cryptography;
+using System.Text;
 
+namespace AIEngineGateway.Services
+{
     public class IdentityService : IIdentityService
     {
 

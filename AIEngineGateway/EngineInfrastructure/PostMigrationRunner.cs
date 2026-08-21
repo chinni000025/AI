@@ -1,9 +1,10 @@
-﻿namespace AIEngineGateway.EngineInfrastructure
+﻿using AIEngineConnectivity.Entities;
+using AIEngineConnectivity.Models;
+using AIEngineGateway.Contracts;
+using Microsoft.EntityFrameworkCore;
+
+namespace AIEngineGateway.EngineInfrastructure
 {
-    using AIEngineConnectivity.Entities;
-    using AIEngineConnectivity.Models;
-    using AIEngineGateway.Contracts;
-    using Microsoft.EntityFrameworkCore;
 #nullable disable
     public class PostMigrationRunner
     {

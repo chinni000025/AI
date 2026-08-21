@@ -1,9 +1,9 @@
-﻿namespace AIEngineGateway.Services
-{
-    using AIEngineConnectivity.DTOs;
-    using AIEngineConnectivity.Models;
-    using AIEngineConnectivity.Services;
+﻿using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.Models;
+using AIEngineConnectivity.Services;
 
+namespace AIEngineGateway.Services
+{
     public class UserService : IUserService
     {
         private IHttpContextAccessor _httpContextAccessor;

@@ -1,10 +1,10 @@
-﻿namespace AIEngineConnectivity.Services
-{
-    using AIEngineConnectivity.Constants;
-    using AIEngineConnectivity.EngineCore;
-    using AIEngineConnectivity.Entities;
-    using System;
+﻿using AIEngineConnectivity.Constants;
+using AIEngineConnectivity.EngineCore;
+using AIEngineConnectivity.Entities;
+using System;
 
+namespace AIEngineConnectivity.Services
+{
     public interface IEngineNotificationService
     {
         public Task AddOrUpdateNotificationAsync(EngineNotificationMessage engineRetryNotification,

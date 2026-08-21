@@ -1,10 +1,10 @@
-﻿namespace AIEngineGateway.Services
-{
-    using AIEngineConnectivity.Constants;
-    using AIEngineConnectivity.Models;
-    using Microsoft.AspNetCore.Authentication.JwtBearer;
-    using Microsoft.IdentityModel.Tokens;
+﻿using AIEngineConnectivity.Constants;
+using AIEngineConnectivity.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
+namespace AIEngineGateway.Services
+{
     public static class JwtServiceConfiguration
     {
         public static void AddingJWtService(this IServiceCollection services, IConfiguration configuration)

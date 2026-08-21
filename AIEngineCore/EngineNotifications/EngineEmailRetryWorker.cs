@@ -1,13 +1,14 @@
-﻿namespace AIEngineCore.EngineNotifications
+﻿using AIEngineConnectivity.Constants;
+using AIEngineConnectivity.EngineCore;
+using AIEngineConnectivity.Services;
+using AIEngineCore.Extensions;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+
+namespace AIEngineCore.EngineNotifications
 {
-    using AIEngineConnectivity.Constants;
-    using AIEngineConnectivity.EngineCore;
-    using AIEngineConnectivity.Services;
-    using AIEngineCore.Extensions;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.Hosting;
-    using Microsoft.Extensions.Logging;
-    using Microsoft.Extensions.Options;
 #nullable disable
     public class EngineEmailRetryWorker : BackgroundService
     {

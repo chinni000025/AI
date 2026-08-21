@@ -1,9 +1,10 @@
-﻿namespace AIEngineConnectivity.Services
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Text;
+
+namespace AIEngineConnectivity.Services
 {
-    using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Text;
     public interface IUserSessionManager
     {
         public void AddConnection(string userId, string sessionId, string connectionId);

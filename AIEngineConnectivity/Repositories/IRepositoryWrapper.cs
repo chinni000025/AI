@@ -1,8 +1,9 @@
-﻿namespace AIEngineConnectivity.Repositories
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace AIEngineConnectivity.Repositories
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
     public interface IRepositoryWrapper
     {
         IIdentityRepository IdentityRepository { get; }

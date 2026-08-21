@@ -1,8 +1,8 @@
-﻿namespace AIEngineConnectivity.Services
-{
-    using AIEngineConnectivity.DTOs;
-    using AIEngineConnectivity.Entities;
+﻿using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.Entities;
 
+namespace AIEngineConnectivity.Services
+{
     public interface IIdentityService
     {
         public Task<Object> AllowEngineAccess(User user, CancellationToken cancellationToken);

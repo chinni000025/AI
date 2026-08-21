@@ -1,8 +1,9 @@
-﻿namespace AIEngineConnectivity.Models
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace AIEngineConnectivity.Models
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
 #nullable disable
     public class SmtpConfiguration
     {

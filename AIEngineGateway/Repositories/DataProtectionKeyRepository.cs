@@ -1,10 +1,10 @@
-﻿namespace AIEngineGateway.Repositories
-{
-    using AIEngineConnectivity.Entities;
-    using AIEngineConnectivity.Repositories;
-    using AIEngineGateway.EngineInfrastructure;
-    using Microsoft.EntityFrameworkCore;
+﻿using AIEngineConnectivity.Entities;
+using AIEngineConnectivity.Repositories;
+using AIEngineGateway.EngineInfrastructure;
+using Microsoft.EntityFrameworkCore;
 
+namespace AIEngineGateway.Repositories
+{
     public class DataProtectionKeyRepository : IDataProtectionKeyRepository
     {
         private readonly EngineContext _EngineContext;

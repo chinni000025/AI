@@ -1,11 +1,12 @@
-﻿namespace AIEngineConnectivity.Services
+﻿using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.Models;
+using Microsoft.AspNetCore.JsonPatch;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace AIEngineConnectivity.Services
 {
-    using AIEngineConnectivity.DTOs;
-    using AIEngineConnectivity.Models;
-    using Microsoft.AspNetCore.JsonPatch;
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
     public interface IConversationService
     {
         /// <summary>

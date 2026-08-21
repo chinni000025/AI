@@ -1,12 +1,12 @@
-﻿namespace AIEngineConnectivity.Repositories
-{
-    using AIEngineConnectivity.DTOs;
-    using AIEngineConnectivity.Entities;
-    using AIEngineConnectivity.Models;
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
+﻿using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.Entities;
+using AIEngineConnectivity.Models;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
+namespace AIEngineConnectivity.Repositories
+{
     public interface IConversationRepository
     {
 

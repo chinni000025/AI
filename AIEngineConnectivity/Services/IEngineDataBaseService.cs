@@ -1,7 +1,7 @@
-﻿namespace AIEngineConnectivity.Services
-{
-    using AIEngineConnectivity.DTOs;
+﻿using AIEngineConnectivity.DTOs;
 
+namespace AIEngineConnectivity.Services
+{
     public interface IEngineDataBaseService
     {
         public Task ConfigureDataBase(DataBaseConfiguration dataBaseConfiguration);

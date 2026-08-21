@@ -1,8 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
 namespace AIEngineConnectivity.Services
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
     public interface IAIEngineGatewayManagerService
     {
         Task<bool> StartGatewayAsync(string gatewayDirectory);

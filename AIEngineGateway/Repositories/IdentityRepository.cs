@@ -1,11 +1,11 @@
-﻿namespace AIEngineGateway.Repositories
-{
-    using AIEngineConnectivity.Entities;
-    using AIEngineConnectivity.Models;
-    using AIEngineConnectivity.Repositories;
-    using AIEngineGateway.EngineInfrastructure;
-    using Microsoft.EntityFrameworkCore;
+﻿using AIEngineConnectivity.Entities;
+using AIEngineConnectivity.Models;
+using AIEngineConnectivity.Repositories;
+using AIEngineGateway.EngineInfrastructure;
+using Microsoft.EntityFrameworkCore;
 
+namespace AIEngineGateway.Repositories
+{
     public class IdentityRepository : IIdentityRepository
     {
         private readonly EngineContext _EngineContext;

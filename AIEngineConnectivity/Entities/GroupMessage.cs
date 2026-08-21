@@ -1,10 +1,10 @@
 ﻿using AIEngineConnectivity.Models;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AIEngineConnectivity.Entities
 {
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations.Schema;
     public class GroupMessage
     {
         //Primary Id.

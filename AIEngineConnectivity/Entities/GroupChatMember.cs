@@ -1,8 +1,9 @@
-﻿namespace AIEngineConnectivity.Entities
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace AIEngineConnectivity.Entities
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
     /// <summary>
     /// Used for the Group Chat Members
     /// </summary>

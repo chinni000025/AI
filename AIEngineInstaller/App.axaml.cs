@@ -1,12 +1,13 @@
+using AIEngineConnectivity.Services;
+using AIEngineInstaller.ViewModels;
+using AIEngineInstaller.Views;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Markup.Xaml;
+using Microsoft.Extensions.DependencyInjection;
+
 namespace AIEngineInstaller
 {
-    using AIEngineConnectivity.Services;
-    using AIEngineInstaller.ViewModels;
-    using AIEngineInstaller.Views;
-    using Avalonia;
-    using Avalonia.Controls.ApplicationLifetimes;
-    using Avalonia.Markup.Xaml;
-    using Microsoft.Extensions.DependencyInjection;
     public partial class App : Application
     {
         public override void Initialize()

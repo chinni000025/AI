@@ -1,15 +1,15 @@
-﻿namespace AIEngineGateway.Helpers
-{
-    using AIEngineConnectivity.Entities;
-    using AIEngineConnectivity.Helpers;
-    using AIEngineConnectivity.Models;
-    using Microsoft.Extensions.Options;
-    using Microsoft.IdentityModel.Tokens;
-    using System.IdentityModel.Tokens.Jwt;
-    using System.Security.Claims;
-    using System.Security.Cryptography;
-    using System.Text;
+﻿using AIEngineConnectivity.Entities;
+using AIEngineConnectivity.Helpers;
+using AIEngineConnectivity.Models;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 
+namespace AIEngineGateway.Helpers
+{
     public class IdentityHelpers : IIdentityHelper
     {
         private readonly JWTConfiguration _jWTConfiguration;

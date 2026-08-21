@@ -1,11 +1,11 @@
-﻿namespace AIEngineGateway.Services
+﻿
+using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.Services;
+using AIEngineGateway.BackgroundServices.Jobs;
+using Quartz;
+
+namespace AIEngineGateway.Services
 {
-
-    using AIEngineConnectivity.DTOs;
-    using AIEngineConnectivity.Services;
-    using AIEngineGateway.BackgroundServices.Jobs;
-    using Quartz;
-
     public class EngineScheduler : IEngineScheduler
     {
         private ISchedulerFactory _SchedulerFactory;

@@ -1,6 +1,7 @@
-﻿namespace AIEngineGateway.BackgroundServices
+﻿using AIEngineGateway.EngineInfrastructure.UserRateLimiter;
+
+namespace AIEngineGateway.BackgroundServices
 {
-    using AIEngineGateway.EngineInfrastructure.UserRateLimiter;
     public class UserBucketCleanUpHostedService : BackgroundService
     {
         private readonly UserBucketStore _userBucketStore;

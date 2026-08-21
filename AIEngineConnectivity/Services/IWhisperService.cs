@@ -1,8 +1,9 @@
-﻿namespace AIEngineConnectivity.Services
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace AIEngineConnectivity.Services
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
     public interface IWhisperService
     {
         Task InitializeAsync();

@@ -1,9 +1,9 @@
-﻿namespace AIEngineConnectivity.Services
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
+namespace AIEngineConnectivity.Services
+{
     public interface IEngineStartUpService
     {
         public Task InitializeAsync();

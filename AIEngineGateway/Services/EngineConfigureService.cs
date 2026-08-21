@@ -1,11 +1,11 @@
-﻿namespace AIEngineGateway.Services
-{
-    using AIEngineConnectivity.DTOs;
-    using AIEngineConnectivity.Services;
-    using AIEngineGateway.EngineInfrastructure;
-    using AIEngineGateway.Extensions;
-    using Microsoft.EntityFrameworkCore;
+﻿using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.Services;
+using AIEngineGateway.EngineInfrastructure;
+using AIEngineGateway.Extensions;
+using Microsoft.EntityFrameworkCore;
 
+namespace AIEngineGateway.Services
+{
     public class EngineConfigureService : IEngineDataBaseService
     {
         private readonly DataBaseIntialiationServices _dataBaseSetupServices;

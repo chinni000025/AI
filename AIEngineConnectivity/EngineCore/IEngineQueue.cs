@@ -1,7 +1,7 @@
-﻿namespace AIEngineConnectivity.EngineCore
-{
-    using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
+namespace AIEngineConnectivity.EngineCore
+{
     public interface IEngineQueue<T>
     {
         public ValueTask publishAsync(T scenario, CancellationToken cancellationToken = default);

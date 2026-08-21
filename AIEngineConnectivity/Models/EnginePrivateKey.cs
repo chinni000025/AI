@@ -1,6 +1,7 @@
-﻿namespace AIEngineConnectivity.Models
+﻿using System.Security.Cryptography;
+
+namespace AIEngineConnectivity.Models
 {
-    using System.Security.Cryptography;
     public class EnginePrivateKey
     {
         private RSA _RsaInstance;

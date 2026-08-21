@@ -1,8 +1,8 @@
-﻿namespace AIEngineGateway.BackgroundServices
-{
-    using AIEngineGateway.Contracts;
-    using AIEngineGateway.EngineInfrastructure;
+﻿using AIEngineGateway.Contracts;
+using AIEngineGateway.EngineInfrastructure;
 
+namespace AIEngineGateway.BackgroundServices
+{
 #nullable disable
     public class DataBaseCleanUpServices : BackgroundService
     {

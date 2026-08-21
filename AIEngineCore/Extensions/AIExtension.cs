@@ -1,9 +1,9 @@
-﻿namespace AIEngineCore.Extensions
-{
-    using AIEngineConnectivity.DTOs;
-    using AIEngineConnectivity.Models;
-    using AIEngineConnectivity.Services;
+﻿using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.Models;
+using AIEngineConnectivity.Services;
 
+namespace AIEngineCore.Extensions
+{
     public class AIExtension
     {
         IAIProvider aIProvider;

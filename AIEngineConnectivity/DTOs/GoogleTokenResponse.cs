@@ -1,7 +1,7 @@
-﻿namespace AIEngineConnectivity.DTOs
-{
-    using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
+namespace AIEngineConnectivity.DTOs
+{
     public class GoogleTokenResponse
     {
         [JsonPropertyName("access_token")]

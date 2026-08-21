@@ -1,9 +1,10 @@
-﻿namespace AIEngineGateway.Repositories
+﻿using AIEngineConnectivity.Repositories;
+using AIEngineGateway.EngineInfrastructure;
+using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
+
+namespace AIEngineGateway.Repositories
 {
-    using AIEngineConnectivity.Repositories;
-    using AIEngineGateway.EngineInfrastructure;
-    using Microsoft.EntityFrameworkCore;
-    using System.Linq.Expressions;
     public class EngineRepoBase<TEntity> : IEngineRepoBase<TEntity> where TEntity : class
     {
         protected DbSet<TEntity> _dbSet;

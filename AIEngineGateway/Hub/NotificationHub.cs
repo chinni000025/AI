@@ -1,14 +1,15 @@
-﻿namespace AIEngineGateway.Hub
+using AIEngineConnectivity.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
+
+namespace AIEngineGateway.Hub
 {
-    using AIEngineConnectivity.Services;
-    using Microsoft.AspNetCore.Authorization;
-    using Microsoft.AspNetCore.SignalR;
 #nullable disable
     /// <summary>
     /// It needs Authentication.
     /// </summary>
     [Authorize]
-    public class NotificationHub : Hub
+    public class NotificationHub : Microsoft.AspNetCore.SignalR.Hub
     {
         private readonly IUserSessionManager _userSessionManager;
         public NotificationHub(IUserSessionManager userSessionManager)

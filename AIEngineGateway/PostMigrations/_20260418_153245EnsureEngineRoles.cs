@@ -1,12 +1,12 @@
-﻿namespace AIEngineGateway.PostMigrations
-{
-    using AIEngineConnectivity.Constants;
-    using AIEngineConnectivity.Entities;
-    using AIEngineConnectivity.Models;
-    using AIEngineGateway.Contracts;
-    using AIEngineGateway.EngineInfrastructure;
-    using Microsoft.EntityFrameworkCore;
+﻿using AIEngineConnectivity.Constants;
+using AIEngineConnectivity.Entities;
+using AIEngineConnectivity.Models;
+using AIEngineGateway.Contracts;
+using AIEngineGateway.EngineInfrastructure;
+using Microsoft.EntityFrameworkCore;
 
+namespace AIEngineGateway.PostMigrations
+{
     public class _20260418_153245EnsureEngineRoles : IPostMigration
     {
         public string MigrationName => "_20260418_153245EnsureEngineRoles";

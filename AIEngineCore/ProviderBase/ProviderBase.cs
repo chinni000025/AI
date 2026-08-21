@@ -1,13 +1,13 @@
+using AIEngineConnectivity.Constants;
+using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.Models;
+using AIEngineConnectivity.Services;
+using Google.GenAI;
+using System.Net.Http.Headers;
+using System.Text.Json;
+
 namespace AIEngineCore.ProviderBase
 {
-    using AIEngineConnectivity.Constants;
-    using AIEngineConnectivity.DTOs;
-    using AIEngineConnectivity.Models;
-    using AIEngineConnectivity.Services;
-    using Google.GenAI;
-    using System.Net.Http.Headers;
-    using System.Text.Json;
-
     public abstract class ProviderBase : IAIProvider
     {
         public abstract Task<AIResponse?> GenerateAsync(AIRequest request);

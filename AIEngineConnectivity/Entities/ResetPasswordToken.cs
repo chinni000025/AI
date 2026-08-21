@@ -1,9 +1,9 @@
-﻿namespace AIEngineConnectivity.Entities
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
+namespace AIEngineConnectivity.Entities
+{
     /// <summary>
     /// This model is used to Store the Reset Password Token 
     /// Token generated after user initiate the Forget password Request.

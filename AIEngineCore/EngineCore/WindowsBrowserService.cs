@@ -1,10 +1,11 @@
-﻿namespace AIEngineCore.EngineCore
+﻿using AIEngineConnectivity.Services;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text;
+
+namespace AIEngineCore.EngineCore
 {
-    using AIEngineConnectivity.Services;
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Text;
     public class WindowsBrowserService : IBrowserService
     {
         public Task<bool> OpenWebBrowserAsync(string url)

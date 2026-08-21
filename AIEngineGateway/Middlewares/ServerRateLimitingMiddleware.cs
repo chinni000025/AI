@@ -1,8 +1,9 @@
-﻿namespace AIEngineGateway.Middlewares
+﻿using AIEngineGateway.EngineInfrastructure.RateLimiter;
+using AIEngineGateway.PostMigrations;
+using AIEngineGateway.Services;
+
+namespace AIEngineGateway.Middlewares
 {
-    using AIEngineGateway.EngineInfrastructure.RateLimiter;
-    using AIEngineGateway.PostMigrations;
-    using AIEngineGateway.Services;
 #nullable disable
     public class ServerRateLimitingMiddleware
     {

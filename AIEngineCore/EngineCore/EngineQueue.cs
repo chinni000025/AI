@@ -1,8 +1,8 @@
-﻿namespace AIEngineCore.EngineCore
-{
-    using AIEngineConnectivity.EngineCore;
-    using System.Threading.Channels;
+﻿using AIEngineConnectivity.EngineCore;
+using System.Threading.Channels;
 
+namespace AIEngineCore.EngineCore
+{
     public class EngineQueue<T> : IEngineQueue<T>
     {
         private readonly Channel<T> _channel;

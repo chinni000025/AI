@@ -1,11 +1,11 @@
-﻿namespace AIEngineGateway.Services
-{
-    using AIEngineConnectivity.Entities;
-    using AIEngineConnectivity.Helpers;
-    using AIEngineConnectivity.Models;
-    using AIEngineConnectivity.Services;
-    using Microsoft.Extensions.Options;
+﻿using AIEngineConnectivity.Entities;
+using AIEngineConnectivity.Helpers;
+using AIEngineConnectivity.Models;
+using AIEngineConnectivity.Services;
+using Microsoft.Extensions.Options;
 
+namespace AIEngineGateway.Services
+{
     public class TokenService : ITokenService
     {
         private readonly IIdentityHelper _IdentityHelper;

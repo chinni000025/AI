@@ -1,9 +1,9 @@
-﻿namespace AIEngineConnectivity.Models
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
+namespace AIEngineConnectivity.Models
+{
     public class ServerRateLimiterOptions
     {
         public int InitialCapacity { get; set; }

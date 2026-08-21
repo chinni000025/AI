@@ -1,8 +1,8 @@
-﻿namespace AIEngineCore.EngineCore
-{
-    using AIEngineConnectivity.Constants;
-    using AIEngineConnectivity.EngineCore;
+﻿using AIEngineConnectivity.Constants;
+using AIEngineConnectivity.EngineCore;
 
+namespace AIEngineCore.EngineCore
+{
     public class EngineEventPublisher
     {
         private readonly IEngineBus _EngineBus;

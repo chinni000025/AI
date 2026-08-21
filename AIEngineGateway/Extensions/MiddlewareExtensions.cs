@@ -1,7 +1,8 @@
-﻿namespace AIEngineGateway.Extensions
+﻿using AIEngineGateway.Hub;
+using AIEngineGateway.Middlewares;
+
+namespace AIEngineGateway.Extensions
 {
-    using AIEngineGateway.Hub;
-    using AIEngineGateway.Middlewares;
     public static class MiddlewareExtensions
     {
         public static void AddEngineMiddleware(this IApplicationBuilder app)

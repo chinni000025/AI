@@ -1,10 +1,10 @@
-﻿namespace AIEngineCore.EngineNotifications
-{
-    using AIEngineConnectivity.EngineCore;
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
+﻿using AIEngineConnectivity.EngineCore;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
+namespace AIEngineCore.EngineNotifications
+{
     public class EngineEmailRouter : IEngineNotificationRouter
     {
         private IEngineQueue<EngineNotificationMessage> _EmailNotificationQueue;

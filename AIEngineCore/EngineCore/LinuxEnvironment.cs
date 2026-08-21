@@ -1,9 +1,10 @@
-﻿namespace AIEngineCore.EngineCore
+﻿using AIEngineConnectivity.Services;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace AIEngineCore.EngineCore
 {
-    using AIEngineConnectivity.Services;
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
     public class LinuxEnvironment : IEnvironment
     {
         public bool CanInstallEngine()

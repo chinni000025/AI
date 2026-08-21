@@ -1,7 +1,8 @@
-﻿namespace AIEngineGateway.Services
+﻿using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.Services;
+
+namespace AIEngineGateway.Services
 {
-    using AIEngineConnectivity.DTOs;
-    using AIEngineConnectivity.Services;
     public class PostgreServerProvider : IDataBaseProvider
     {
         public string BuildConnectionString(DataBaseConfiguration dataBaseConfiguration)

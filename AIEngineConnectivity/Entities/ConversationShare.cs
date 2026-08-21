@@ -1,11 +1,11 @@
-﻿namespace AIEngineConnectivity.Entities
-{
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
-    using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text;
 
+namespace AIEngineConnectivity.Entities
+{
     /// <summary>
     /// This model is used for the Conversation shares.
     /// </summary>

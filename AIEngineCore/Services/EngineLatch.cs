@@ -1,10 +1,11 @@
-﻿namespace AIEngineCore.Services
+﻿using AIEngineConnectivity.Services;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Text.Json;
+
+namespace AIEngineCore.Services
 {
-    using AIEngineConnectivity.Services;
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
-    using System.Text.Json;
 #nullable disable
     public class EngineLatch : IEngineLatch
     {

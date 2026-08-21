@@ -1,7 +1,8 @@
-﻿namespace AIEngineGateway.EngineInfrastructure
+﻿using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.Services;
+
+namespace AIEngineGateway.EngineInfrastructure
 {
-    using AIEngineConnectivity.DTOs;
-    using AIEngineConnectivity.Services;
     public class SqlServerProvider : IDataBaseProvider
     {
         public string BuildConnectionString(DataBaseConfiguration dataBaseConfiguration)

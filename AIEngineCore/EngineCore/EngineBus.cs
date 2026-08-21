@@ -1,8 +1,8 @@
-﻿namespace AIEngineCore.EngineCore
-{
-    using AIEngineConnectivity.EngineCore;
-    using AIEngineCore.EngineNotifications;
+﻿using AIEngineConnectivity.EngineCore;
+using AIEngineCore.EngineNotifications;
 
+namespace AIEngineCore.EngineCore
+{
     public class EngineBus : IEngineBus
     {
         private readonly IEngineQueue<EngineNotificationMessage> _EngineQueue;

@@ -1,10 +1,9 @@
+using AIEngineGateway.EngineInfrastructure.DatabaseScripts;
+using Microsoft.EntityFrameworkCore;
+using static AIEngineConnectivity.Constants.EngineConstants;
 
 namespace AIEngineGateway.EngineInfrastructure
 {
-    using AIEngineGateway.EngineInfrastructure.DatabaseScripts;
-    using Microsoft.EntityFrameworkCore;
-    using static AIEngineConnectivity.Constants.EngineConstants;
-
     public class StartUpMigrations
     {
         private readonly IServiceProvider _serviceProvider;

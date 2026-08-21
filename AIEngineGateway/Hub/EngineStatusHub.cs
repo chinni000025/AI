@@ -1,7 +1,8 @@
-﻿namespace AIEngineGateway.Hub
+using Microsoft.AspNetCore.SignalR;
+
+namespace AIEngineGateway.Hub
 {
-    using Microsoft.AspNetCore.SignalR;
-    public class EngineStatusHub : Hub
+    public class EngineStatusHub : Microsoft.AspNetCore.SignalR.Hub
     {
         public override async Task OnConnectedAsync()
         {

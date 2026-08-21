@@ -1,7 +1,8 @@
-﻿namespace AIEngineGateway.Services
+﻿using AIEngineConnectivity.Services;
+using System.Collections.Concurrent;
+
+namespace AIEngineGateway.Services
 {
-    using AIEngineConnectivity.Services;
-    using System.Collections.Concurrent;
     public class UserSessionManager : IUserSessionManager
     {
         private readonly ConcurrentDictionary<string,

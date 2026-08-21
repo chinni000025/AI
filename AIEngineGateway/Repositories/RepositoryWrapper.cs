@@ -1,8 +1,8 @@
-﻿namespace AIEngineGateway.Repositories
-{
-    using AIEngineConnectivity.Repositories;
-    using AIEngineGateway.EngineInfrastructure;
+﻿using AIEngineConnectivity.Repositories;
+using AIEngineGateway.EngineInfrastructure;
 
+namespace AIEngineGateway.Repositories
+{
     public class RepositoryWrapper : IRepositoryWrapper
     {
         public IIdentityRepository IdentityRepository { get; }

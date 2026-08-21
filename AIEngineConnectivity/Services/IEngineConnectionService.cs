@@ -1,9 +1,10 @@
-﻿namespace AIEngineConnectivity.Services
+﻿using AIEngineConnectivity.Models;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace AIEngineConnectivity.Services
 {
-    using AIEngineConnectivity.Models;
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
     public interface IEngineConnectionService
     {
         public Task GoogleConnectionAuthorizationCode(string code, string userId, CancellationToken cancellationToken);

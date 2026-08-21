@@ -1,9 +1,9 @@
-﻿namespace AIEngineGateway.BackgroundServices.Jobs
-{
-    using AIEngineGateway.Contracts;
-    using AIEngineGateway.EngineInfrastructure;
-    using Microsoft.EntityFrameworkCore;
+﻿using AIEngineGateway.Contracts;
+using AIEngineGateway.EngineInfrastructure;
+using Microsoft.EntityFrameworkCore;
 
+namespace AIEngineGateway.BackgroundServices.Jobs
+{
     public class RefreshTokenCleanUpJob : ICleanUpJob
     {
 

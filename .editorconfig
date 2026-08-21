@@ -1,0 +1,5 @@
+root = true
+
+[*.cs]
+csharp_using_directive_placement = outside_namespace:warning
+dotnet_diagnostic.IDE0065.severity = warning

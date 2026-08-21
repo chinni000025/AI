@@ -1,14 +1,14 @@
+using AIEngineConnectivity.Services;
+using AIEngineGateway.Controllers;
+using FakeItEasy;
+using FluentAssertions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Xunit;
+
 namespace AIEngineUnitTest.Controller
 {
-    using AIEngineConnectivity.Services;
-    using AIEngineGateway.Controllers;
-    using FakeItEasy;
-    using FluentAssertions;
-    using Microsoft.AspNetCore.Http;
-    using Microsoft.AspNetCore.Mvc;
-    using Microsoft.Extensions.Logging;
-    using Xunit;
-
     public class ConnectionControllerTests
     {
         private readonly IEngineConnectionService _EngineConnectionService;

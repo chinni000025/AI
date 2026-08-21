@@ -1,9 +1,10 @@
+using AIEngineInstaller.Extensions;
+using Avalonia;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+
 namespace AIEngineInstaller
 {
-    using AIEngineInstaller.Extensions;
-    using Avalonia;
-    using Microsoft.Extensions.DependencyInjection;
-    using System;
     internal sealed class Program
     {
         public static IServiceProvider provider { get; private set; } = default!;

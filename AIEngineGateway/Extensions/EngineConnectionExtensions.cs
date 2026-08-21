@@ -1,8 +1,9 @@
-﻿namespace AIEngineGateway.Extensions
+﻿using Microsoft.Data.SqlClient;
+using Npgsql;
+using static AIEngineConnectivity.Constants.EngineConstants;
+
+namespace AIEngineGateway.Extensions
 {
-    using Microsoft.Data.SqlClient;
-    using Npgsql;
-    using static AIEngineConnectivity.Constants.EngineConstants;
     public static class EngineConnectionExtensions
     {
         public static async Task UseRequiredServer(this DataBaseProvider databaseProvider, string connectionString)

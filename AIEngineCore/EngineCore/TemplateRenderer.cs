@@ -1,7 +1,8 @@
-﻿namespace AIEngineCore.EngineCore
+﻿using AIEngineConnectivity.EngineCore;
+using System.Collections.Generic;
+
+namespace AIEngineCore.EngineCore
 {
-    using AIEngineConnectivity.EngineCore;
-    using System.Collections.Generic;
     public class TemplateRenderer : ITemplateRenderer
     {
         public string Render(string htmlDocument, IReadOnlyDictionary<string, string> parameters)

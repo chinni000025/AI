@@ -1,14 +1,14 @@
+using AIEngineConnectivity.Constants;
+using AIEngineConnectivity.Services;
+using System;
+using System.Text;
+using Whisper.net;
+using Whisper.net.Ggml;
+using Xabe.FFmpeg;
+using Xabe.FFmpeg.Downloader;
+
 namespace AIEngineSpeechRecognition.Services
 {
-    using AIEngineConnectivity.Constants;
-    using AIEngineConnectivity.Services;
-    using System;
-    using System.Text;
-    using Whisper.net;
-    using Whisper.net.Ggml;
-    using Xabe.FFmpeg;
-    using Xabe.FFmpeg.Downloader;
-
     public class WhisperService : IDisposable, IWhisperService
     {
         private readonly string _modelPath;

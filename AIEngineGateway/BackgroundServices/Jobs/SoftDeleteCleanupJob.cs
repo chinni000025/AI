@@ -1,8 +1,8 @@
-﻿namespace AIEngineGateway.BackgroundServices.Jobs
-{
-    using AIEngineGateway.Contracts;
-    using AIEngineGateway.EngineInfrastructure;
+﻿using AIEngineGateway.Contracts;
+using AIEngineGateway.EngineInfrastructure;
 
+namespace AIEngineGateway.BackgroundServices.Jobs
+{
     public class SoftDeleteCleanupJob : ICleanUpJob
     {
         public Task ExecuteAsync(EngineContext engineContext)

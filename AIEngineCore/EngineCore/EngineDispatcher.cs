@@ -1,10 +1,10 @@
-﻿namespace AIEngineCore.EngineCore
-{
-    using AIEngineConnectivity.EngineCore;
-    using Microsoft.Extensions.Hosting;
-    using System;
-    using System.Collections.ObjectModel;
+﻿using AIEngineConnectivity.EngineCore;
+using Microsoft.Extensions.Hosting;
+using System;
+using System.Collections.ObjectModel;
 
+namespace AIEngineCore.EngineCore
+{
     public sealed class EngineDispatcher : BackgroundService
     {
         private readonly IReadOnlyDictionary<Type, IEngineNotificationRouter> _Router;

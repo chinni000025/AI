@@ -1,9 +1,9 @@
-﻿namespace AIEngineConnectivity.Models
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
+namespace AIEngineConnectivity.Models
+{
     public class HuggingFaceApiKeyConfiguration
     {
         public string ApiKey { get; set; } = string.Empty;

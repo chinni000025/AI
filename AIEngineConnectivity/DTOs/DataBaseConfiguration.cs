@@ -1,9 +1,8 @@
-﻿
+﻿using System.ComponentModel.DataAnnotations;
+using static AIEngineConnectivity.Constants.EngineConstants;
+
 namespace AIEngineConnectivity.DTOs
 {
-    using System.ComponentModel.DataAnnotations;
-    using static AIEngineConnectivity.Constants.EngineConstants;
-
     public class DataBaseConfiguration
     {
 

@@ -1,12 +1,12 @@
-﻿namespace AIEngineInstaller.Services
-{
-    using AIEngineConnectivity.Constants;
-    using AIEngineConnectivity.Services;
-    using AIEngineCore.EngineCore;
-    using AIEngineInstaller.Models;
-    using Microsoft.Extensions.DependencyInjection;
-    using System;
+﻿using AIEngineConnectivity.Constants;
+using AIEngineConnectivity.Services;
+using AIEngineCore.EngineCore;
+using AIEngineInstaller.Models;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 
+namespace AIEngineInstaller.Services
+{
     public class InstallerService : IInstallerService
     {
         private readonly IServiceProvider _serviceProvider;

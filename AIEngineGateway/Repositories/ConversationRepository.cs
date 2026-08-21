@@ -1,12 +1,12 @@
-﻿namespace AIEngineGateway.Repositories
-{
-    using AIEngineConnectivity.DTOs;
-    using AIEngineConnectivity.Entities;
-    using AIEngineConnectivity.Models;
-    using AIEngineConnectivity.Repositories;
-    using AIEngineGateway.EngineInfrastructure;
-    using Microsoft.EntityFrameworkCore;
+﻿using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.Entities;
+using AIEngineConnectivity.Models;
+using AIEngineConnectivity.Repositories;
+using AIEngineGateway.EngineInfrastructure;
+using Microsoft.EntityFrameworkCore;
 
+namespace AIEngineGateway.Repositories
+{
     public class ConversationRepository : IConversationRepository
     {
         private readonly EngineContext _EngineContext;

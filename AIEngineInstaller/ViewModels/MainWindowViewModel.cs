@@ -1,17 +1,17 @@
+using AIEngineConnectivity.Constants;
+using AIEngineConnectivity.Services;
+using AIEngineCore.EngineCore;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Threading;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using System;
+using System.IO;
+using System.Threading.Tasks;
+
 namespace AIEngineInstaller.ViewModels
 {
-    using AIEngineConnectivity.Constants;
-    using AIEngineConnectivity.Services;
-    using AIEngineCore.EngineCore;
-    using Avalonia;
-    using Avalonia.Controls.ApplicationLifetimes;
-    using Avalonia.Threading;
-    using CommunityToolkit.Mvvm.ComponentModel;
-    using CommunityToolkit.Mvvm.Input;
-    using System;
-    using System.IO;
-    using System.Threading.Tasks;
-
     public partial class MainWindowViewModel : ViewModelBase
     {
         private readonly IAIEngineGatewayManagerService _gatewayService;

@@ -1,10 +1,11 @@
-﻿namespace AIEngineCore.Extensions
+﻿using AIEngineConnectivity.Constants;
+using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.EngineCore;
+using AIEngineConnectivity.Services;
+using System;
+
+namespace AIEngineCore.Extensions
 {
-    using AIEngineConnectivity.Constants;
-    using AIEngineConnectivity.DTOs;
-    using AIEngineConnectivity.EngineCore;
-    using AIEngineConnectivity.Services;
-    using System;
 #nullable disable
 
     public static class ScheduleNotificationExtension

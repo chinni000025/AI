@@ -1,9 +1,9 @@
+using AIEngineConnectivity.Constants;
+using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.Models;
+
 namespace AIEngineCore.Providers
 {
-    using AIEngineConnectivity.Constants;
-    using AIEngineConnectivity.DTOs;
-    using AIEngineConnectivity.Models;
-
     public class OllamaProviders : ProviderBase.ProviderBase
     {
         public override async Task<AIResponse?> GenerateAsync(AIRequest request)

@@ -1,10 +1,11 @@
-﻿namespace AIEngineGateway.Services
+﻿using AIEngineConnectivity.Constants;
+using AIEngineConnectivity.EngineCore;
+using AIEngineConnectivity.Entities;
+using AIEngineConnectivity.Repositories;
+using AIEngineConnectivity.Services;
+
+namespace AIEngineGateway.Services
 {
-    using AIEngineConnectivity.Constants;
-    using AIEngineConnectivity.EngineCore;
-    using AIEngineConnectivity.Entities;
-    using AIEngineConnectivity.Repositories;
-    using AIEngineConnectivity.Services;
 #nullable disable
     public class EngineNotificationService : IEngineNotificationService
     {

@@ -1,9 +1,9 @@
-﻿namespace AIEngineCore.EngineNotifications
-{
-    using AIEngineConnectivity.Constants;
-    using AIEngineConnectivity.EngineCore;
-    using System.Collections.Generic;
+﻿using AIEngineConnectivity.Constants;
+using AIEngineConnectivity.EngineCore;
+using System.Collections.Generic;
 
+namespace AIEngineCore.EngineNotifications
+{
     public class EngineEmailNotification : INotification
     {
         public string ToAddress { get; init; } = string.Empty;

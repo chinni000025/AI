@@ -1,9 +1,10 @@
-﻿namespace AIEngineGateway.Middlewares
+﻿using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.Models;
+using System.Security.Claims;
+using System.Transactions;
+
+namespace AIEngineGateway.Middlewares
 {
-    using AIEngineConnectivity.DTOs;
-    using AIEngineConnectivity.Models;
-    using System.Security.Claims;
-    using System.Transactions;
 #nullable disable
     public class CurrentUserContextMiddleWare
     {

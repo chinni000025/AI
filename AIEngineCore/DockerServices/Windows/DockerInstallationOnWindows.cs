@@ -1,6 +1,7 @@
-﻿namespace AIEngineCore.DockerServices.Windows
+﻿using System.Diagnostics;
+
+namespace AIEngineCore.DockerServices.Windows
 {
-    using System.Diagnostics;
 #nullable disable
     public class DockerInstallationOnWindows
     {

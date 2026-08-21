@@ -1,9 +1,10 @@
-﻿namespace AIEngineConnectivity.Repositories
+﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Text;
+
+namespace AIEngineConnectivity.Repositories
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq.Expressions;
-    using System.Text;
     public interface IEngineRepoBase<TEntity> where TEntity : class
     {
         Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default);

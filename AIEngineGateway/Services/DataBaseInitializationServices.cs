@@ -1,11 +1,12 @@
-﻿namespace AIEngineGateway.Services
+﻿using AIEngineGateway.EngineInfrastructure;
+using AIEngineGateway.Extensions;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
+using static AIEngineConnectivity.Constants.EngineConstants;
+
+namespace AIEngineGateway.Services
 {
-    using AIEngineGateway.EngineInfrastructure;
-    using AIEngineGateway.Extensions;
-    using Microsoft.Data.SqlClient;
-    using Microsoft.EntityFrameworkCore;
-    using Npgsql;
-    using static AIEngineConnectivity.Constants.EngineConstants;
 #nullable disable
     public class DataBaseIntialiationServices
     {

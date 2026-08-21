@@ -1,12 +1,12 @@
-﻿namespace AIEngineCore.Providers
-{
-    using AIEngineConnectivity.Constants;
-    using AIEngineConnectivity.DTOs;
-    using AIEngineConnectivity.Models;
-    using Google.GenAI.Types;
-    using Microsoft.Extensions.Options;
-    using System.Text.Json;
+﻿using AIEngineConnectivity.Constants;
+using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.Models;
+using Google.GenAI.Types;
+using Microsoft.Extensions.Options;
+using System.Text.Json;
 
+namespace AIEngineCore.Providers
+{
     public class CohereProvider : ProviderBase.ProviderBase
     {
         private readonly CohereApiKeyConfiguration _cohereApiKeyConfiguration;

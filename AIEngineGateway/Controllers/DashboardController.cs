@@ -1,9 +1,9 @@
-﻿namespace AIEngineGateway.Controllers
-{
-    using AIEngineConnectivity.Models;
-    using Microsoft.AspNetCore.Authorization;
-    using Microsoft.AspNetCore.Mvc;
+﻿using AIEngineConnectivity.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
+namespace AIEngineGateway.Controllers
+{
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
