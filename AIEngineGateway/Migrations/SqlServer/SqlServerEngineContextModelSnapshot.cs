@@ -221,6 +221,35 @@ namespace AIEngineGateway.Migrations.SqlServer
                     b.ToTable("EngineNotifications");
                 });
 
+            modelBuilder.Entity("AIEngineConnectivity.Entities.EngineNotificationEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("EventData")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EventType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsRetriedEvent")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EngineNotificationEvents");
+                });
+
             modelBuilder.Entity("AIEngineConnectivity.Entities.EngineRole", b =>
                 {
                     b.Property<int>("Id")
