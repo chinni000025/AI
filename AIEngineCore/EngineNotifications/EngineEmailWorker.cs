@@ -85,6 +85,7 @@ namespace AIEngineCore.EngineNotifications
 
                         _Logger.LogInformation("Scheduled retry #1 for notification {NotificationId} at {RetryAt} (delay: {DelaySeconds}s).",
                            notification.NotificationId.Value, DateTime.UtcNow.Add(delay), delay.TotalSeconds);
+                        await _EngineRetryQueue.publishAsync(notification, cancellationToken);
                         continue;
                     }
 

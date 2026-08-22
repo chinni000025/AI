@@ -45,7 +45,8 @@ namespace AIEngineGateway.EngineInfrastructure
 
         public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
 
-        public DbSet<AIEngineConnectivity.Entities.EngineNotification> EngineNotifications { get; set; }
+        public DbSet<EngineNotification> EngineNotifications { get; set; }
+        public DbSet<EngineNotificationEvent> EngineNotificationEvents { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
