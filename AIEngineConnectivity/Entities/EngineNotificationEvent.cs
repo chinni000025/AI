@@ -1,4 +1,6 @@
-﻿namespace AIEngineConnectivity.Entities
+﻿using AIEngineConnectivity.Models;
+
+namespace AIEngineConnectivity.Entities
 {
 #nullable disable
     public class EngineNotificationEvent
@@ -7,7 +9,7 @@
         public string EventType { get; set; }
         public string EventData { get; set; }
         public bool IsRetriedEvent { get; set; } = false;
-        public string Priority { get; set; }
+        public NotificationPriority Priority { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime ModifiedAt { get; set; }
     }

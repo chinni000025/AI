@@ -221,35 +221,6 @@ namespace AIEngineGateway.Migrations.PostgreSql
                     b.ToTable("EngineNotifications");
                 });
 
-            modelBuilder.Entity("AIEngineConnectivity.Entities.EngineNotificationEvent", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("EventData")
-                        .HasColumnType("text");
-
-                    b.Property<string>("EventType")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsRetriedEvent")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime>("ModifiedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Priority")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("EngineNotificationEvents");
-                });
-
             modelBuilder.Entity("AIEngineConnectivity.Entities.EngineRole", b =>
                 {
                     b.Property<int>("Id")
