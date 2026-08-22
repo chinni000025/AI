@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace AIEngineGateway.BackgroundServices.Jobs
 {
 #nullable disable
-    public class DeleteConversationsJob : ICleanUpJob
+    public class DeleteConversationsJob : ICleanUpJob //Needs to use Quartz.
     {
         public async Task ExecuteAsync(EngineContext engineContext)
         {

@@ -60,11 +60,10 @@ namespace AIEngineCore.EngineNotifications
                     var existingNotification = await engineNotificationService.GetEngineNotificationAsync(retryNotification.NotificationId.Value, cancellation);
 
                     if (existingNotification.NotificationStatus != EngineNotificationStatus.Completed.ToString()
-                        || existingNotification.NotificationStatus != EngineNotificationStatus.DeadLettered.ToString())
+                        && existingNotification.NotificationStatus != EngineNotificationStatus.DeadLettered.ToString())
                     {
                         await emailService.SendEmail(retryNotification, cancellation);
-
-                        await engineNotificationService.NotificationSent(retryNotification.NotificationId.Value, cancellation);
+                        await engineNotificationService.NotificationSent(retryNotification.NotificationId.Value, retryNotification.EventId.Value, cancellation);
                         _Logger.LogInformation($"Notification {retryNotification.NotificationId.Value} successfully processed On Retry Count{retryNotification.Retries} and marked Completed.");
                     }
 
@@ -76,7 +75,7 @@ namespace AIEngineCore.EngineNotifications
                         retryNotification.Retries++;
                         if (retryNotification.Retries > _WorkerConfiguration.MaxRetries)
                         {
-                            await engineNotificationService.NotificationDeadLettered(retryNotification.NotificationId.Value,
+                            await engineNotificationService.NotificationDeadLettered(retryNotification.NotificationId.Value, retryNotification.EventId.Value,
                                 "Maximum Retries Reached", cancellation);
                             continue;
                         }
@@ -92,7 +91,7 @@ namespace AIEngineCore.EngineNotifications
                     _Logger.LogError($"Can't Retry Notification with Notification Id {retryNotification.NotificationId.Value} with Exception : " + ex.Message);
                     if (retryNotification.NotificationId is not null)
                     {
-                        await engineNotificationService.NotificationDeadLettered(retryNotification.NotificationId.Value,
+                        await engineNotificationService.NotificationDeadLettered(retryNotification.NotificationId.Value, retryNotification.EventId.Value,
                             EngineNotificationStatus.Failed.ToString(), cancellation);
                     }
                 }

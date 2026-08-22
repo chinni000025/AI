@@ -11,11 +11,13 @@ namespace AIEngineGateway.Services
     {
         private readonly IRepositoryWrapper _Repository;
         private readonly IEngineLatch _EngineLatch;
+        private readonly ILogger<EngineNotificationService> _logger;
 
-        public EngineNotificationService(IRepositoryWrapper repository, IEngineLatch engineLatch)
+        public EngineNotificationService(IRepositoryWrapper repository, IEngineLatch engineLatch, ILogger<EngineNotificationService> logger)
         {
             _Repository = repository;
             _EngineLatch = engineLatch;
+            _logger = logger;
         }
 
         public async Task AddOrUpdateNotificationAsync(EngineNotificationMessage engineRetryNotification,
@@ -56,49 +58,93 @@ namespace AIEngineGateway.Services
             await _Repository.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task NotificationSent(Guid engineNotificationId, CancellationToken cancellation)
+        public async Task NotificationSent(Guid engineNotificationId, Guid eventId, CancellationToken cancellation)
         {
             var notification = await GetEngineNotificationAsync(engineNotificationId, cancellation);
-            if (notification is not null)
+            var engineEvent = await GetEngineNotificationEventAsync(eventId, cancellation);
+            if (notification is null)
             {
-                notification.NotificationStatus = EngineNotificationStatus.Completed.ToString();
-                notification.CompletedAt = DateTime.UtcNow;
-                notification.ErrorMessage = null;
-                notification.ModifiedAt = DateTime.UtcNow;
-                await _Repository.SaveChangesAsync(cancellation);
+
+                _logger.LogError("Unable to mark notification as completed. Notification {NotificationId} was not found. EventId: {EventId}",
+                    engineNotificationId,
+                    eventId);
+                throw new InvalidOperationException($"Notification '{engineNotificationId}' was not found.");
             }
+            var now = DateTime.Now;
+            notification.NotificationStatus = EngineNotificationStatus.Completed.ToString();
+            notification.CompletedAt = now;
+            notification.ErrorMessage = null;
+            notification.ModifiedAt = now;
+            if (engineEvent is null)
+            {
+                _logger.LogError("Unable to mark notification {NotificationId} as completed. Event {EventId} was not found.", engineNotificationId,
+                                eventId);
+                return;
+            }
+            engineEvent.EventData = _EngineLatch.Serialize(notification);
+            engineEvent.ModifiedAt = DateTime.UtcNow;
+
+            await _Repository.SaveChangesAsync(cancellation);
+
         }
 
-        public async Task NotificationFailed(Guid notificationId, string errorMessage, CancellationToken cancellation)
+        public async Task NotificationFailed(Guid notificationId, Guid eventId, string errorMessage, CancellationToken cancellation)
         {
             var notification = await GetEngineNotificationAsync(notificationId, cancellation);
-            if (notification is not null)
+            var engineEvent = await GetEngineNotificationEventAsync(eventId, cancellation);
+            if (notification is null)
             {
-                notification.NotificationStatus = EngineNotificationStatus.Failed.ToString();
-                notification.CompletedAt = null;
-                notification.ErrorMessage = errorMessage;
-                notification.ModifiedAt = DateTime.UtcNow;
-                await _Repository.SaveChangesAsync(cancellation);
+                _logger.LogError("Unable to mark notification {NotificationId} as Failed because the notification was not found.", notificationId);
+                return;
             }
+            if (engineEvent is null)
+            {
+                _logger.LogError("Unable to mark notification {NotificationId} as Failed. Event {EventId} was not found.", notificationId,
+                              eventId);
+                return;
+            }
+
+            notification.NotificationStatus = EngineNotificationStatus.Failed.ToString();
+            notification.CompletedAt = null;
+            notification.ErrorMessage = errorMessage;
+            notification.ModifiedAt = DateTime.UtcNow;
+            engineEvent.EventData = _EngineLatch.Serialize(notification);
+            engineEvent.ModifiedAt = DateTime.UtcNow;
+
+            await _Repository.SaveChangesAsync(cancellation);
         }
 
-        public async Task NotificationDeadLettered(Guid notificationId, string errorMessage, CancellationToken cancellationToken)
+        public async Task NotificationDeadLettered(Guid notificationId, Guid eventId, string errorMessage, CancellationToken cancellationToken)
         {
             var notification = await GetEngineNotificationAsync(notificationId, cancellationToken);
-            if (notification is not null)
+            var engineEvent = await GetEngineNotificationEventAsync(eventId, cancellationToken);
+            if (notification is null)
             {
-                notification.NotificationStatus = EngineNotificationStatus.DeadLettered.ToString();
-                notification.CompletedAt = null;
-                notification.ErrorMessage = errorMessage;
-                notification.ModifiedAt = DateTime.UtcNow;
-                await _Repository.SaveChangesAsync(cancellationToken);
+                _logger.LogError($"Unable to mark notification{notificationId} as Dead Lettered because the notification was not found.");
+                return;
             }
+
+            notification.NotificationStatus = EngineNotificationStatus.DeadLettered.ToString();
+            notification.CompletedAt = null;
+            notification.ErrorMessage = errorMessage;
+            notification.ModifiedAt = DateTime.UtcNow;
+            engineEvent.EventData = _EngineLatch.Serialize(notification);
+            engineEvent.ModifiedAt = DateTime.UtcNow;
+
+            await _Repository.SaveChangesAsync(cancellationToken);
+
         }
 
         public async Task<EngineNotification?> GetEngineNotificationAsync(Guid engineNotificationId, CancellationToken cancellation)
         {
             return await _Repository.GetEngineRepo<EngineNotification>()
                            .GetByIdAsync(engineNotificationId, cancellation);
+        }
+
+        public async Task<EngineNotificationEvent?> GetEngineNotificationEventAsync(Guid eventId, CancellationToken cancellationToken)
+        {
+            return await _Repository.GetEngineRepo<EngineNotificationEvent>()
+               .GetByIdAsync(eventId, cancellationToken);
         }
 
         public async Task RemoveEngineNotification(Guid engineNotificationId, CancellationToken cancellationToken)
@@ -109,6 +155,13 @@ namespace AIEngineGateway.Services
                 _Repository.GetEngineRepo<EngineNotification>().delete(engineNotification);
                 await _Repository.SaveChangesAsync(cancellationToken);
             }
+        }
+
+        public async Task InsertEventNotification(EngineNotificationEvent engineNotificationEvent, CancellationToken cancellationToken)
+        {
+            await _Repository.GetEngineRepo<EngineNotificationEvent>()
+                    .AddAsync(engineNotificationEvent, cancellationToken);
+            await _Repository.SaveChangesAsync(cancellationToken);
         }
     }
 }

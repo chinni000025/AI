@@ -10,10 +10,11 @@ namespace AIEngineConnectivity.Services
         public Task AddOrUpdateNotificationAsync(EngineNotificationMessage engineRetryNotification,
             NotificationType NotificaionType, EngineNotificationStatus NotificationStatus,
             DateTime? retryAt, string? ErrorMessage, CancellationToken cancellationToken);
-        public Task NotificationSent(Guid engineNotificationId, CancellationToken cancellation);
+        public Task NotificationSent(Guid engineNotificationId, Guid eventId, CancellationToken cancellation);
         public Task<EngineNotification?> GetEngineNotificationAsync(Guid engineNotificationId, CancellationToken cancellation);
         public Task RemoveEngineNotification(Guid engineNotificationId, CancellationToken cancellationToken);
-        public Task NotificationDeadLettered(Guid notificationId, string errorMessage, CancellationToken cancellationToken);
-        Task NotificationFailed(Guid notificationId, string errorMessage, CancellationToken cancellationToken);
+        public Task NotificationDeadLettered(Guid notificationId, Guid eventId, string errorMessage, CancellationToken cancellationToken);
+        Task NotificationFailed(Guid notificationId, Guid eventId, string errorMessage, CancellationToken cancellationToken);
+        public Task InsertEventNotification(EngineNotificationEvent engineNotificationEvent, CancellationToken cancellationToken);
     }
 }

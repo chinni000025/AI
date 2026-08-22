@@ -14,17 +14,15 @@ namespace AIEngineCore.EngineNotifications
     {
         private IEngineQueue<EngineNotificationMessage> _EmailQueue;
         private WorkerConfiguration _WorkerConfiguration;
-        private IEngineQueue<EngineNotificationMessage> _EngineRetryQueue;
         private IServiceScopeFactory _ServiceScopeFactory;
         private readonly ILogger<EngineEmailWorker> _Logger;
 
-        public EngineEmailWorker(IEngineQueue<EngineNotificationMessage> emailQueue, IEngineQueue<EngineNotificationMessage> engineRetryQueue,
+        public EngineEmailWorker(IEngineQueue<EngineNotificationMessage> emailQueue,
             IOptions<WorkerConfiguration> options, ILogger<EngineEmailWorker> logger,
             IServiceScopeFactory serviceProvider)
         {
             _EmailQueue = emailQueue;
             _WorkerConfiguration = options.Value;
-            _EngineRetryQueue = engineRetryQueue;
             _ServiceScopeFactory = serviceProvider;
             _Logger = logger;
         }
@@ -62,7 +60,7 @@ namespace AIEngineCore.EngineNotifications
                         NotificationType.EmailNotification, EngineNotificationStatus.Processing, null, null, cancellationToken);
 
                     await emailService.SendEmail(notification, cancellationToken);
-                    await engineNotificationService.NotificationSent(notification.NotificationId.Value, cancellationToken);
+                    await engineNotificationService.NotificationSent(notification.NotificationId.Value, notification.EventId.Value, cancellationToken);
                     _Logger.LogInformation("Notification {NotificationId} successfully processed and marked Completed.", notification.NotificationId.Value);
                 }
                 catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -91,8 +89,7 @@ namespace AIEngineCore.EngineNotifications
                     _Logger.LogError($"Can't Retry Notification with Notification Id {notification.NotificationId.Value} with Exception : " + ex.Message);
                     if (notification.NotificationId.HasValue)
                     {
-                        await engineNotificationService.NotificationDeadLettered(notification.NotificationId.Value,
-                            ex.Message, cancellationToken);
+                        await engineNotificationService.NotificationDeadLettered(notification.NotificationId.Value, notification.EventId.Value, ex.Message, cancellationToken);
                     }
                 }
             }
