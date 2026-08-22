@@ -205,6 +205,9 @@ namespace AIEngineGateway.Migrations.SqlServer
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("NotificationPriority")
+                        .HasColumnType("int");
+
                     b.Property<string>("NotificationStatus")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
