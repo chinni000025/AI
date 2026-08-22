@@ -1,6 +1,5 @@
 ﻿using AIEngineConnectivity.Entities;
 using AIEngineConnectivity.Repositories;
-using AIEngineGateway.EngineInfrastructure;
 
 namespace AIEngineGateway.Services
 {
@@ -20,5 +19,22 @@ namespace AIEngineGateway.Services
         }
 
 
+        public async Task<List<EngineNotificationEvent>> GetEventsByPriority(CancellationToken cancellationToken)
+        {
+            return await _repositoryWrapper.EngineNotificationRepository
+                    .GetNotificationByPriority(cancellationToken);
+        }
+
+        public async void RemoveEngineNotificationEvent(Guid guid, CancellationToken cancellation)
+        {
+            var engineEventNotification = await _repositoryWrapper
+                    .GetEngineRepo<EngineNotificationEvent>()
+                    .GetByIdAsync(guid, cancellation);
+
+            if (engineEventNotification is not null)
+                _repositoryWrapper.GetEngineRepo<EngineNotificationEvent>().delete(engineEventNotification);
+
+            await _repositoryWrapper.SaveChangesAsync(cancellation);
+        }
     }
 }

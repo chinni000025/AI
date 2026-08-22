@@ -1,8 +1,11 @@
-﻿using AIEngineGateway.EngineInfrastructure;
+﻿using AIEngineConnectivity.Entities;
+using AIEngineConnectivity.Repositories;
+using AIEngineGateway.EngineInfrastructure;
+using Microsoft.EntityFrameworkCore;
 
 namespace AIEngineGateway.Repositories
 {
-    public class EngineNotificationRepository
+    public class EngineNotificationRepository : IEngineNotificationRepository
     {
         private EngineContext _engineContext;
 
@@ -11,9 +14,12 @@ namespace AIEngineGateway.Repositories
             _engineContext = engineContext;
         }
 
-        public async Task GetNotificationByPriority()
+        public async Task<List<EngineNotificationEvent>> GetNotificationByPriority(CancellationToken cancellationToken)
         {
-            //var query = from e in _engineContext.EngineNotificationEvents
+            var query = await (from e in _engineContext.EngineNotificationEvents
+                               orderby e.Priority descending
+                               select e).ToListAsync(cancellationToken);
+            return query;
         }
     }
 }

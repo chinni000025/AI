@@ -12,11 +12,15 @@ namespace AIEngineGateway.Repositories
         public IConversationRepository ConversationRepository { get; }
         public IConnectionRepository ConnectionRepository { get; }
         public IDataProtectionKeyRepository DataProtectionKeyRepository { get; }
+
+        public IEngineNotificationRepository EngineNotificationRepository { get; }
+
         public IServiceProvider _ServiceProvider;
 
         public RepositoryWrapper(IIdentityRepository identityRepository, IConversationRepository conversationRepository,
             IConnectionRepository connectionRepository,
             IDataProtectionKeyRepository dataProtectionKeyRepository,
+            IEngineNotificationRepository engineNotificationRepository,
             EngineContext engineContext, IServiceProvider serviceProvider)
         {
             IdentityRepository = identityRepository;
@@ -25,6 +29,8 @@ namespace AIEngineGateway.Repositories
             ConnectionRepository = connectionRepository;
             DataProtectionKeyRepository = dataProtectionKeyRepository;
             _ServiceProvider = serviceProvider;
+            EngineNotificationRepository = engineNotificationRepository;
+
         }
 
         public IEngineRepoBase<TEntity> GetEngineRepo<TEntity>() where TEntity : class
