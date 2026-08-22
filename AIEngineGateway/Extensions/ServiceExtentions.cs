@@ -102,6 +102,8 @@ namespace AIEngineGateway.Extensions
             services.AddScoped<IConversationRepository, ConversationRepository>();
             services.AddScoped<IConnectionRepository, ConnectionRepository>();
             services.AddScoped<IDataProtectionKeyRepository, DataProtectionKeyRepository>();
+            services.AddScoped<IEngineNotificationRepository, EngineNotificationRepository>();
+            services.AddScoped<IEngineNotificationEventService, EngineNotificationEventService>();
         }
 
         public static void EngineServices(IServiceCollection services)

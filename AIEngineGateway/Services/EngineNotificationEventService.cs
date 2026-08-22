@@ -1,9 +1,10 @@
 ﻿using AIEngineConnectivity.Entities;
 using AIEngineConnectivity.Repositories;
+using AIEngineConnectivity.Services;
 
 namespace AIEngineGateway.Services
 {
-    public class EngineNotificationEventService
+    public class EngineNotificationEventService : IEngineNotificationEventService
     {
         private readonly IRepositoryWrapper _repositoryWrapper;
         public EngineNotificationEventService(IRepositoryWrapper engineContext)

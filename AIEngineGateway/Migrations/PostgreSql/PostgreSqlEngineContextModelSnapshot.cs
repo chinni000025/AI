@@ -233,17 +233,8 @@ namespace AIEngineGateway.Migrations.PostgreSql
                     b.Property<string>("EventData")
                         .HasColumnType("text");
 
-                    b.Property<string>("EventType")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsRetriedEvent")
-                        .HasColumnType("boolean");
-
                     b.Property<DateTime>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Priority")
-                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
