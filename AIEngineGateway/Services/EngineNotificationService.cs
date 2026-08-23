@@ -44,6 +44,7 @@ namespace AIEngineGateway.Services
                     RetryAt = retryAt,
                     CreatedAt = UtcNow,
                     ModifiedAt = UtcNow,
+                    Retries = 0,
                 };
                 await _Repository.GetEngineRepo<EngineNotification>().AddAsync(engineNotification, cancellationToken);
             }
@@ -57,6 +58,7 @@ namespace AIEngineGateway.Services
                 exitingNotification.LastRetryAt = exitingNotification.RetryAt;
                 exitingNotification.RetryAt = retryAt;
                 exitingNotification.ErrorMessage = ErrorMessage;
+                exitingNotification.Retries = engineNotificationMessasge.Retries;
             }
             await _Repository.SaveChangesAsync(cancellationToken);
         }

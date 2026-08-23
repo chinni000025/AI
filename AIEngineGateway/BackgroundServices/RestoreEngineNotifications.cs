@@ -1,4 +1,5 @@
 ﻿using AIEngineConnectivity.EngineCore;
+using AIEngineConnectivity.Entities;
 using AIEngineConnectivity.Repositories;
 using AIEngineConnectivity.Services;
 
@@ -19,31 +20,37 @@ namespace AIEngineGateway.BackgroundServices
             var timer = new PeriodicTimer(TimeSpan.FromMinutes(2));
             try
             {
+                await ProcessRestorationAsync(stoppingToken);
                 while (await timer.WaitForNextTickAsync(stoppingToken))
                 {
-                    await using var scope = _serviceScopeFactory.CreateAsyncScope();
-                    var repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
-                    var engineLatch = scope.ServiceProvider.GetRequiredService<IEngineLatch>();
-                    var engineQueue = scope.ServiceProvider.GetRequiredService<IEngineQueue<EngineNotificationMessage>>();
-                    var engineNotificationService = scope.ServiceProvider.GetRequiredService<IEngineNotificationService>();
-                    foreach (var engineEvents in await repositoryWrapper
-                        .EngineNotificationRepository.GetNotificationByPriority(stoppingToken))
-                    {
-                        var engineNotificationMessage = engineLatch.Deserialize<EngineNotificationMessage>(engineEvents.EventData);
-                        if (await engineNotificationService.IsValidNotification(engineNotificationMessage.NotificationId!.Value, stoppingToken))
-                        {
-                            await engineQueue.publishAsync(engineNotificationMessage, engineNotificationMessage.NotificationPriority, stoppingToken);
-                        }
-                    }
+                    await ProcessRestorationAsync(stoppingToken);
                 }
             }
-            catch (OperationCanceledException ex) when (stoppingToken.IsCancellationRequested)
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
             {
 
             }
             catch (Exception ex)
             {
-                _logger.LogError("Error occured on Restore Engine Notitification : " + ex);
+                _logger.LogError("Error occurred on Restore Engine Notification: " + ex);
+            }
+        }
+        private async Task ProcessRestorationAsync(CancellationToken stoppingToken)
+        {
+            await using var scope = _serviceScopeFactory.CreateAsyncScope();
+            var repositoryWrapper = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+            var engineLatch = scope.ServiceProvider.GetRequiredService<IEngineLatch>();
+            var engineQueue = scope.ServiceProvider.GetRequiredService<IEngineQueue<EngineNotificationMessage>>();
+            var engineNotificationService = scope.ServiceProvider.GetRequiredService<IEngineNotificationService>();
+            foreach (var engineEvents in await repositoryWrapper
+                .EngineNotificationRepository.GetNotificationByPriority(stoppingToken))
+            {
+                var engineNotificationMessage = engineLatch.Deserialize<EngineNotificationMessage>(engineEvents.EventData);
+                if (engineNotificationMessage.NotificationId.HasValue && await engineNotificationService.IsValidNotification(engineNotificationMessage.NotificationId.Value, stoppingToken))
+                {
+                    await engineQueue.publishAsync(engineNotificationMessage, engineNotificationMessage.NotificationPriority, stoppingToken);
+                    _logger.LogInformation("Successfully restored and re-enqueued Notification {NotificationId}", engineNotificationMessage.NotificationId.Value);
+                }
             }
         }
     }

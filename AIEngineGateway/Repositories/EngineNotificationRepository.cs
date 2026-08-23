@@ -24,6 +24,7 @@ namespace AIEngineGateway.Repositories
         public async Task<NotificationRetryAndStatus?> GetNotificationRetryAndStatusAsync(Guid notificationId, CancellationToken cancellationToken)
         {
             var query = await (from n in _engineContext.EngineNotifications
+                               where n.Id == notificationId
                                select new NotificationRetryAndStatus
                                {
                                    NotificationStatus = n.NotificationStatus,
