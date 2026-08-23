@@ -13,7 +13,7 @@ namespace AIEngineCore.EngineCore
 
         public async ValueTask RouteAsync(EngineNotificationMessage @event, CancellationToken ct = default)
         {
-            await _EngineQueue.publishAsync(@event, ct);
+            await _EngineQueue.publishAsync(@event, priority: @event.NotificationPriority, cancellationToken: ct);
         }
     }
 }

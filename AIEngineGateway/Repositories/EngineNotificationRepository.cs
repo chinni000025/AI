@@ -16,11 +16,9 @@ namespace AIEngineGateway.Repositories
 
         public async Task<List<EngineNotificationEvent>> GetNotificationByPriority(CancellationToken cancellationToken)
         {
-            //var query = await (from e in _engineContext.EngineNotificationEvents
-            //                   orderby e.Priority descending
-            //                   select e).ToListAsync(cancellationToken);
-            //return query;
-            return null;
+            var query = await (from e in _engineContext.EngineNotificationEvents
+                               select e).ToListAsync(cancellationToken);
+            return query;
         }
     }
 }

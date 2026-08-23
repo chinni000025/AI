@@ -20,36 +20,35 @@ namespace AIEngineGateway.Services
             _logger = logger;
         }
 
-        public async Task AddOrUpdateNotificationAsync(EngineNotificationMessage engineRetryNotification,
+        public async Task AddOrUpdateNotificationAsync(EngineNotificationMessage engineNotificationMessasge,
             NotificationType NotificaionType, EngineNotificationStatus NotificationStatus,
             DateTime? retryAt, string ErrorMessage, CancellationToken cancellationToken)
         {
+            var exitingNotification = await GetEngineNotificationAsync(engineNotificationMessasge.NotificationId.Value,
+                                        cancellationToken);
             var UtcNow = DateTime.UtcNow;
-            if (engineRetryNotification.NotificationId is null)
+            if (exitingNotification is null)
             {
-                var NotificationId = Guid.NewGuid();
-                engineRetryNotification.NotificationId = NotificationId;
                 var engineNotification = new EngineNotification
                 {
-                    Id = NotificationId,
-                    NotificationData = _EngineLatch.Serialize(engineRetryNotification),
+                    Id = engineNotificationMessasge.NotificationId!.Value,
+                    NotificationData = _EngineLatch.Serialize(engineNotificationMessasge),
                     NotificationType = NotificaionType.ToString(),
                     NotificationStatus = NotificationStatus.ToString(),
+                    NotificationPriority = engineNotificationMessasge.NotificationPriority,
+                    ErrorMessage = ErrorMessage,
                     RetryAt = retryAt,
                     CreatedAt = UtcNow,
                     ModifiedAt = UtcNow,
-                    ErrorMessage = ErrorMessage
                 };
                 await _Repository.GetEngineRepo<EngineNotification>().AddAsync(engineNotification, cancellationToken);
             }
             else
             {
-                var exitingNotification = await GetEngineNotificationAsync(engineRetryNotification.NotificationId.Value,
-                                            cancellationToken);
                 if (exitingNotification is null)
-                    throw new Exception($"Notificaion {engineRetryNotification.NotificationId.Value} is not present");
+                    throw new Exception($"Notificaion {engineNotificationMessasge.NotificationId.Value} is not present");
                 exitingNotification.ModifiedAt = UtcNow;
-                exitingNotification.NotificationData = _EngineLatch.Serialize(engineRetryNotification);
+                exitingNotification.NotificationData = _EngineLatch.Serialize(engineNotificationMessasge);
                 exitingNotification.NotificationStatus = NotificationStatus.ToString();
                 exitingNotification.LastRetryAt = exitingNotification.RetryAt;
                 exitingNotification.RetryAt = retryAt;
@@ -123,6 +122,11 @@ namespace AIEngineGateway.Services
                 _logger.LogError($"Unable to mark notification{notificationId} as Dead Lettered because the notification was not found.");
                 return;
             }
+            if (engineEvent is null)
+            {
+                _logger.LogError("Unable to mark notification as ... Event was not found.");
+                return;
+            }
             var now = DateTime.UtcNow;
             notification.NotificationStatus = EngineNotificationStatus.DeadLettered.ToString();
             notification.CompletedAt = null;
@@ -130,9 +134,7 @@ namespace AIEngineGateway.Services
             notification.ModifiedAt = now;
             engineEvent.EventData = _EngineLatch.Serialize(notification);
             engineEvent.ModifiedAt = now;
-
             await _Repository.SaveChangesAsync(cancellationToken);
-
         }
 
         public async Task<EngineNotification?> GetEngineNotificationAsync(Guid engineNotificationId, CancellationToken cancellation)

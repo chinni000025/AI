@@ -24,7 +24,7 @@ namespace AIEngineCore.EngineCore
                 {
                     if (_Router.TryGetValue(engineNotifications.Notification.GetType(), out var router))
                     {
-                        await router.publishAsync(engineNotifications, cancellationToken);
+                        await router.RouteAsync(engineNotifications, cancellationToken);
                     }
                 }
             }

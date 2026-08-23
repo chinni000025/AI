@@ -58,6 +58,11 @@ namespace AIEngineCore.EngineNotifications
                     var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
 
                     var existingNotification = await engineNotificationService.GetEngineNotificationAsync(retryNotification.NotificationId.Value, cancellation);
+                    if (existingNotification is null)
+                    {
+                        _Logger.LogWarning("Retry notification {NotificationId} was not found in the database. Skipping.", retryNotification.NotificationId.Value);
+                        continue;
+                    }
 
                     if (existingNotification.NotificationStatus != EngineNotificationStatus.Completed.ToString()
                         && existingNotification.NotificationStatus != EngineNotificationStatus.DeadLettered.ToString())
@@ -92,7 +97,7 @@ namespace AIEngineCore.EngineNotifications
                     if (retryNotification.NotificationId is not null)
                     {
                         await engineNotificationService.NotificationDeadLettered(retryNotification.NotificationId.Value, retryNotification.EventId.Value,
-                            EngineNotificationStatus.Failed.ToString(), cancellation);
+                        ex.Message, cancellation);
                     }
                 }
             }

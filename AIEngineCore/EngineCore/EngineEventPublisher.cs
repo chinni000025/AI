@@ -18,21 +18,29 @@ namespace AIEngineCore.EngineCore
             _EngineBus = engineBus;
             _engineLatch = engineLatch;
         }
-        public async Task PublishEvent(EngineNotificationMessage @event, CancellationToken cancellationToken = default)
+        public async Task PublishEvent(EngineNotificationRequest @event, Priority priority = Priority.None, CancellationToken cancellationToken = default)
         {
             var EventId = Guid.NewGuid();
-            EngineNotificationEvent engineNotificationEvent = new EngineNotificationEvent
+            var notificationId = Guid.NewGuid();
+            EngineNotificationEvent engineEvent = new EngineNotificationEvent //preserve.
             {
                 Id = EventId,
                 EventData = _engineLatch.Serialize(@event),
                 CreatedAt = DateTime.UtcNow,
-                ModifiedAt = DateTime.UtcNow
+                ModifiedAt = DateTime.UtcNow,
             };
-            @event.EventId = EventId;
+            EngineNotificationMessage engineNotificationMessage = new EngineNotificationMessage // notification to perform.
+            {
+                NotificationId = notificationId,
+                EventId = EventId,
+                Notification = @event.Notification,
+                EngineEvents = @event.EngineEvents,
+                NotificationPriority = @event.NotificationPriority
+            };
             await using var scope = _serviceScopeFactory.CreateAsyncScope();
             var engineNotificationEventService = scope.ServiceProvider.GetRequiredService<IEngineNotificationService>();
-            await engineNotificationEventService.InsertEventNotification(engineNotificationEvent, cancellationToken);
-            await _EngineBus.RouteAsync(@event, cancellationToken);
+            await engineNotificationEventService.InsertEventNotification(engineEvent, cancellationToken);
+            await _EngineBus.RouteAsync(engineNotificationMessage, cancellationToken);
         }
     }
 }

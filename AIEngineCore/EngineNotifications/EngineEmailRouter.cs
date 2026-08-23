@@ -16,10 +16,10 @@ namespace AIEngineCore.EngineNotifications
 
         public Type EngineNotificationType => typeof(EngineEmailNotification);
 
-        public async ValueTask publishAsync(EngineNotificationMessage notification, CancellationToken
+        public async ValueTask RouteAsync(EngineNotificationMessage notification, CancellationToken
             cancellationToken = default)
         {
-            await _EmailNotificationQueue.publishAsync(notification, cancellationToken);
+            await _EmailNotificationQueue.publishAsync(notification, notification.NotificationPriority, cancellationToken);
         }
     }
 }

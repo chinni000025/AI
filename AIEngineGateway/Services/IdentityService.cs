@@ -116,9 +116,10 @@ namespace AIEngineGateway.Services
                 IsActive = true,
             };
             var eventPublisher = _ServiceProvider.GetRequiredService<EngineEventPublisher>();
-            await eventPublisher.PublishEvent(new EngineNotificationMessage
+            await eventPublisher.PublishEvent(new EngineNotificationRequest
             {
                 EngineEvents = EngineEvents.UserCreated,
+                NotificationPriority = Priority.High,
                 Notification = new EngineEmailNotification
                 {
                     ToAddress = newUser.Email,

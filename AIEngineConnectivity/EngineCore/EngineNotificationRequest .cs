@@ -3,12 +3,9 @@ using AIEngineConnectivity.Models;
 
 namespace AIEngineConnectivity.EngineCore
 {
-    public sealed class EngineNotificationMessage
+    public class EngineNotificationRequest
     {
-        public Guid? EventId { get; set; }
         public required EngineEvents EngineEvents { get; set; }
-        public Guid? NotificationId { get; set; }
-        public int Retries { get; set; } = 0;
         public required INotification Notification { get; set; }
         public Priority NotificationPriority { get; set; }
     }
