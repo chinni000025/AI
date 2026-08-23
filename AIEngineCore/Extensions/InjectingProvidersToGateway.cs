@@ -22,7 +22,7 @@ namespace AIEngineCore.Extensions
         public static void InitializeEngineCore(IServiceCollection services)
         {
             services.AddSingleton<EngineEventPublisher>();
-            services.AddSingleton<IEngineBus, EngineBus>();
+            services.AddSingleton<IEngineBus, EngineNotificationBus>();
             services.AddSingleton<IEmbeddedResourceProvider>(sp =>
               new EmbeddedResourceProvider(Assembly.GetEntryAssembly()
               ?? typeof(InjectingProvidersToGateway).Assembly));

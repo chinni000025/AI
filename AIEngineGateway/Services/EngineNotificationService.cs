@@ -3,6 +3,7 @@ using AIEngineConnectivity.EngineCore;
 using AIEngineConnectivity.Entities;
 using AIEngineConnectivity.Repositories;
 using AIEngineConnectivity.Services;
+using Microsoft.Extensions.Options;
 
 namespace AIEngineGateway.Services
 {
@@ -12,12 +13,15 @@ namespace AIEngineGateway.Services
         private readonly IRepositoryWrapper _Repository;
         private readonly IEngineLatch _EngineLatch;
         private readonly ILogger<EngineNotificationService> _logger;
+        private readonly int _maxRetries;
 
-        public EngineNotificationService(IRepositoryWrapper repository, IEngineLatch engineLatch, ILogger<EngineNotificationService> logger)
+        public EngineNotificationService(IRepositoryWrapper repository,
+             IOptions<WorkerConfiguration> options, IEngineLatch engineLatch, ILogger<EngineNotificationService> logger)
         {
             _Repository = repository;
             _EngineLatch = engineLatch;
             _logger = logger;
+            _maxRetries = options.Value.MaxRetries;
         }
 
         public async Task AddOrUpdateNotificationAsync(EngineNotificationMessage engineNotificationMessasge,
@@ -164,6 +168,16 @@ namespace AIEngineGateway.Services
             await _Repository.GetEngineRepo<EngineNotificationEvent>()
                     .AddAsync(engineNotificationEvent, cancellationToken);
             await _Repository.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task<bool> IsValidNotification(Guid notificationId, CancellationToken cancellationToken)
+        {
+            var notificationRetryAndStatus = await _Repository.EngineNotificationRepository
+                .GetNotificationRetryAndStatusAsync(notificationId, cancellationToken);
+            if (notificationRetryAndStatus is null)
+                return false;
+            return notificationRetryAndStatus.Retries <= _maxRetries && notificationRetryAndStatus.NotificationStatus != EngineNotificationStatus.Completed.ToString() &&
+                notificationRetryAndStatus.NotificationStatus != EngineNotificationStatus.DeadLettered.ToString();
         }
     }
 }

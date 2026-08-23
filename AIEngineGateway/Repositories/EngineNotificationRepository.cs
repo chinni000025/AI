@@ -20,5 +20,16 @@ namespace AIEngineGateway.Repositories
                                select e).ToListAsync(cancellationToken);
             return query;
         }
+
+        public async Task<NotificationRetryAndStatus?> GetNotificationRetryAndStatusAsync(Guid notificationId, CancellationToken cancellationToken)
+        {
+            var query = await (from n in _engineContext.EngineNotifications
+                               select new NotificationRetryAndStatus
+                               {
+                                   NotificationStatus = n.NotificationStatus,
+                                   Retries = n.Retries
+                               }).FirstOrDefaultAsync(cancellationToken);
+            return query;
+        }
     }
 }

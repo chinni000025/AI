@@ -22,13 +22,6 @@ namespace AIEngineCore.EngineCore
         {
             var EventId = Guid.NewGuid();
             var notificationId = Guid.NewGuid();
-            EngineNotificationEvent engineEvent = new EngineNotificationEvent //preserve.
-            {
-                Id = EventId,
-                EventData = _engineLatch.Serialize(@event),
-                CreatedAt = DateTime.UtcNow,
-                ModifiedAt = DateTime.UtcNow,
-            };
             EngineNotificationMessage engineNotificationMessage = new EngineNotificationMessage // notification to perform.
             {
                 NotificationId = notificationId,
@@ -36,6 +29,13 @@ namespace AIEngineCore.EngineCore
                 Notification = @event.Notification,
                 EngineEvents = @event.EngineEvents,
                 NotificationPriority = @event.NotificationPriority
+            };
+            EngineNotificationEvent engineEvent = new EngineNotificationEvent //preserve.
+            {
+                Id = EventId,
+                EventData = _engineLatch.Serialize(engineNotificationMessage),
+                CreatedAt = DateTime.UtcNow,
+                ModifiedAt = DateTime.UtcNow,
             };
             await using var scope = _serviceScopeFactory.CreateAsyncScope();
             var engineNotificationEventService = scope.ServiceProvider.GetRequiredService<IEngineNotificationService>();

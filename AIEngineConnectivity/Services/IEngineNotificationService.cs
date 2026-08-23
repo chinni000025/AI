@@ -16,5 +16,6 @@ namespace AIEngineConnectivity.Services
         public Task NotificationDeadLettered(Guid notificationId, Guid eventId, string errorMessage, CancellationToken cancellationToken);
         Task NotificationFailed(Guid notificationId, Guid eventId, string errorMessage, CancellationToken cancellationToken);
         public Task InsertEventNotification(EngineNotificationEvent engineNotificationEvent, CancellationToken cancellationToken);
+        public Task<bool> IsValidNotification(Guid notificationId, CancellationToken cancellationToken);
     }
 }

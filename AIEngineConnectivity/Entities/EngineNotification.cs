@@ -11,6 +11,7 @@ namespace AIEngineConnectivity.Entities
         public string NotificationType { get; set; }
         public string NotificationData { get; set; }
         public string NotificationStatus { get; set; }
+        public int Retries { get; set; }
         public Priority NotificationPriority { get; set; }
         public string ErrorMessage { get; set; }
         public DateTime? LastRetryAt { get; set; }

@@ -3,10 +3,10 @@ using AIEngineCore.EngineNotifications;
 
 namespace AIEngineCore.EngineCore
 {
-    public class EngineBus : IEngineBus
+    public class EngineNotificationBus : IEngineBus
     {
         private readonly IEngineQueue<EngineNotificationMessage> _EngineQueue;
-        public EngineBus(IEngineQueue<EngineNotificationMessage> engineQueue)
+        public EngineNotificationBus(IEngineQueue<EngineNotificationMessage> engineQueue)
         {
             _EngineQueue = engineQueue;
         }

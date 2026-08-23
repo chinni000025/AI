@@ -216,6 +216,9 @@ namespace AIEngineGateway.Migrations.SqlServer
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("Retries")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("RetryAt")
                         .HasColumnType("datetime2");
 

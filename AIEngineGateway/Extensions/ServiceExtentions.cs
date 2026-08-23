@@ -109,7 +109,6 @@ namespace AIEngineGateway.Extensions
         {
             services.AddScoped<IEngineStartUpService, EngineStartUpService>();
             services.AddScoped<IEngineConnectionService, EngineConnectionService>();
-            services.AddHostedService<DataBaseCleanUpServices>();
             services.AddScoped<IIdentityHelper, IdentityHelpers>();
             services.AddScoped<IIdentityService, IdentityService>();
             services.AddSingleton<IUserSessionManager, UserSessionManager>();
@@ -152,6 +151,9 @@ namespace AIEngineGateway.Extensions
 
         public static void CleanUpJobs(IServiceCollection services)
         {
+            services.AddHostedService<DataBaseCleanUpServices>();
+            services.AddHostedService<UserBucketCleanUpHostedService>();
+            services.AddHostedService<RestoreEngineNotifications>();
             services.AddScoped<ICleanUpJob, RefreshTokenCleanUpJob>();
             services.AddScoped<ICleanUpJob, DeleteConversationsJob>();
         }
