@@ -1,14 +1,7 @@
 using AIEngineConnectivity.Constants;
 using AIEngineConnectivity.DTOs;
 using AIEngineConnectivity.Models;
-using AIEngineConnectivity.Services;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Text.Json;
 
 namespace AIEngineCore.Providers
 {
@@ -26,7 +19,6 @@ namespace AIEngineCore.Providers
             {
                 var client = CreateHttpClient(ModelUrl.GroqUrl, _groqApiKeyConfiguration.ApiKey);
                 var payload = CreatePayload(request);
-
                 var jsonDocument = await GenerateJsonContent(payload, client);
                 var output = GenerateOutput(jsonDocument);
                 return CreateResponse(output);

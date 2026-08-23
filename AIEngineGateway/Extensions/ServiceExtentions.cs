@@ -153,8 +153,6 @@ namespace AIEngineGateway.Extensions
         public static void CleanUpJobs(IServiceCollection services)
         {
             services.AddScoped<ICleanUpJob, RefreshTokenCleanUpJob>();
-            services.AddScoped<ICleanUpJob, ResetTokenCleanUpJob>();
-            services.AddScoped<ICleanUpJob, SoftDeleteCleanupJob>();
             services.AddScoped<ICleanUpJob, DeleteConversationsJob>();
         }
 

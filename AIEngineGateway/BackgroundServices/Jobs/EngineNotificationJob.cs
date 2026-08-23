@@ -19,21 +19,31 @@ namespace AIEngineGateway.BackgroundServices.Jobs
         {
             await using var scope = _ServiceScopeFactory.CreateAsyncScope();
             var notificationService = scope.ServiceProvider.GetRequiredService<IEngineNotificationService>();
-            var notificationId = context.MergedJobDataMap.GetGuid("NotificationId");
+            var notificationIdRaw = context.MergedJobDataMap.GetString("NotificationId");
+            if (!Guid.TryParse(notificationIdRaw, out var notificationId))
+            {
+                _Logger.LogError("EngineNotificationJob received invalid NotificationId: '{RawId}'", notificationIdRaw);
+                return;
+            }
             var notification = await notificationService.GetEngineNotificationAsync(notificationId, context.CancellationToken);
+            if (notification == null)
+            {
+                _Logger.LogWarning("Notification {NotificationId} not found in database.", notificationId);
+                return;
+            }
+
             if (notification?.NotificationStatus != EngineNotificationStatus.RetryScheduled.ToString())
             {
                 _Logger.LogInformation("Notification {NotificationId} is currently '{Status}'. Skipping enqueue.",
                     notificationId, notification?.NotificationStatus);
                 return;
             }
-            if (notification is not null)
-            {
-                var engineLatch = scope.ServiceProvider.GetRequiredService<IEngineLatch>();
-                var notificationData = engineLatch.Deserialize<EngineNotificationMessage>(notification.NotificationData);
-                var retryQueue = scope.ServiceProvider.GetRequiredService<IEngineQueue<EngineNotificationMessage>>();
-                await retryQueue.publishAsync(notificationData);
-            }
+
+            var engineLatch = scope.ServiceProvider.GetRequiredService<IEngineLatch>();
+            var notificationData = engineLatch.Deserialize<EngineNotificationMessage>(notification.NotificationData);
+            var retryQueue = scope.ServiceProvider.GetRequiredService<IEngineQueue<EngineNotificationMessage>>();
+            await retryQueue.publishAsync(notificationData);
+            _Logger.LogInformation("Successfully re-enqueued Notification {NotificationId} for processing.", notificationId);
         }
     }
 }

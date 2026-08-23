@@ -20,7 +20,10 @@ namespace AIEngineGateway.Services
             var IsJobExists = await scheduler.CheckExists(job.Key, ct);
 
             if (IsJobExists)
+            {
+                await scheduler.RescheduleJob(trigger.Key, trigger, ct);
                 return;
+            }
 
             await scheduler.ScheduleJob(job, trigger, ct);
         }

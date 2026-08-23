@@ -70,7 +70,7 @@ namespace AIEngineGateway.Services
                     eventId);
                 throw new InvalidOperationException($"Notification '{engineNotificationId}' was not found.");
             }
-            var now = DateTime.Now;
+            var now = DateTime.UtcNow;
             notification.NotificationStatus = EngineNotificationStatus.Completed.ToString();
             notification.CompletedAt = now;
             notification.ErrorMessage = null;
@@ -82,7 +82,7 @@ namespace AIEngineGateway.Services
                 return;
             }
             engineEvent.EventData = _EngineLatch.Serialize(notification);
-            engineEvent.ModifiedAt = DateTime.UtcNow;
+            engineEvent.ModifiedAt = now;
 
             await _Repository.SaveChangesAsync(cancellation);
 
@@ -123,13 +123,13 @@ namespace AIEngineGateway.Services
                 _logger.LogError($"Unable to mark notification{notificationId} as Dead Lettered because the notification was not found.");
                 return;
             }
-
+            var now = DateTime.UtcNow;
             notification.NotificationStatus = EngineNotificationStatus.DeadLettered.ToString();
             notification.CompletedAt = null;
             notification.ErrorMessage = errorMessage;
-            notification.ModifiedAt = DateTime.UtcNow;
+            notification.ModifiedAt = now;
             engineEvent.EventData = _EngineLatch.Serialize(notification);
-            engineEvent.ModifiedAt = DateTime.UtcNow;
+            engineEvent.ModifiedAt = now;
 
             await _Repository.SaveChangesAsync(cancellationToken);
 

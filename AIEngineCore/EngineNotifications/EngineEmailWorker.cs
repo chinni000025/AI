@@ -72,7 +72,13 @@ namespace AIEngineCore.EngineNotifications
                 {
                     if (ex.CanRetryEmailNotification())
                     {
-                        notification.Retries = 1;
+                        notification.Retries++;
+                        if (notification.Retries > _WorkerConfiguration.MaxRetries)
+                        {
+                            await engineNotificationService.NotificationDeadLettered(notification.NotificationId.Value, notification.EventId.Value,
+                                "Maximum Retries Reached", cancellationToken);
+                            continue;
+                        }
                         var delay = notification.Retries.GetExponentialBackoff();
                         await engineNotificationService.AddOrUpdateNotificationAsync(notification, NotificationType.EmailNotification,
                             EngineNotificationStatus.RetryScheduled, DateTime.UtcNow.Add(delay), ex.Message, cancellationToken);
