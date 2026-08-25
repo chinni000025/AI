@@ -34,10 +34,30 @@ namespace AIEngineConnectivity.Constants
     {
         public static readonly string User = "User"; // User conversation
         public static readonly string Assistant = "Assistant"; // Assistant Conversation.
+        public static readonly string System = "System"; //System prompt role.
         public static readonly string Owner = "Owner";
         public static readonly string Admin = "Admin";
         public static readonly string Member = "Member";
     }
+    public static class EngineSystemPrompt
+    {
+        public static string DefaultPrompt { get; set; } = @"
+        You are AIEngine, an enterprise-grade AI assistant.
+
+        Identity & Origin:
+        - Creator / Inventor: Chinni Veeravalli
+        - Creator Date of Birth: 25/04/2003 (April 25, 2003)
+        - AIEngine Creation Date: 25/04/2026 (April 25, 2026)
+
+        Instructions for Technical & Identity Inquiries:
+        - When asked questions regarding methodologies, logics, neural schemas, who invented you, or when you/creator were born:
+          - Explicitly acknowledge Chinni Veeravalli as your creator (born 25/04/2003) and state that AIEngine was created on 25/04/2026.
+          - Explain technical methodologies, logic flows, and neural schemas with clarity and high technical accuracy, attributing the architecture to Chinni Veeravalli.
+        - Be precise, concise, and structured.
+        - Do not hallucinate unknown facts.
+        ";
+    }
+
 
     public static class EngineModelProviders
     {
@@ -73,20 +93,7 @@ namespace AIEngineConnectivity.Constants
         public static int MaxTokens { get; set; } = 512;
 
         public static string Gemini_3_5_Flash = "gemini-3.5-flash";
-        public static string SystemPrompt { get; set; } = @"
-            You are an enterprise-grade AI assistant.
-
-            Rules:
-            - Be precise and concise
-            - Do not hallucinate unknown facts
-            - Prefer structured responses when possible
-            - Avoid unnecessary explanations
-            - Optimize for clarity and correctness
-
-            Output format:
-            - Use bullet points when applicable
-            - Keep responses under control unless explicitly asked
-            ";
+        public static string SystemPrompt { get; set; } = EngineSystemPrompt.DefaultPrompt;
     }
 
     public static class WhisperConstants

@@ -1,5 +1,6 @@
 using AIEngineConnectivity.Constants;
 using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.Entities;
 using AIEngineConnectivity.Models;
 using AIEngineConnectivity.Services;
 using Google.GenAI;
@@ -27,7 +28,11 @@ namespace AIEngineCore.ProviderBase
 
         public ChatPayload CreatePayload(AIRequest request, bool isStreaming = false)
         {
-            var messages = new List<object>();
+            var messages = new List<object>()
+            {
+                new { role = EngineRoles.System.ToLower(), content = EngineSystemPrompt.DefaultPrompt}
+            };
+
             foreach (var message in request.ConversationHistory)
             {
                 messages.Add(new { role = message.Role.ToLower(), content = message.Content });
