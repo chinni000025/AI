@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { EngineCore } from './engine-core';
-import { EngineControllers } from './engine-route-constants';
+import { EngineControllers, ExcludeEncryptionEndPoints } from './engine-route-constants';
 
 @Injectable({
     providedIn: 'root'

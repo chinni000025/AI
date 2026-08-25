@@ -135,3 +135,8 @@ export class HubEndpoints {
     public static readonly EngineStatusHub = "engineStatusHub";
 }
 
+export const ExcludeEncryptionEndPoints: string[] = [
+    'Engine/configure-database',
+    'Engine/test-engine',
+    'Engine/engine-status',
+];

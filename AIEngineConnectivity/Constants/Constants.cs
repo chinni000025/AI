@@ -39,40 +39,6 @@ namespace AIEngineConnectivity.Constants
         public static readonly string Member = "Member";
     }
 
-    public static class EngineModels
-    {
-        //Ollama Models
-        public const string Phi3 = "phi3";
-        public const string Smollm2 = "smollm2:135m";
-        public const string Qwen0_5b = "qwen:0.5b";
-
-        // Gemini Models
-        public const string Gemini_2_5_Flash = "gemini-2.5-flash";
-        public const string Gemini_2_5_Flash_Lite = "gemini-2.5-flash-lite";
-
-        // Groq Models
-        public const string Groq_GPT_OSS_20B = "openai/gpt-oss-20b";
-        public const string Groq_Qwen3_32B = "qwen/qwen3-32b";
-        public const string Groq_Llama_4_Scout_17B = "meta-llama/llama-4-scout-17b-16e-instruct";
-        public const string Groq_Compound_Mini = "groq/compound-mini";
-        public const string Groq_Llama_3_1_8B_Instant = "llama-3.1-8b-instant";
-        public const string Groq_Llama_3_3_70B = "llama-3.3-70b-versatile";
-        public const string Groq_Allam_2_7B = "allam-2-7b";
-        public const string Groq_GPT_OSS_120B = "openai/gpt-oss-120b";
-
-        //HuggingFace Models
-        public const string HF_GPT_2 = "gpt2";
-        public const string HF_Llama_8b = "meta-llama/llama-3.1-8b-instruct";
-        public const string HF_Qwen = "qwen/webworld-8b:featherless-ai";
-        public const string HF_google_gemma = "google/gemma-4-31b-it";
-        public const string HF_deepseek_coding = "deepseek-ai/deepseek-v4-pro";
-
-        //Cohere Models
-        public const string Cohere_CommandA_Vision = "command-a-vision-07-2025";
-        public const string Cohere_CommandA_Plus = "command-a-plus-05-2026";
-        public const string Cohere_CommandA_Translate = "command-a-translate-08-2025";
-    }
-
     public static class EngineModelProviders
     {
         public const string Ollama = "ollama";
@@ -106,7 +72,7 @@ namespace AIEngineConnectivity.Constants
         public static double Temperature { get; set; } = 0.3;
         public static int MaxTokens { get; set; } = 512;
 
-        public static string Gemini_2_5_Flash = "gemini-2.5-flash";
+        public static string Gemini_3_5_Flash = "gemini-3.5-flash";
         public static string SystemPrompt { get; set; } = @"
             You are an enterprise-grade AI assistant.
 

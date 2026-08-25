@@ -20,7 +20,8 @@ namespace AIEngineGateway.BackgroundServices
             var timer = new PeriodicTimer(TimeSpan.FromMinutes(2));
             try
             {
-                await ProcessRestorationAsync(stoppingToken);
+                //Make sure don't try to access the db at the starting stage only because at the time db is not configured.
+                //We need to control all the db access if it is not configured.
                 while (await timer.WaitForNextTickAsync(stoppingToken))
                 {
                     await ProcessRestorationAsync(stoppingToken);

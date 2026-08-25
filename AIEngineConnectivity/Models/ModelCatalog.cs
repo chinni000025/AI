@@ -28,8 +28,8 @@ namespace AIEngineConnectivity.Models
                 Name = EngineModelProviders.Gemini,
                 Models = new List<ModelInfo>
                 {
-                    new("gemini-2.5-flash", "Gemini-2.5-Flash"),
-                    new("gemini-2.5-flash-lite", "Gemini-2.5-Flash Lite")
+                    new("gemini-3.5-flash", "Gemini-3.5-Flash"),
+                    new("gemini-3.5-flash-lite", "Gemini-3.5-Flash Lite")
                 }
             },
 

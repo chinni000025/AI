@@ -26,7 +26,7 @@ namespace AIEngineGateway.Services
         {
             var dataProtection = await _Repository.DataProtectionKeyRepository.GetKeyAsync(EngineEncyrption.RSAEncryption, cancellationToken);
             if (dataProtection is null)
-                throw new KeyNotFoundException();
+                return string.Empty;
             var privateAndPublicKey = _EngineLatch.Deserialize<RSAConfiguration>(dataProtection?.ProtectionData);
             _EngineRSAInstance.SetRSAInstance(privateAndPublicKey.PrivateKey);
             return privateAndPublicKey.PublicKey;
