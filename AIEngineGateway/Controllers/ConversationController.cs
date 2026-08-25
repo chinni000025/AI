@@ -215,5 +215,13 @@ namespace AIEngineGateway.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Something went wrong");
             }
         }
+
+        [HttpPost("uploadFile")]
+        [RequestSizeLimit(209_715_200)]
+        public async Task<IActionResult> UploadFile([FromQuery] Guid ConversationId, [FromForm] IFormFile file,
+            CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
