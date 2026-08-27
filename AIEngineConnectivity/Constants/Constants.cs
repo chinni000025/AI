@@ -206,4 +206,10 @@ namespace AIEngineConnectivity.Constants
         Failed,
         DeadLettered
     }
+
+    public enum EngineFileType
+    {
+        File = 0,
+        Folder = 1
+    }
 }
