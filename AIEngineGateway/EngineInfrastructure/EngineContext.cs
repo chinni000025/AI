@@ -47,6 +47,11 @@ namespace AIEngineGateway.EngineInfrastructure
 
         public DbSet<EngineNotification> EngineNotifications { get; set; }
         public DbSet<EngineNotificationEvent> EngineNotificationEvents { get; set; }
+        public DbSet<EngineFile> EngineFiles { get; set; }
+        public DbSet<FileAccessors> FileAccessors { get; set; }
+        public DbSet<FileContent> FileContents { get; set; }
+        public DbSet<FileContext> FileContexts { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -232,6 +237,26 @@ namespace AIEngineGateway.EngineInfrastructure
             modelBuilder.Entity<Conversation>()
                 .HasIndex(c => c.ConversationId)
                 .IsUnique();
+
+            //Engine File --> File Content.
+
+            modelBuilder.Entity<EngineFile>()
+                .HasOne(f => f.FileContent)
+                .WithOne(c => c.EngineFile)
+                .HasForeignKey<EngineFile>(f => f.ContentId);
+
+
+            //Engine File --> many Context.
+            modelBuilder.Entity<FileContext>()
+                .HasOne(x => x.EngineFile)
+                .WithMany(f => f.FileContexts)
+                .HasForeignKey(f => f.FileId);
+
+            //EngineFile --> Many Accessors.
+            modelBuilder.Entity<FileAccessors>()
+                .HasOne(e => e.EngineFile)
+                .WithMany(a => a.FileAccessors)
+                .HasForeignKey(a => a.FileId);
 
         }
     }

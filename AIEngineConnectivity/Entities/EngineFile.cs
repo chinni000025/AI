@@ -20,5 +20,10 @@ namespace AIEngineConnectivity.Entities
         public int CreatedBy { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime ModifiedBy { get; set; }
+
+        public FileContent FileContent { get; set; }
+        public ICollection<FileContext> FileContexts { get; set; }
+
+        public ICollection<FileAccessors> FileAccessors { get; set; }
     }
 }

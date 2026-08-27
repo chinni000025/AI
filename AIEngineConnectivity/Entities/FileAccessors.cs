@@ -9,5 +9,6 @@ namespace AIEngineConnectivity.Entities
         public Guid Id { get; set; }
         public int UserId { get; set; }
         public Guid FileId { get; set; }
+        public EngineFile EngineFile { get; set; }
     }
 }

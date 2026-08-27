@@ -8,5 +8,6 @@ namespace AIEngineConnectivity.Entities
     {
         public Guid Id { get; set; }
         public byte[]? Content { get; set; }
+        public EngineFile EngineFile { get; set; }
     }
 }

@@ -10,5 +10,6 @@ namespace AIEngineConnectivity.Entities
         public Guid FileId { get; set; }
         public int? ConversationId { get; set; }
         public int? ChatId { get; set; }
+        public EngineFile EngineFile { get; set; }
     }
 }

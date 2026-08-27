@@ -179,6 +179,55 @@ namespace AIEngineGateway.Migrations.SqlServer
                     b.ToTable("EngineConnections");
                 });
 
+            modelBuilder.Entity("AIEngineConnectivity.Entities.EngineFile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ContentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsRecyled")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("ItemType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Location")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ModifiedBy")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ParentId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContentId")
+                        .IsUnique();
+
+                    b.ToTable("EngineFiles");
+                });
+
             modelBuilder.Entity("AIEngineConnectivity.Entities.EngineNotification", b =>
                 {
                     b.Property<Guid>("Id")
@@ -261,6 +310,61 @@ namespace AIEngineGateway.Migrations.SqlServer
                     b.HasKey("Id");
 
                     b.ToTable("EngineRoles");
+                });
+
+            modelBuilder.Entity("AIEngineConnectivity.Entities.FileAccessors", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("FileId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FileId");
+
+                    b.ToTable("FileAccessors");
+                });
+
+            modelBuilder.Entity("AIEngineConnectivity.Entities.FileContent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("Content")
+                        .HasColumnType("varbinary(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FileContents");
+                });
+
+            modelBuilder.Entity("AIEngineConnectivity.Entities.FileContext", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("ChatId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ConversationId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("FileId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FileId");
+
+                    b.ToTable("FileContexts");
                 });
 
             modelBuilder.Entity("AIEngineConnectivity.Entities.GroupChat", b =>
@@ -748,6 +852,39 @@ namespace AIEngineGateway.Migrations.SqlServer
                     b.Navigation("ShareWithUser");
                 });
 
+            modelBuilder.Entity("AIEngineConnectivity.Entities.EngineFile", b =>
+                {
+                    b.HasOne("AIEngineConnectivity.Entities.FileContent", "FileContent")
+                        .WithOne("EngineFile")
+                        .HasForeignKey("AIEngineConnectivity.Entities.EngineFile", "ContentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FileContent");
+                });
+
+            modelBuilder.Entity("AIEngineConnectivity.Entities.FileAccessors", b =>
+                {
+                    b.HasOne("AIEngineConnectivity.Entities.EngineFile", "EngineFile")
+                        .WithMany("FileAccessors")
+                        .HasForeignKey("FileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("EngineFile");
+                });
+
+            modelBuilder.Entity("AIEngineConnectivity.Entities.FileContext", b =>
+                {
+                    b.HasOne("AIEngineConnectivity.Entities.EngineFile", "EngineFile")
+                        .WithMany("FileContexts")
+                        .HasForeignKey("FileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("EngineFile");
+                });
+
             modelBuilder.Entity("AIEngineConnectivity.Entities.GroupChat", b =>
                 {
                     b.HasOne("AIEngineConnectivity.Entities.User", "CreatedBy")
@@ -914,6 +1051,13 @@ namespace AIEngineGateway.Migrations.SqlServer
                     b.Navigation("Messages");
                 });
 
+            modelBuilder.Entity("AIEngineConnectivity.Entities.EngineFile", b =>
+                {
+                    b.Navigation("FileAccessors");
+
+                    b.Navigation("FileContexts");
+                });
+
             modelBuilder.Entity("AIEngineConnectivity.Entities.EngineRole", b =>
                 {
                     b.Navigation("GroupChatMembers");
@@ -923,6 +1067,12 @@ namespace AIEngineGateway.Migrations.SqlServer
                     b.Navigation("Messages");
 
                     b.Navigation("ProjectMembers");
+                });
+
+            modelBuilder.Entity("AIEngineConnectivity.Entities.FileContent", b =>
+                {
+                    b.Navigation("EngineFile")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("AIEngineConnectivity.Entities.GroupChat", b =>
