@@ -97,8 +97,7 @@
                             </button>
                             }
                             <!-- Favourite -->
-                            <button class="ps-conv-menu__item"
-                                [class.ps-conv-menu__item--active]="conv.isFavorite"
+                            <button class="ps-conv-menu__item" [class.ps-conv-menu__item--active]="conv.isFavorite"
                                 (click)="toggleFavourite($event, conv)">
                                 <app-svg-favorite
                                     [fillColor]="conv.isFavorite ? 'currentColor' : 'none'"></app-svg-favorite>
@@ -131,7 +130,8 @@
                         {{ activeTab === 'saved' ? 'No saved chats' : 'No chats found' }}
                     </h3>
                     <p class="ps-history-empty__text">
-                        {{ activeTab === 'saved' ? 'Favourite a conversation and it will appear here.' : 'Start a new chat and your history will appear here.' }}
+                        {{ activeTab === 'saved' ? 'Favourite a conversation and it will appear here.' : 'Start a new
+                        chat and your history will appear here.' }}
                     </p>
                 </div>
             </div>
@@ -167,6 +167,10 @@
                         <app-svg-archive></app-svg-archive>
                         Archive
                     </button>
+                    <button class="ps-profile-menu__item" (click)="openEngineDrive($event)">
+                        <app-svg-engine-drive [width]="'16px'" [height]="'16px'"></app-svg-engine-drive>
+                        Engine Drive
+                    </button>
                     <button class="ps-profile-menu__item" (click)="themeService.toggleTheme()">
                         @if (themeService.isDarkMode()) {
                         <app-svg-sun [width]="'16px'" [height]="'16px'"></app-svg-sun>
@@ -180,6 +184,7 @@
                         <app-svg-logout></app-svg-logout>
                         Log out
                     </button>
+
                 </div>
                 }
             </div>
@@ -202,7 +207,8 @@
         <!-- Mobile Top Header Bar -->
         <header class="ps-mobile-header">
             <button class="ps-mobile-menu-btn" (click)="toggleSidebar()" title="Toggle Sidebar">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                    stroke-linejoin="round">
                     <line x1="3" y1="12" x2="21" y2="12"></line>
                     <line x1="3" y1="6" x2="21" y2="6"></line>
                     <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -627,4 +633,7 @@
 }
 @if (isSettingsDialogOpen) {
 <app-settings-dialog (closed)="closeSettingsDialog()"></app-settings-dialog>
+}
+@if (isEngineDriveDialogOpen) {
+<app-engine-drive (closed)="closeEngineDriveDialog()"></app-engine-drive>
 }

@@ -34,12 +34,14 @@ import { SunSvg } from "../svgs/sun-svg/sun-svg";
 import { MoonSvg } from "../svgs/moon-svg/moon-svg";
 import { KebabMenuSvg } from "../svgs/kebab-menu-svg/kebab-menu-svg";
 import { DropdownSvg } from "../svgs/dropdown-svg/dropdown-svg";
+import { EngineDriveSvg } from "../svgs/engine-drive-svg/engine-drive-svg";
 import { ChatService } from '../../services/chat-service';
 import { ArchiveDialog } from '../dialogs/archive-dialog/archive-dialog';
 import { SettingsDialog } from '../dialogs/settings-dialog/settings-dialog';
 import { MarkdownModule } from 'ngx-markdown';
 import { PromptSpaceService } from '../../services/prompt-space.service';
 import { TokenService } from '../../services/token-service';
+import { EngineDrive } from '../engine-drive/engine-drive';
 
 @Component({
     selector: 'app-prompt-space',
@@ -47,7 +49,7 @@ import { TokenService } from '../../services/token-service';
         ArchiveSvg, ShareSvg, TrashSvg, FavoriteSvg, ThunderSvg,
         ChatsSvg, BrandLogoSvg, UserSvg,
         MicSvg, AttachmentSvg, SendSvg, ExpandCollapseSvg,
-        PlusSvg, SettingsSvg, LogoutSvg, SunSvg, MoonSvg, KebabMenuSvg, DropdownSvg, ArchiveDialog, SettingsDialog, MarkdownModule],
+        PlusSvg, SettingsSvg, LogoutSvg, SunSvg, MoonSvg, KebabMenuSvg, DropdownSvg, EngineDriveSvg, ArchiveDialog, SettingsDialog, MarkdownModule, EngineDrive],
     templateUrl: './prompt-space.html',
     styleUrl: './prompt-space.css',
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -112,6 +114,7 @@ export class PromptSpace implements AfterViewChecked {
     modelCatalog: CatalogProvider[] = [];
     userName: string | null = null;
     private scrollTimeout?: any;
+    isEngineDriveDialogOpen = false;
 
     constructor(
         private dialogService: DialogService,
@@ -185,7 +188,7 @@ export class PromptSpace implements AfterViewChecked {
             clearTimeout(this.scrollTimeout);
             this.scrollTimeout = null;
         }
-
+        this.isEngineDriveDialogOpen = false;
         this.signalr.unsubscribeHub(HubEndpoints.NotificationHub, EngineConstants.ForceLogout);
     }
 
@@ -936,5 +939,17 @@ export class PromptSpace implements AfterViewChecked {
                 hour: 'numeric',
                 minute: '2-digit'
             });
+    }
+
+    openEngineDrive(event?: MouseEvent): void {
+        event?.stopPropagation();
+        this.showProfileMenu = false;
+        this.isEngineDriveDialogOpen = true;
+        this.cdr.markForCheck();
+    }
+
+    closeEngineDriveDialog(): void {
+        this.isEngineDriveDialogOpen = false;
+        this.cdr.markForCheck();
     }
 }
