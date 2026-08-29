@@ -212,4 +212,14 @@ namespace AIEngineConnectivity.Constants
         File = 0,
         Folder = 1
     }
+
+    public enum UploadStatus
+    {
+        Initated = 0,
+        Uploading = 1,
+        Completed = 2,
+        Cancelled = 3,
+        Failed = 4,
+        TimeOut = 5
+    }
 }

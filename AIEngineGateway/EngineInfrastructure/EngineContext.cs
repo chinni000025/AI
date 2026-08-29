@@ -51,7 +51,7 @@ namespace AIEngineGateway.EngineInfrastructure
         public DbSet<FileAccessors> FileAccessors { get; set; }
         public DbSet<FileContent> FileContents { get; set; }
         public DbSet<FileContext> FileContexts { get; set; }
-
+        public DbSet<EngineFileUploadingSession> EngineFileUploadingSessions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

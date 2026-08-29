@@ -228,6 +228,46 @@ namespace AIEngineGateway.Migrations.PostgreSql
                     b.ToTable("EngineFiles");
                 });
 
+            modelBuilder.Entity("AIEngineConnectivity.Entities.EngineFileUploadingSession", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("FileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("SessionId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("UploadStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("UploadedBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EngineFileUploadingSessions");
+                });
+
             modelBuilder.Entity("AIEngineConnectivity.Entities.EngineNotification", b =>
                 {
                     b.Property<Guid>("Id")
