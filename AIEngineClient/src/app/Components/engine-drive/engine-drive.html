@@ -23,7 +23,8 @@
             </span>
           </div>
           <p class="ed-header__subtitle">
-            Secure cloud & local repository for AI models, vector embeddings, RAG knowledge bases, and conversational assets.
+            Secure cloud & local repository for AI models, vector embeddings, RAG knowledge bases, and conversational
+            assets.
           </p>
         </div>
       </div>
@@ -34,7 +35,8 @@
           [title]="isMaximized ? 'Restore window size' : 'Maximize window'">
           @if (isMaximized) {
           <!-- Restore Icon -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
             <polyline points="4 14 10 14 10 20"></polyline>
             <polyline points="20 10 14 10 14 4"></polyline>
             <line x1="14" y1="10" x2="21" y2="3"></line>
@@ -42,7 +44,8 @@
           </svg>
           } @else {
           <!-- Maximize Icon -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
             <polyline points="15 3 21 3 21 9"></polyline>
             <polyline points="9 21 3 21 3 15"></polyline>
             <line x1="21" y1="3" x2="14" y2="10"></line>
@@ -52,7 +55,8 @@
         </button>
 
         <button type="button" class="ed-window-btn ed-window-btn--close" (click)="close()" title="Close Engine Drive">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
@@ -67,7 +71,9 @@
           <div class="ed-storage-widget__metric-title">
             <svg class="ed-storage-widget__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M22 12H2"></path>
-              <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
+              <path
+                d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z">
+              </path>
               <line x1="6" y1="16" x2="6.01" y2="16"></line>
               <line x1="10" y1="16" x2="10.01" y2="16"></line>
             </svg>
@@ -84,7 +90,8 @@
       </div>
 
       <!-- Segmented glowing progress bar -->
-      <div class="ed-storage-bar" role="progressbar" [attr.aria-valuenow]="usedPercentage" aria-valuemin="0" aria-valuemax="100">
+      <div class="ed-storage-bar" role="progressbar" [attr.aria-valuenow]="usedPercentage" aria-valuemin="0"
+        aria-valuemax="100">
         <div class="ed-storage-bar__track">
           @for (cat of storageBreakdown; track cat.category) {
           <div class="ed-storage-bar__segment" [style.width.%]="cat.percent" [style.background-color]="cat.color"
@@ -110,7 +117,8 @@
       <!-- Left Action Buttons -->
       <div class="ed-toolbar__actions">
         <button type="button" class="ed-btn ed-btn--primary" (click)="openCreateFolderModal()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
             <line x1="12" y1="11" x2="12" y2="17"></line>
             <line x1="9" y1="14" x2="15" y2="14"></line>
@@ -119,7 +127,8 @@
         </button>
 
         <button type="button" class="ed-btn ed-btn--secondary" (click)="triggerFileInput()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
             <polyline points="17 8 12 3 7 8"></polyline>
             <line x1="12" y1="3" x2="12" y2="15"></line>
@@ -127,21 +136,24 @@
           <span>Upload Files</span>
         </button>
 
-        <button type="button" class="ed-btn ed-btn--ghost ed-btn--demo" (click)="simulateQuickUpload()" title="Simulate multi-file upload progress">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button type="button" class="ed-btn ed-btn--ghost ed-btn--demo" (click)="simulateQuickUpload()"
+          title="Simulate multi-file upload progress">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
           </svg>
           <span>Demo Upload</span>
         </button>
 
         <!-- Hidden input for file picking -->
-        <input #fileInput type="file" multiple (change)="onFileInputChange($event)" style="display: none" />
+        <input #fileInput type="file" multiple (change)="FileInput($event)" style="display: none" />
       </div>
 
       <!-- Right Search & Controls -->
       <div class="ed-toolbar__controls">
         <label class="ed-search">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
@@ -158,19 +170,22 @@
 
         <!-- Sort dropdown / toggle -->
         <div class="ed-sort-group">
-          <button type="button" class="ed-icon-btn" (click)="setSort('name')" [class.ed-icon-btn--active]="sortField === 'name'" title="Sort by Name">
+          <button type="button" class="ed-icon-btn" (click)="setSort('name')"
+            [class.ed-icon-btn--active]="sortField === 'name'" title="Sort by Name">
             <span class="ed-sort-label">Name</span>
             @if (sortField === 'name') {
             <span class="ed-sort-arrow">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
             }
           </button>
-          <button type="button" class="ed-icon-btn" (click)="setSort('size')" [class.ed-icon-btn--active]="sortField === 'size'" title="Sort by Size">
+          <button type="button" class="ed-icon-btn" (click)="setSort('size')"
+            [class.ed-icon-btn--active]="sortField === 'size'" title="Sort by Size">
             <span class="ed-sort-label">Size</span>
             @if (sortField === 'size') {
             <span class="ed-sort-arrow">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
             }
           </button>
-          <button type="button" class="ed-icon-btn" (click)="setSort('modifiedAt')" [class.ed-icon-btn--active]="sortField === 'modifiedAt'" title="Sort by Date">
+          <button type="button" class="ed-icon-btn" (click)="setSort('modifiedAt')"
+            [class.ed-icon-btn--active]="sortField === 'modifiedAt'" title="Sort by Date">
             <span class="ed-sort-label">Date</span>
             @if (sortField === 'modifiedAt') {
             <span class="ed-sort-arrow">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
@@ -237,7 +252,8 @@
       <div class="ed-breadcrumbs">
         @if (breadcrumbs.length > 1) {
         <button type="button" class="ed-back-btn" (click)="navigateUp()" title="Go to parent directory">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
             <polyline points="15 18 9 12 15 6"></polyline>
           </svg>
         </button>
@@ -249,10 +265,12 @@
             @if ($index > 0) {
             <span class="ed-breadcrumbs__separator">/</span>
             }
-            <button type="button" class="ed-breadcrumbs__link" [class.ed-breadcrumbs__link--active]="$index === breadcrumbs.length - 1"
+            <button type="button" class="ed-breadcrumbs__link"
+              [class.ed-breadcrumbs__link--active]="$index === breadcrumbs.length - 1"
               (click)="navigateToBreadcrumb($index)">
               @if ($index === 0) {
-              <svg class="ed-breadcrumbs__home-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg class="ed-breadcrumbs__home-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                 <polyline points="9 22 9 12 15 12 15 22"></polyline>
               </svg>
@@ -264,7 +282,8 @@
         </div>
       </div>
 
-      <span class="ed-item-counter">{{ totalCurrentItemCount }} {{ totalCurrentItemCount === 1 ? 'item' : 'items' }}</span>
+      <span class="ed-item-counter">{{ totalCurrentItemCount }} {{ totalCurrentItemCount === 1 ? 'item' : 'items'
+        }}</span>
     </div>
 
     <!-- MAIN BROWSER CONTENT & DROPZONE -->
@@ -301,7 +320,8 @@
         <button type="button" class="ed-btn ed-btn--secondary" (click)="searchQuery = ''">Clear Search</button>
         } @else {
         <h3 class="ed-empty-state__title">This folder is empty</h3>
-        <p class="ed-empty-state__subtitle">Upload AI models, datasets, documents, or create a new folder to get started.</p>
+        <p class="ed-empty-state__subtitle">Upload AI models, datasets, documents, or create a new folder to get
+          started.</p>
         <div class="ed-empty-state__actions">
           <button type="button" class="ed-btn ed-btn--primary" (click)="triggerFileInput()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -339,7 +359,8 @@
               <svg viewBox="0 0 24 24" fill="currentColor" opacity="0.15" class="ed-folder-card__svg-bg">
                 <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
               </svg>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
                 <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
               </svg>
             </div>
@@ -354,7 +375,8 @@
             </div>
 
             <!-- Context action: delete folder -->
-            <button type="button" class="ed-folder-card__delete" (click)="openDeleteModal(folder, $event)" title="Delete folder">
+            <button type="button" class="ed-folder-card__delete" (click)="openDeleteModal(folder, $event)"
+              title="Delete folder">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="3 6 5 6 21 6"></polyline>
                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -400,49 +422,49 @@
             <!-- Big Graphic File Preview Icon -->
             <div class="ed-file-card__visual" [ngClass]="'ed-file-card__visual--' + file.category">
               @switch (file.category) {
-                @case ('model') {
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <circle cx="12" cy="12" r="9"></circle>
-                    <path d="M12 3v18"></path>
-                    <path d="M3 12h18"></path>
-                    <circle cx="12" cy="12" r="3"></circle>
-                  </svg>
-                }
-                @case ('dataset') {
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
-                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
-                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
-                  </svg>
-                }
-                @case ('document') {
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                    <line x1="16" y1="13" x2="8" y2="13"></line>
-                    <line x1="16" y1="17" x2="8" y2="17"></line>
-                    <polyline points="10 9 9 9 8 9"></polyline>
-                  </svg>
-                }
-                @case ('media') {
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                    <polyline points="21 15 16 10 5 21"></polyline>
-                  </svg>
-                }
-                @case ('code') {
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <polyline points="16 18 22 12 16 6"></polyline>
-                    <polyline points="8 6 2 12 8 18"></polyline>
-                  </svg>
-                }
-                @default {
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
-                    <polyline points="13 2 13 9 20 9"></polyline>
-                  </svg>
-                }
+              @case ('model') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <circle cx="12" cy="12" r="9"></circle>
+                <path d="M12 3v18"></path>
+                <path d="M3 12h18"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              }
+              @case ('dataset') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+              </svg>
+              }
+              @case ('document') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+              }
+              @case ('media') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+              </svg>
+              }
+              @case ('code') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <polyline points="16 18 22 12 16 6"></polyline>
+                <polyline points="8 6 2 12 8 18"></polyline>
+              </svg>
+              }
+              @default {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                <polyline points="13 2 13 9 20 9"></polyline>
+              </svg>
+              }
               }
             </div>
 
@@ -464,14 +486,16 @@
                   <circle cx="12" cy="12" r="3"></circle>
                 </svg>
               </button>
-              <button type="button" class="ed-card-action" (click)="showToast('Downloading ' + file.name, 'info')" title="Download file">
+              <button type="button" class="ed-card-action" (click)="showToast('Downloading ' + file.name, 'info')"
+                title="Download file">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                   <polyline points="7 10 12 15 17 10"></polyline>
                   <line x1="12" y1="15" x2="12" y2="3"></line>
                 </svg>
               </button>
-              <button type="button" class="ed-card-action ed-card-action--danger" (click)="openDeleteModal(file, $event)" title="Delete file">
+              <button type="button" class="ed-card-action ed-card-action--danger"
+                (click)="openDeleteModal(file, $event)" title="Delete file">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="3 6 5 6 21 6"></polyline>
                   <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -505,38 +529,38 @@
                   <div class="ed-table__file-cell">
                     <span class="ed-table__icon" [ngClass]="'ed-table__icon--' + file.category">
                       @switch (file.category) {
-                        @case ('model') {
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="9"></circle>
-                            <path d="M12 3v18"></path>
-                            <path d="M3 12h18"></path>
-                          </svg>
-                        }
-                        @case ('dataset') {
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
-                            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
-                            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
-                          </svg>
-                        }
-                        @case ('document') {
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                            <polyline points="14 2 14 8 20 8"></polyline>
-                          </svg>
-                        }
-                        @case ('media') {
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                            <polyline points="21 15 16 10 5 21"></polyline>
-                          </svg>
-                        }
-                        @default {
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
-                          </svg>
-                        }
+                      @case ('model') {
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="9"></circle>
+                        <path d="M12 3v18"></path>
+                        <path d="M3 12h18"></path>
+                      </svg>
+                      }
+                      @case ('dataset') {
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                        <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                      </svg>
+                      }
+                      @case ('document') {
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                      </svg>
+                      }
+                      @case ('media') {
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                        <polyline points="21 15 16 10 5 21"></polyline>
+                      </svg>
+                      }
+                      @default {
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                      </svg>
+                      }
                       }
                     </span>
                     <span class="ed-table__filename" [title]="file.name">{{ file.name }}</span>
@@ -567,20 +591,23 @@
 
                 <td class="ed-table__td ed-table__td--actions" (click)="$event.stopPropagation()">
                   <div class="ed-table__action-group">
-                    <button type="button" class="ed-card-action" (click)="openPreview(file, $event)" title="Preview file">
+                    <button type="button" class="ed-card-action" (click)="openPreview(file, $event)"
+                      title="Preview file">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                         <circle cx="12" cy="12" r="3"></circle>
                       </svg>
                     </button>
-                    <button type="button" class="ed-card-action" (click)="showToast('Downloading ' + file.name, 'info')" title="Download">
+                    <button type="button" class="ed-card-action" (click)="showToast('Downloading ' + file.name, 'info')"
+                      title="Download">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                         <polyline points="7 10 12 15 17 10"></polyline>
                         <line x1="12" y1="15" x2="12" y2="3"></line>
                       </svg>
                     </button>
-                    <button type="button" class="ed-card-action ed-card-action--danger" (click)="openDeleteModal(file, $event)" title="Delete">
+                    <button type="button" class="ed-card-action ed-card-action--danger"
+                      (click)="openDeleteModal(file, $event)" title="Delete">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="3 6 5 6 21 6"></polyline>
                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -601,7 +628,8 @@
 
     <!-- ══ FLOATING UPLOAD PROGRESS DOCK ══ -->
     @if (uploads.length > 0) {
-    <aside class="ed-upload-dock" [class.ed-upload-dock--collapsed]="!isUploadDockExpanded" aria-label="Upload Progress">
+    <aside class="ed-upload-dock" [class.ed-upload-dock--collapsed]="!isUploadDockExpanded"
+      aria-label="Upload Progress">
       <header class="ed-upload-dock__header" (click)="isUploadDockExpanded = !isUploadDockExpanded">
         <div class="ed-upload-dock__title-wrap">
           @if (activeUploadsCount > 0) {
@@ -615,9 +643,9 @@
           }
           <span class="ed-upload-dock__title">
             @if (activeUploadsCount > 0) {
-              Uploading {{ activeUploadsCount }} of {{ uploads.length }} files ({{ overallUploadProgress }}%)
+            Uploading {{ activeUploadsCount }} of {{ uploads.length }} files ({{ overallUploadProgress }}%)
             } @else {
-              All {{ uploads.length }} uploads completed
+            All {{ uploads.length }} uploads completed
             }
           </span>
         </div>
@@ -630,7 +658,8 @@
               <polyline points="6 9 12 15 18 9"></polyline>
             </svg>
           </button>
-          <button type="button" class="ed-dock-btn ed-dock-btn--close" (click)="cancelAllUploads()" title="Dismiss upload dock">
+          <button type="button" class="ed-dock-btn ed-dock-btn--close" (click)="cancelAllUploads()"
+            title="Dismiss upload dock">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -689,7 +718,8 @@
     <!-- ══ CREATE FOLDER MODAL ══ -->
     @if (isCreateFolderModalOpen) {
     <div class="ed-subdialog-backdrop" (click)="closeCreateFolderModal()">
-      <div class="ed-subdialog" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="createFolderTitle">
+      <div class="ed-subdialog" (click)="$event.stopPropagation()" role="dialog" aria-modal="true"
+        aria-labelledby="createFolderTitle">
         <header class="ed-subdialog__header">
           <div class="ed-subdialog__icon-wrap">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -762,9 +792,9 @@
             Are you sure you want to permanently delete
             <strong class="ed-delete-target">"{{ itemToDelete.name }}"</strong>?
             @if (itemToDelete.type === 'folder') {
-              All files, embeddings, and subfolders inside will also be removed.
+            All files, embeddings, and subfolders inside will also be removed.
             } @else {
-              This will free up {{ itemToDelete.formattedSize }} in your storage quota.
+            This will free up {{ itemToDelete.formattedSize }} in your storage quota.
             }
           </p>
         </div>
@@ -822,43 +852,45 @@
           <!-- Mock Preview Box -->
           <div class="ed-preview-box">
             @switch (previewItem.category) {
-              @case ('code') {
-                <pre class="ed-preview-code"><code>&#123;
+            @case ('code') {
+            <pre class="ed-preview-code"><code>&#123;
   "name": "{{ previewItem.name }}",
   "engine_runtime": "AIEngine-v3.2",
   "quantization": "INT4",
   "embeddings_dimension": 1536,
   "status": "ready"
 &#125;</code></pre>
-              }
-              @case ('media') {
-                <div class="ed-preview-media">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" width="64" height="64">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                    <polyline points="21 15 16 10 5 21"></polyline>
-                  </svg>
-                  <p>Image preview render (2400 x 1800 px)</p>
+            }
+            @case ('media') {
+            <div class="ed-preview-media">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" width="64" height="64">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+              </svg>
+              <p>Image preview render (2400 x 1800 px)</p>
+            </div>
+            }
+            @default {
+            <div class="ed-preview-doc">
+              <div class="ed-preview-doc__page">
+                <h4>{{ previewItem.name }}</h4>
+                <p>Antigravity AI Engine Knowledge Vector Document. This asset is loaded in the vector retrieval memory
+                  pool for real-time inference grounding and context augmentation.</p>
+                <div class="ed-preview-doc__lines">
+                  <span></span><span></span><span></span>
                 </div>
-              }
-              @default {
-                <div class="ed-preview-doc">
-                  <div class="ed-preview-doc__page">
-                    <h4>{{ previewItem.name }}</h4>
-                    <p>Antigravity AI Engine Knowledge Vector Document. This asset is loaded in the vector retrieval memory pool for real-time inference grounding and context augmentation.</p>
-                    <div class="ed-preview-doc__lines">
-                      <span></span><span></span><span></span>
-                    </div>
-                  </div>
-                </div>
-              }
+              </div>
+            </div>
+            }
             }
           </div>
         </div>
 
         <footer class="ed-preview-dialog__footer">
           <button type="button" class="ed-btn ed-btn--ghost" (click)="closePreview()">Close</button>
-          <button type="button" class="ed-btn ed-btn--secondary" (click)="showToast('Downloading ' + previewItem.name, 'info')">
+          <button type="button" class="ed-btn ed-btn--secondary"
+            (click)="showToast('Downloading ' + previewItem.name, 'info')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
               <polyline points="7 10 12 15 17 10"></polyline>

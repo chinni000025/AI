@@ -13,6 +13,7 @@ export class EngineControllers {
     public static readonly DashboardController = "Dashboard";
     public static readonly ConnectionController = "Connection";
     public static readonly EncryptionController = "Encryption";
+    public static readonly EngineDriveController = "EngineDrive";
 }
 
 export class EngineRoutes {
@@ -140,3 +141,25 @@ export const ExcludeEncryptionEndPoints: string[] = [
     'Engine/test-engine',
     'Engine/engine-status',
 ];
+
+export interface ChunkUpload {
+    chunk: Blob,
+    index: number,
+    sessionId: string
+}
+
+export interface ChunkResult {
+    response: any,
+    durationMs: number,
+}
+
+export interface ChunkInitalize {
+    sessionId: string;
+}
+
+export interface InitiateUploadRequest {
+    sessionId: string,
+    fileName: string,
+    fileSize: number,
+    contentType: string,
+}

@@ -92,6 +92,7 @@ namespace AIEngineGateway.Extensions
             services.AddScoped<SqlServerProvider>();
             services.AddScoped<EngineDbConfigurator>();
             services.AddScoped<IEngineDataBaseService, EngineConfigureService>();
+            services.AddScoped<IEngineDriveService, EngineDriveService>();
         }
 
         public static void EngineRepositories(IServiceCollection services)
@@ -141,6 +142,7 @@ namespace AIEngineGateway.Extensions
             services.Configure<WorkerConfiguration>(config.GetSection("WorkersConfiguration"));
             services.Configure<UserRateLimiterOptions>(config.GetSection("UserRateLimiter"));
             services.Configure<ServerRateLimiterOptions>(config.GetSection("ServerRateLimiter"));
+            services.Configure<EngineUploadFileTTL>(config.GetSection("EngineUploadFileTTL"));
         }
 
         public static void EncryptionExtensions(IServiceCollection services)
