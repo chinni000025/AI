@@ -179,6 +179,30 @@ namespace AIEngineGateway.Migrations.PostgreSql
                     b.ToTable("EngineConnections");
                 });
 
+            modelBuilder.Entity("AIEngineConnectivity.Entities.EngineDriveMetering", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("ActiveBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ReserveBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("TrashBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EngineDriveMeterings");
+                });
+
             modelBuilder.Entity("AIEngineConnectivity.Entities.EngineFile", b =>
                 {
                     b.Property<Guid>("Id")
@@ -234,20 +258,27 @@ namespace AIEngineGateway.Migrations.PostgreSql
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("ExpiresAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("FileId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<long>("FileSize")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("SessionId")
-                        .IsRequired()
+                    b.Property<string>("Location")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ParentFolderId")
                         .HasColumnType("text");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -369,6 +400,28 @@ namespace AIEngineGateway.Migrations.PostgreSql
                     b.HasIndex("FileId");
 
                     b.ToTable("FileAccessors");
+                });
+
+            modelBuilder.Entity("AIEngineConnectivity.Entities.FileChunks", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<byte[]>("Chunk")
+                        .HasColumnType("bytea");
+
+                    b.Property<long>("ChunkIndex")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("SessionId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SessionId");
+
+                    b.ToTable("FileChunks");
                 });
 
             modelBuilder.Entity("AIEngineConnectivity.Entities.FileContent", b =>
@@ -914,6 +967,17 @@ namespace AIEngineGateway.Migrations.PostgreSql
                     b.Navigation("EngineFile");
                 });
 
+            modelBuilder.Entity("AIEngineConnectivity.Entities.FileChunks", b =>
+                {
+                    b.HasOne("AIEngineConnectivity.Entities.EngineFileUploadingSession", "EngineFileUploadingSession")
+                        .WithMany("FileChunks")
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("EngineFileUploadingSession");
+                });
+
             modelBuilder.Entity("AIEngineConnectivity.Entities.FileContext", b =>
                 {
                     b.HasOne("AIEngineConnectivity.Entities.EngineFile", "EngineFile")
@@ -1096,6 +1160,11 @@ namespace AIEngineGateway.Migrations.PostgreSql
                     b.Navigation("FileAccessors");
 
                     b.Navigation("FileContexts");
+                });
+
+            modelBuilder.Entity("AIEngineConnectivity.Entities.EngineFileUploadingSession", b =>
+                {
+                    b.Navigation("FileChunks");
                 });
 
             modelBuilder.Entity("AIEngineConnectivity.Entities.EngineRole", b =>

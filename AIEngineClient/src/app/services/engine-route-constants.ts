@@ -33,6 +33,7 @@ export class EngineConstants {
     public static ForceLogout = "ForceLogout";
     public static EngineResponse = "EngineResponse";
     public static EngineStateChanged = "EngineStateChange";
+    public static UploadingSessionId = "UploadingSessionId";
 
     //For Snackbar
     public static Success = "Success";
@@ -144,7 +145,6 @@ export const ExcludeEncryptionEndPoints: string[] = [
 
 export interface ChunkUpload {
     chunk: Blob,
-    index: number,
     sessionId: string
 }
 
@@ -154,7 +154,7 @@ export interface ChunkResult {
 }
 
 export interface ChunkInitalize {
-    sessionId: string;
+    uploadSessionId: string;
 }
 
 export interface InitiateUploadRequest {

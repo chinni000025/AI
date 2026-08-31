@@ -35,7 +35,7 @@ export class EncryptionInterceptor implements HttpInterceptor {
         if (request.method === 'GET')
             return false;
 
-        if (!request.body)
+        if (!request.body || request.body instanceof FormData)
             return false;
         if (this.isExcludedEndPoints(request)) {
             return false;

@@ -129,7 +129,6 @@ export class EngineDrive implements OnInit, OnDestroy {
     private snack: SnackbarService) { }
 
   ngOnInit(): void {
-    this.initializeMockData();
   }
 
   ngOnDestroy(): void {
@@ -141,376 +140,6 @@ export class EngineDrive implements OnInit, OnDestroy {
     }
   }
 
-  // ----------------------------------------------------
-  // INITIAL MOCK DATA
-  // ----------------------------------------------------
-  private initializeMockData(): void {
-    const now = new Date();
-    const hoursAgo = (h: number) => new Date(now.getTime() - h * 60 * 60 * 1000);
-    const daysAgo = (d: number) => new Date(now.getTime() - d * 24 * 60 * 60 * 1000);
-
-    this.items = [
-      // Root folders
-      {
-        id: 'folder-rag',
-        name: 'RAG Knowledge Base',
-        type: 'folder',
-        category: 'folder',
-        sizeBytes: 0,
-        formattedSize: '6 items',
-        modifiedAt: hoursAgo(2),
-        parentId: null,
-        folderColor: '#00f0ff',
-        itemCount: 6
-      },
-      {
-        id: 'folder-models',
-        name: 'Fine-Tuned Models & Checkpoints',
-        type: 'folder',
-        category: 'folder',
-        sizeBytes: 0,
-        formattedSize: '3 models',
-        modifiedAt: daysAgo(1),
-        parentId: null,
-        folderColor: '#0072ff',
-        itemCount: 3
-      },
-      {
-        id: 'folder-datasets',
-        name: 'Datasets & Benchmarks',
-        type: 'folder',
-        category: 'folder',
-        sizeBytes: 0,
-        formattedSize: '4 datasets',
-        modifiedAt: daysAgo(3),
-        parentId: null,
-        folderColor: '#10b981',
-        itemCount: 4
-      },
-      {
-        id: 'folder-prompts',
-        name: 'System Prompts & Templates',
-        type: 'folder',
-        category: 'folder',
-        sizeBytes: 0,
-        formattedSize: '4 files',
-        modifiedAt: daysAgo(5),
-        parentId: null,
-        folderColor: '#f59e0b',
-        itemCount: 4
-      },
-
-      // Root files
-      {
-        id: 'file-r1',
-        name: 'AIEngine_Architecture_Blueprint.pdf',
-        type: 'file',
-        category: 'document',
-        sizeBytes: 4.8 * 1024 * 1024,
-        formattedSize: '4.8 MB',
-        modifiedAt: hoursAgo(4),
-        parentId: null,
-        extension: 'pdf',
-        ragIndexed: true,
-        ragStatus: 'ready',
-        tags: ['Core', 'Specs']
-      },
-      {
-        id: 'file-r2',
-        name: 'deepseek_distill_q4_k_m.onnx',
-        type: 'file',
-        category: 'model',
-        sizeBytes: 4.2 * 1024 * 1024 * 1024,
-        formattedSize: '4.2 GB',
-        modifiedAt: daysAgo(2),
-        parentId: null,
-        extension: 'onnx',
-        ragIndexed: true,
-        ragStatus: 'ready',
-        tags: ['Production', 'Vision']
-      },
-      {
-        id: 'file-r3',
-        name: 'enterprise_intent_embeddings.parquet',
-        type: 'file',
-        category: 'dataset',
-        sizeBytes: 142.6 * 1024 * 1024,
-        formattedSize: '142.6 MB',
-        modifiedAt: daysAgo(3),
-        parentId: null,
-        extension: 'parquet',
-        ragIndexed: true,
-        ragStatus: 'ready',
-        tags: ['Vectors', 'HNSW']
-      },
-      {
-        id: 'file-r4',
-        name: 'ai_benchmark_multimodal_vision.png',
-        type: 'file',
-        category: 'media',
-        sizeBytes: 2.3 * 1024 * 1024,
-        formattedSize: '2.3 MB',
-        modifiedAt: daysAgo(4),
-        parentId: null,
-        extension: 'png',
-        ragIndexed: false,
-        ragStatus: 'ready',
-        tags: ['Chart']
-      },
-      {
-        id: 'file-r5',
-        name: 'engine_agent_runtime_config.json',
-        type: 'file',
-        category: 'code',
-        sizeBytes: 84 * 1024,
-        formattedSize: '84 KB',
-        modifiedAt: hoursAgo(8),
-        parentId: null,
-        extension: 'json',
-        ragIndexed: true,
-        ragStatus: 'ready',
-        tags: ['Config']
-      },
-
-      // Files in RAG Knowledge Base ('folder-rag')
-      {
-        id: 'file-rag-1',
-        name: 'quarterly_financial_audit_2026.pdf',
-        type: 'file',
-        category: 'document',
-        sizeBytes: 7.6 * 1024 * 1024,
-        formattedSize: '7.6 MB',
-        modifiedAt: hoursAgo(6),
-        parentId: 'folder-rag',
-        extension: 'pdf',
-        ragIndexed: true,
-        ragStatus: 'ready',
-        tags: ['Finance', 'RAG']
-      },
-      {
-        id: 'file-rag-2',
-        name: 'compliance_hipaa_gdpr_handbook.docx',
-        type: 'file',
-        category: 'document',
-        sizeBytes: 3.1 * 1024 * 1024,
-        formattedSize: '3.1 MB',
-        modifiedAt: daysAgo(1),
-        parentId: 'folder-rag',
-        extension: 'docx',
-        ragIndexed: true,
-        ragStatus: 'ready',
-        tags: ['Compliance']
-      },
-      {
-        id: 'file-rag-3',
-        name: 'enterprise_rag_chunks_manifest.json',
-        type: 'file',
-        category: 'code',
-        sizeBytes: 620 * 1024,
-        formattedSize: '620 KB',
-        modifiedAt: daysAgo(2),
-        parentId: 'folder-rag',
-        extension: 'json',
-        ragIndexed: true,
-        ragStatus: 'ready'
-      },
-      {
-        id: 'file-rag-4',
-        name: 'developer_sdk_integration_guide.md',
-        type: 'file',
-        category: 'document',
-        sizeBytes: 340 * 1024,
-        formattedSize: '340 KB',
-        modifiedAt: daysAgo(3),
-        parentId: 'folder-rag',
-        extension: 'md',
-        ragIndexed: true,
-        ragStatus: 'ready'
-      },
-      {
-        id: 'file-rag-5',
-        name: 'neural_vector_index_shard_01.bin',
-        type: 'file',
-        category: 'dataset',
-        sizeBytes: 420 * 1024 * 1024,
-        formattedSize: '420 MB',
-        modifiedAt: daysAgo(4),
-        parentId: 'folder-rag',
-        extension: 'bin',
-        ragIndexed: true,
-        ragStatus: 'ready',
-        tags: ['Index']
-      },
-      {
-        id: 'file-rag-6',
-        name: 'customer_support_telemetry.csv',
-        type: 'file',
-        category: 'dataset',
-        sizeBytes: 18.2 * 1024 * 1024,
-        formattedSize: '18.2 MB',
-        modifiedAt: daysAgo(5),
-        parentId: 'folder-rag',
-        extension: 'csv',
-        ragIndexed: true,
-        ragStatus: 'ready'
-      },
-
-      // Files in Fine-Tuned Models ('folder-models')
-      {
-        id: 'file-mod-1',
-        name: 'mistral_7b_engine_instruct_q8.gguf',
-        type: 'file',
-        category: 'model',
-        sizeBytes: 7.8 * 1024 * 1024 * 1024,
-        formattedSize: '7.8 GB',
-        modifiedAt: daysAgo(1),
-        parentId: 'folder-models',
-        extension: 'gguf',
-        ragIndexed: true,
-        ragStatus: 'ready',
-        tags: ['GGUF', 'LLM']
-      },
-      {
-        id: 'file-mod-2',
-        name: 'coder_agent_lora_adapters.safetensors',
-        type: 'file',
-        category: 'model',
-        sizeBytes: 1.4 * 1024 * 1024 * 1024,
-        formattedSize: '1.4 GB',
-        modifiedAt: daysAgo(2),
-        parentId: 'folder-models',
-        extension: 'safetensors',
-        ragIndexed: true,
-        ragStatus: 'ready',
-        tags: ['LoRA']
-      },
-      {
-        id: 'file-mod-3',
-        name: 'model_hyperparameters_tuning.json',
-        type: 'file',
-        category: 'code',
-        sizeBytes: 48 * 1024,
-        formattedSize: '48 KB',
-        modifiedAt: daysAgo(3),
-        parentId: 'folder-models',
-        extension: 'json',
-        ragIndexed: false,
-        ragStatus: 'ready'
-      },
-
-      // Files in Datasets & Benchmarks ('folder-datasets')
-      {
-        id: 'file-dat-1',
-        name: 'mmlu_pro_reasoning_eval.csv',
-        type: 'file',
-        category: 'dataset',
-        sizeBytes: 34.8 * 1024 * 1024,
-        formattedSize: '34.8 MB',
-        modifiedAt: daysAgo(3),
-        parentId: 'folder-datasets',
-        extension: 'csv',
-        ragIndexed: true,
-        ragStatus: 'ready',
-        tags: ['Benchmark']
-      },
-      {
-        id: 'file-dat-2',
-        name: 'rlhf_human_preference_pairs.jsonl',
-        type: 'file',
-        category: 'dataset',
-        sizeBytes: 512.4 * 1024 * 1024,
-        formattedSize: '512.4 MB',
-        modifiedAt: daysAgo(4),
-        parentId: 'folder-datasets',
-        extension: 'jsonl',
-        ragIndexed: true,
-        ragStatus: 'ready'
-      },
-      {
-        id: 'file-dat-3',
-        name: 'code_synthesis_eval_python.parquet',
-        type: 'file',
-        category: 'dataset',
-        sizeBytes: 88.0 * 1024 * 1024,
-        formattedSize: '88 MB',
-        modifiedAt: daysAgo(5),
-        parentId: 'folder-datasets',
-        extension: 'parquet',
-        ragIndexed: true,
-        ragStatus: 'ready'
-      },
-      {
-        id: 'file-dat-4',
-        name: 'gsm8k_math_problem_set.csv',
-        type: 'file',
-        category: 'dataset',
-        sizeBytes: 12.5 * 1024 * 1024,
-        formattedSize: '12.5 MB',
-        modifiedAt: daysAgo(6),
-        parentId: 'folder-datasets',
-        extension: 'csv',
-        ragIndexed: true,
-        ragStatus: 'ready'
-      },
-
-      // Files in System Prompts ('folder-prompts')
-      {
-        id: 'file-prm-1',
-        name: 'autonomous_coder_system_prompt.txt',
-        type: 'file',
-        category: 'document',
-        sizeBytes: 24 * 1024,
-        formattedSize: '24 KB',
-        modifiedAt: daysAgo(5),
-        parentId: 'folder-prompts',
-        extension: 'txt',
-        ragIndexed: true,
-        ragStatus: 'ready'
-      },
-      {
-        id: 'file-prm-2',
-        name: 'react_agent_reasoning_framework.md',
-        type: 'file',
-        category: 'document',
-        sizeBytes: 38 * 1024,
-        formattedSize: '38 KB',
-        modifiedAt: daysAgo(6),
-        parentId: 'folder-prompts',
-        extension: 'md',
-        ragIndexed: true,
-        ragStatus: 'ready'
-      },
-      {
-        id: 'file-prm-3',
-        name: 'voice_synthesis_personas.json',
-        type: 'file',
-        category: 'code',
-        sizeBytes: 96 * 1024,
-        formattedSize: '96 KB',
-        modifiedAt: daysAgo(7),
-        parentId: 'folder-prompts',
-        extension: 'json',
-        ragIndexed: true,
-        ragStatus: 'ready'
-      },
-      {
-        id: 'file-prm-4',
-        name: 'structured_json_output_schemas.ts',
-        type: 'file',
-        category: 'code',
-        sizeBytes: 54 * 1024,
-        formattedSize: '54 KB',
-        modifiedAt: daysAgo(8),
-        parentId: 'folder-prompts',
-        extension: 'ts',
-        ragIndexed: true,
-        ragStatus: 'ready'
-      }
-    ];
-
-    this.updateFolderCounts();
-  }
-
   private updateFolderCounts(): void {
     const folders = this.items.filter(i => i.type === 'folder');
     for (const folder of folders) {
@@ -520,9 +149,6 @@ export class EngineDrive implements OnInit, OnDestroy {
     }
   }
 
-  // ----------------------------------------------------
-  // STORAGE CALCULATIONS & BREAKDOWN
-  // ----------------------------------------------------
   get totalUsedBytes(): number {
     return this.items
       .filter(i => i.type === 'file')
@@ -578,9 +204,6 @@ export class EngineDrive implements OnInit, OnDestroy {
       .filter(item => item.bytes > 0);
   }
 
-  // ----------------------------------------------------
-  // FILTERING, SEARCHING & NAVIGATION
-  // ----------------------------------------------------
   get displayedFolders(): DriveItem[] {
     if (this.activeCategoryFilter !== 'all' && this.activeCategoryFilter !== 'folder') {
       return [];
@@ -822,35 +445,34 @@ export class EngineDrive implements OnInit, OnDestroy {
     };
 
     return this.uploadService.initializeUpload(initiateUploadRequest).pipe(
-
       concatMap((res: ChunkInitalize) => {
-        return this.uploadChunksAdaptive(file, res.sessionId, 0, 0, this.MIN_CHUNK_SIZE).pipe(
-          concatMap(() =>
-            this.uploadService.finalize(this.tokenService.ensureSessionId())
-          ),
+        this.tokenService.setUploadSessionId(res.uploadSessionId);
+        return this.uploadChunksAdaptive(file, res.uploadSessionId, 0, 0, this.MIN_CHUNK_SIZE).pipe(
+          concatMap(() => this.uploadService.finalize(res.uploadSessionId)),
           map(() => file.name)
         );
       })
     );
   }
 
-  private uploadChunksAdaptive(file: File, sessionId: string, currentByteOffset: number,
+  private uploadChunksAdaptive(file: File, uploadSessionId: string, currentByteOffset: number,
     chunkIndex: number, currentChunkSize: number): Observable<any> {
+
     if (currentByteOffset >= file.size) {
       return EMPTY;
     }
+
     const endByte = Math.min(currentByteOffset + currentChunkSize, file.size);
     const chunkBlob = file.slice(currentByteOffset, endByte);
     var data: ChunkUpload = {
-      sessionId: sessionId,
+      sessionId: uploadSessionId,
       chunk: chunkBlob,
-      index: chunkIndex
     }
     return this.uploadService.uploadChunk(data).pipe(
       retry(2),
       concatMap((result: any) => {
         const nextChunkSize = this.calculateNextChunkSize(currentChunkSize, result.durationMs);
-        return this.uploadChunksAdaptive(file, sessionId, endByte, chunkIndex + 1, nextChunkSize);
+        return this.uploadChunksAdaptive(file, uploadSessionId, endByte, chunkIndex + 1, nextChunkSize);
       })
     );
   }

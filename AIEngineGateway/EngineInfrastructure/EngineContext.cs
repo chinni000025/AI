@@ -52,6 +52,8 @@ namespace AIEngineGateway.EngineInfrastructure
         public DbSet<FileContent> FileContents { get; set; }
         public DbSet<FileContext> FileContexts { get; set; }
         public DbSet<EngineFileUploadingSession> EngineFileUploadingSessions { get; set; }
+        public DbSet<FileChunks> FileChunks { get; set; }
+        public DbSet<EngineDriveMetering> EngineDriveMeterings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -258,6 +260,13 @@ namespace AIEngineGateway.EngineInfrastructure
                 .WithMany(a => a.FileAccessors)
                 .HasForeignKey(a => a.FileId);
 
+
+            //Engine Upload session has many File chunks.
+            //1 : Many.
+            modelBuilder.Entity<FileChunks>()
+                .HasOne(c => c.EngineFileUploadingSession)
+                .WithMany(u => u.FileChunks)
+                .HasForeignKey(u => u.SessionId);
         }
     }
 }

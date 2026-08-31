@@ -20,8 +20,15 @@ namespace AIEngineGateway.Controllers
         [HttpPost("initiate-upload")]
         public async Task<ActionResult> InitateUpload([FromBody] UploadInitiateRequest request, CancellationToken cancellationToken)
         {
-            var chunkBytes = await _engineDriveService.InitiateFileUpload(request, cancellationToken);
-            return Ok(chunkBytes);
+            var uploadSessionId = await _engineDriveService.InitiateFileUpload(request, cancellationToken);
+            return Ok(new { uploadSessionId });
+        }
+
+        [HttpPost("uploadChunks")]
+        public async Task<ActionResult> UploadChunks([FromForm] IFormFile chunk, [FromForm] Guid sessionId, CancellationToken cancellationToken)
+        {
+            await _engineDriveService.UploadChunks(chunk, sessionId, cancellationToken);
+            return Ok();
         }
     }
 }

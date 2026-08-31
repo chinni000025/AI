@@ -8,6 +8,7 @@ export class TokenService {
     private readonly _accessToken = EngineConstants.AccessToken;
     private readonly _sessionId = EngineConstants.SessionId;
     private readonly _engineValidationToken = EngineConstants.EngineValidationToken;
+    private readonly _uploadSessionId = EngineConstants.UploadingSessionId
 
     getAccessToken(): any {
         return localStorage.getItem(this._accessToken);
@@ -19,6 +20,14 @@ export class TokenService {
 
     setEngineValidationToken(engineValiationToken: any) {
         localStorage.setItem(this._engineValidationToken, engineValiationToken);//Engine Validation Token.
+    }
+
+    setUploadSessionId(uploadSessionId: any) {
+        localStorage.setItem(this._uploadSessionId, uploadSessionId);
+    }
+
+    getUploadSessionId(): any {
+        return localStorage.getItem(this._uploadSessionId);
     }
 
     getEngineValidationToken(): any {
@@ -46,6 +55,7 @@ export class TokenService {
         localStorage.removeItem(this._accessToken);
         localStorage.removeItem(this._sessionId);
         localStorage.removeItem(this._engineValidationToken);
+        localStorage.removeItem(this._uploadSessionId);
     }
 
     isLoggedIn(): boolean {

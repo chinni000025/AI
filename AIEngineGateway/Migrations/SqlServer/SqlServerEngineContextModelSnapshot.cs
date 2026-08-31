@@ -179,6 +179,30 @@ namespace AIEngineGateway.Migrations.SqlServer
                     b.ToTable("EngineConnections");
                 });
 
+            modelBuilder.Entity("AIEngineConnectivity.Entities.EngineDriveMetering", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("ActiveBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ReserveBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("TrashBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EngineDriveMeterings");
+                });
+
             modelBuilder.Entity("AIEngineConnectivity.Entities.EngineFile", b =>
                 {
                     b.Property<Guid>("Id")
@@ -234,20 +258,27 @@ namespace AIEngineGateway.Migrations.SqlServer
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("ExpiresAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("FileId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("FileSize")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("SessionId")
-                        .IsRequired()
+                    b.Property<string>("Location")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ParentFolderId")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -369,6 +400,28 @@ namespace AIEngineGateway.Migrations.SqlServer
                     b.HasIndex("FileId");
 
                     b.ToTable("FileAccessors");
+                });
+
+            modelBuilder.Entity("AIEngineConnectivity.Entities.FileChunks", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("Chunk")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<long>("ChunkIndex")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("SessionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SessionId");
+
+                    b.ToTable("FileChunks");
                 });
 
             modelBuilder.Entity("AIEngineConnectivity.Entities.FileContent", b =>
@@ -914,6 +967,17 @@ namespace AIEngineGateway.Migrations.SqlServer
                     b.Navigation("EngineFile");
                 });
 
+            modelBuilder.Entity("AIEngineConnectivity.Entities.FileChunks", b =>
+                {
+                    b.HasOne("AIEngineConnectivity.Entities.EngineFileUploadingSession", "EngineFileUploadingSession")
+                        .WithMany("FileChunks")
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("EngineFileUploadingSession");
+                });
+
             modelBuilder.Entity("AIEngineConnectivity.Entities.FileContext", b =>
                 {
                     b.HasOne("AIEngineConnectivity.Entities.EngineFile", "EngineFile")
@@ -1096,6 +1160,11 @@ namespace AIEngineGateway.Migrations.SqlServer
                     b.Navigation("FileAccessors");
 
                     b.Navigation("FileContexts");
+                });
+
+            modelBuilder.Entity("AIEngineConnectivity.Entities.EngineFileUploadingSession", b =>
+                {
+                    b.Navigation("FileChunks");
                 });
 
             modelBuilder.Entity("AIEngineConnectivity.Entities.EngineRole", b =>

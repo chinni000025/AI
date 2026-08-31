@@ -17,7 +17,6 @@ export class FileUploadService {
       const startTime = performance.now();
       const formData = new FormData();
       formData.append('chunk', Data.chunk);
-      formData.append('chunkIndex', Data.index.toString());
       formData.append('sessionId', Data.sessionId);
       return this.engineCore.post(`${EngineControllers.EngineDriveController}/uploadChunks`, formData)
         .pipe(map((response) => {
