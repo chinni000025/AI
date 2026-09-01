@@ -28,3 +28,15 @@ export interface RefreshTokenResponse {
     engineValidation: string;
   };
 }
+
+export interface UploadFileTask {
+  id: string;
+  fileName: string;
+  fileSize: number;
+  formattedSize: string;
+  uploadedBytes: number;
+  progress: number;
+  speed: string;
+  status: 'uploading' | 'completed' | 'failed' | 'paused';
+  extension: string;
+}
