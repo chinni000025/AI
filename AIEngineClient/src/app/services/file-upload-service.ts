@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { defer, map, Observable } from 'rxjs';
-import { ChunkInitalize, ChunkResult, ChunkUpload, EngineControllers, InitiateUploadRequest } from './engine-route-constants';
+import { ChunkInitalize, ChunkResult, ChunkUpload, EngineConstants, EngineControllers, InitiateUploadRequest } from './engine-route-constants';
 import { form } from '@angular/forms/signals';
 import { EngineCore } from './engine-core';
 @Injectable({
@@ -8,6 +8,7 @@ import { EngineCore } from './engine-core';
 })
 export class FileUploadService {
   constructor(private engineCore: EngineCore) { }
+  private readonly _uploadSessionId = EngineConstants.UploadingSessionId;
   initializeUpload(initiateUpload: InitiateUploadRequest): Observable<ChunkInitalize> {
     return this.engineCore.post(`${EngineControllers.EngineDriveController}/initiate-upload`, initiateUpload);
   }
@@ -31,5 +32,30 @@ export class FileUploadService {
 
   finalize(sessionId: any) {
     return this.engineCore.post(`${EngineControllers.EngineDriveController}/finalize`, { sessionId });
+  }
+
+  private getUploadSessions(): Record<string, string> {
+    var raw = localStorage.getItem(this._uploadSessionId);
+    return raw ? JSON.parse(raw) : {};
+  }
+
+  private saveUploadSessions(map: Record<string, string>) {
+    localStorage.setItem(this._uploadSessionId, JSON.stringify(map));
+  }
+
+  setUploadSessionId(fileKey: string, sessionId: string) {
+    var map = this.getUploadSessions();
+    map[fileKey] = sessionId;
+    this.saveUploadSessions(map);
+  }
+
+  getUploadSessionId(fileKey: string): string | null {
+    return this.getUploadSessions()[fileKey] ?? null;
+  }
+
+  removeUploadSessionId(fileKey: string) {
+    var map = this.getUploadSessions();
+    delete map[fileKey];
+    this.saveUploadSessions(map);
   }
 }

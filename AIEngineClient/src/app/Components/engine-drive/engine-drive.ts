@@ -2,11 +2,10 @@ import { Component, EventEmitter, OnInit, OnDestroy, Output, ElementRef, ViewChi
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EngineDriveSvg } from '../svgs/engine-drive-svg/engine-drive-svg';
-import { concatMap, EMPTY, from, map, Observable, retry } from 'rxjs';
+import { concatMap, defaultIfEmpty, EMPTY, from, map, mergeMap, Observable, retry, tap } from 'rxjs';
 import { form } from '@angular/forms/signals';
 import { FileUploadService } from '../../services/file-upload-service';
 import { ChunkInitalize, ChunkUpload, InitiateUploadRequest } from '../../services/engine-route-constants';
-import { TokenService } from '../../services/token-service';
 import { SnackbarService } from '../../services/snackbar-service';
 
 export type ItemCategory = 'folder' | 'model' | 'dataset' | 'document' | 'media' | 'code' | 'archive' | 'other';
@@ -119,13 +118,13 @@ export class EngineDrive implements OnInit, OnDestroy {
   private readonly MIN_CHUNK_SIZE = 64 * 1024; //64kb
   private readonly MAX_CHUNK_SIZE = 8 * 1024 * 1024; // 8mb
   private readonly TARGET_DURATION_MS = 2000;
+  private readonly MaxParallelUploads = 3;
 
   // Full item dataset
   items: DriveItem[] = [];
 
   constructor(private cdr: ChangeDetectorRef,
     private uploadService: FileUploadService,
-    private tokenService: TokenService,
     private snack: SnackbarService) { }
 
   ngOnInit(): void {
@@ -421,7 +420,7 @@ export class EngineDrive implements OnInit, OnDestroy {
     if (!input.files || input.files.length === 0) return;
     const filesArray = Array.from(input.files);
     from(filesArray).pipe(
-      concatMap((file: File) => this.uploadPipeLine(file))
+      mergeMap((file: File) => this.uploadPipeLine(file), this.MaxParallelUploads)
     ).subscribe({
       next: (fileName) => {
         this.snack.showSuccessMessage("File uploaded SuccessFully " + fileName);
@@ -441,14 +440,15 @@ export class EngineDrive implements OnInit, OnDestroy {
       fileName: file.name,
       fileSize: file.size,
       contentType: file.type,
-      sessionId: this.tokenService.ensureSessionId()
     };
-
+    var fileKey = `${file.name}::${file.size}::${file.lastModified}`;
     return this.uploadService.initializeUpload(initiateUploadRequest).pipe(
       concatMap((res: ChunkInitalize) => {
-        this.tokenService.setUploadSessionId(res.uploadSessionId);
+        this.uploadService.setUploadSessionId(fileKey, res.uploadSessionId);
         return this.uploadChunksAdaptive(file, res.uploadSessionId, 0, 0, this.MIN_CHUNK_SIZE).pipe(
+          defaultIfEmpty(undefined),
           concatMap(() => this.uploadService.finalize(res.uploadSessionId)),
+          tap(() => this.uploadService.removeUploadSessionId(fileKey)),
           map(() => file.name)
         );
       })

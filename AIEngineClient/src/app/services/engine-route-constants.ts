@@ -158,7 +158,6 @@ export interface ChunkInitalize {
 }
 
 export interface InitiateUploadRequest {
-    sessionId: string,
     fileName: string,
     fileSize: number,
     contentType: string,
