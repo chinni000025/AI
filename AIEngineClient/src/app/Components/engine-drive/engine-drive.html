@@ -125,16 +125,6 @@
           </svg>
           <span>Upload Files</span>
         </button>
-
-        <button type="button" class="ed-btn ed-btn--ghost ed-btn--demo" (click)="simulateQuickUpload()"
-          title="Simulate multi-file upload progress">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-            stroke-linejoin="round">
-            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-          </svg>
-          <span>Demo Upload</span>
-        </button>
-
         <!-- Hidden input for file picking -->
         <input #fileInput type="file" multiple (change)="FileInput($event)" style="display: none" />
       </div>
@@ -208,34 +198,6 @@
         </div>
       </div>
     </div>
-
-    <!-- CATEGORY FILTER TABS -->
-    <nav class="ed-category-tabs" aria-label="Filter categories">
-      <button type="button" class="ed-cat-tab" [class.ed-cat-tab--active]="activeCategoryFilter === 'all'"
-        (click)="activeCategoryFilter = 'all'">
-        All
-      </button>
-      <button type="button" class="ed-cat-tab" [class.ed-cat-tab--active]="activeCategoryFilter === 'folder'"
-        (click)="activeCategoryFilter = 'folder'">
-        Folders
-      </button>
-      <button type="button" class="ed-cat-tab" [class.ed-cat-tab--active]="activeCategoryFilter === 'model'"
-        (click)="activeCategoryFilter = 'model'">
-        AI Models
-      </button>
-      <button type="button" class="ed-cat-tab" [class.ed-cat-tab--active]="activeCategoryFilter === 'dataset'"
-        (click)="activeCategoryFilter = 'dataset'">
-        Datasets
-      </button>
-      <button type="button" class="ed-cat-tab" [class.ed-cat-tab--active]="activeCategoryFilter === 'document'"
-        (click)="activeCategoryFilter = 'document'">
-        Documents & RAG
-      </button>
-      <button type="button" class="ed-cat-tab" [class.ed-cat-tab--active]="activeCategoryFilter === 'media'"
-        (click)="activeCategoryFilter = 'media'">
-        Media
-      </button>
-    </nav>
 
     <!-- BREADCRUMB NAVIGATION TRAIL -->
     <div class="ed-breadcrumbs-bar">
