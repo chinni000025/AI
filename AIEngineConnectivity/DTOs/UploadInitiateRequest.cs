@@ -8,8 +8,6 @@ namespace AIEngineConnectivity.DTOs
 {
     public class UploadInitiateRequest
     {
-        [JsonPropertyName("sessionId")]
-        public string SessionId { get; set; }
         [JsonPropertyName("fileName")]
         public string FileName { get; set; }
         [JsonPropertyName("fileSize")]

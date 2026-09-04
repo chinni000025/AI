@@ -145,7 +145,8 @@ export const ExcludeEncryptionEndPoints: string[] = [
 
 export interface ChunkUpload {
     chunk: Blob,
-    sessionId: string
+    sessionId: string,
+    chunkIndex: number
 }
 
 export interface ChunkResult {

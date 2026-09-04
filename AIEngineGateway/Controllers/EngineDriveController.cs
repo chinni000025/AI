@@ -25,10 +25,18 @@ namespace AIEngineGateway.Controllers
         }
 
         [HttpPost("uploadChunks")]
-        public async Task<ActionResult> UploadChunks([FromForm] IFormFile chunk, [FromForm] Guid sessionId, CancellationToken cancellationToken)
+        public async Task<ActionResult> UploadChunks([FromForm] IFormFile chunk, [FromForm] long chunkIndex, [FromForm] Guid sessionId, CancellationToken cancellationToken)
         {
-            await _engineDriveService.UploadChunks(chunk, sessionId, cancellationToken);
+            if (chunk is null || chunk.Length < 0 || chunkIndex < 0 || sessionId == Guid.Empty)
+                return BadRequest();
+            await _engineDriveService.UploadChunks(chunk, chunkIndex, sessionId, cancellationToken);
             return Ok();
+        }
+
+        [HttpPost("finalize")]
+        public async Task<ActionResult> FinalizeUpload([FromBody] Guid sessionId, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -12,6 +12,7 @@ namespace AIEngineConnectivity.Repositories
         IDataProtectionKeyRepository DataProtectionKeyRepository { get; }
         IEngineRepoBase<TEntity> GetEngineRepo<TEntity>() where TEntity : class;
         IEngineNotificationRepository EngineNotificationRepository { get; }
+        IEngineDriveRepository EngineDriveRepository { get; }
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

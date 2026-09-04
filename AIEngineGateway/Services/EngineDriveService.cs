@@ -30,38 +30,46 @@ namespace AIEngineGateway.Services
             var now = DateTime.UtcNow;
             var uploadSessionId = Guid.NewGuid();
 
-            //EngineFileUploadingSession engineFileUploadingSession = new EngineFileUploadingSession
-            //{
-            //    Id = uploadSessionId,
-            //    SessionId = request.SessionId,
-            //    FileName = request.FileName,
-            //    FileInfo = request.ContentType,
-            //    UserId = _userService.GetCurrentUser?.UserId,
-            //    FileSize = request.FileSize,
-            //    UploadedBytes = 0,
-            //    UploadStatus = UploadStatus.Initated,
-            //    CreatedAt = now,
-            //    UpdatedAt = now,
-            //    ExpiresAt = now + _engineUploadFileTTL,
-            //};
-            //await _repositoryWrapper.GetEngineRepo<EngineFileUploadingSession>().AddAsync(engineFileUploadingSession, cancellationToken);
-            //await _repositoryWrapper.SaveChangesAsync(cancellationToken);
-            //return uploadSessionId;
-            return Guid.NewGuid();
+            EngineFileUploadingSession engineFileUploadingSession = new EngineFileUploadingSession
+            {
+                Id = uploadSessionId,
+                UserId = _userService.GetCurrentUser?.UserId,
+                FileName = request.FileName,
+                ContentType = request.ContentType,
+                FileSize = request.FileSize,
+                UploadedBytes = 0,
+                UploadStatus = UploadStatus.Initated,
+                CreatedAt = now,
+                UpdatedAt = now,
+                ExpiresAt = now + _engineUploadFileTTL,
+            };
+            await _repositoryWrapper.GetEngineRepo<EngineFileUploadingSession>().AddAsync(engineFileUploadingSession, cancellationToken);
+            await _repositoryWrapper.SaveChangesAsync(cancellationToken);
+            return uploadSessionId;
         }
 
-        public async Task UploadChunks(IFormFile formFile, Guid sessionId, CancellationToken cancellationToken)
+        public async Task UploadChunks(IFormFile formFile, long chunkIndex, Guid sessionId, CancellationToken cancellationToken)
         {
-            var uploadingSession = await _repositoryWrapper.GetEngineRepo<EngineFileUploadingSession>().GetByIdAsync(sessionId, cancellationToken);
-            if (uploadingSession is null)
-            {
-                _logger.LogError($"No uploding session found  for Session Id  {sessionId}");
-                throw new Exception("No Uploading Session Found ");
-            }
 
-            uploadingSession.UploadedBytes += formFile.Length;
-            uploadingSession.UpdatedAt = DateTime.UtcNow;
-            await _repositoryWrapper.SaveChangesAsync(cancellationToken);
+            await using var memoryStream = new MemoryStream();
+            await formFile.CopyToAsync(memoryStream, cancellationToken);
+            var chunkBytes = memoryStream.ToArray();
+            await _repositoryWrapper.EngineDriveRepository.StoreChunkAtomicAsync(sessionId, chunkIndex,
+                chunkBytes, formFile.Length, cancellationToken);
+        }
+
+        public async Task FinalizeUploadAsync(Guid sessionId, CancellationToken cancellationToken)
+        {
+            var chunks = await _repositoryWrapper.EngineDriveRepository.GetFileChunksAsync(sessionId, cancellationToken);
+            if (chunks is null || !chunks.Any())
+            {
+                _logger.LogError($"No Chunks found for the sessionId {sessionId}");
+                throw new Exception("No chunks found!");
+            }
+            foreach (var chunk in chunks)
+            {
+
+            }
         }
     }
 }

@@ -267,6 +267,13 @@ namespace AIEngineGateway.EngineInfrastructure
                 .HasOne(c => c.EngineFileUploadingSession)
                 .WithMany(u => u.FileChunks)
                 .HasForeignKey(u => u.SessionId);
+
+            modelBuilder.Entity<FileChunks>()
+                .HasIndex(c => new
+                {
+                    c.SessionId,
+                    c.ChunkIndex
+                }).IsUnique();
         }
     }
 }

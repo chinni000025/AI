@@ -243,9 +243,6 @@ export class EngineDrive implements OnInit, OnDestroy {
     ).subscribe({
       error: (err) => {
         this.snack.showErrorMessage("Failed to upload");
-      },
-      complete: () => {
-        this.snack.showSuccessMessage("All File uploaded");
       }
     });
   }
@@ -270,7 +267,7 @@ export class EngineDrive implements OnInit, OnDestroy {
           defaultIfEmpty(undefined),
           concatMap(() => this.uploadService.finalize(res.uploadSessionId)),
           tap(() => this.uploadService.removeUploadSessionId(fileKey)),
-          map(() => file.name)
+          map(() => file.name),
         );
       }),
       takeUntil(cancel$),
@@ -301,9 +298,19 @@ export class EngineDrive implements OnInit, OnDestroy {
     var data: ChunkUpload = {
       sessionId: uploadSessionId,
       chunk: chunkBlob,
+      chunkIndex: chunkIndex
     }
+
     return this.uploadService.uploadChunk(data).pipe(
       retry(2),
+      tap((result: any) => {
+        task.uploadedBytes = endByte;
+        task.progress = Math.min(100, Math.round((endByte / file.size) * 100));
+        const bytesThisChunk = endByte - currentByteOffset;
+        const seconds = Math.max(result.durationMs, 1) / 1000;
+        task.speed = this.formatBytes(bytesThisChunk / seconds) + '/s';
+        this.cdr.markForCheck();
+      }),
       concatMap((result: any) => {
         const nextChunkSize = this.calculateNextChunkSize(currentChunkSize, result.durationMs);
         return this.uploadChunksAdaptive(file, uploadSessionId, endByte, chunkIndex + 1, nextChunkSize, task);
@@ -343,6 +350,9 @@ export class EngineDrive implements OnInit, OnDestroy {
   cancelUpload(taskId: string): void {
     const task = this.uploads.find(u => u.id === taskId);
     if (task) {
+      const cancel$ = this.uploadCancelSubjects.get(taskId);
+      cancel$?.next();
+      cancel$?.complete();
       task.status = 'failed';
       this.uploads = this.uploads.filter(u => u.id !== taskId);
       this.cdr.markForCheck();
