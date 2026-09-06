@@ -55,7 +55,7 @@ namespace AIEngineGateway.Services
             await formFile.CopyToAsync(memoryStream, cancellationToken);
             var chunkBytes = memoryStream.ToArray();
             await _repositoryWrapper.EngineDriveRepository.StoreChunkAtomicAsync(sessionId, chunkIndex,
-                chunkBytes, formFile.Length, cancellationToken);
+                formFile.OpenReadStream(), formFile.Length, cancellationToken);
         }
 
         public async Task FinalizeUploadAsync(Guid sessionId, CancellationToken cancellationToken)

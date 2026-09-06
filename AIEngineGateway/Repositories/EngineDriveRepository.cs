@@ -2,7 +2,11 @@
 using AIEngineConnectivity.Entities;
 using AIEngineConnectivity.Repositories;
 using AIEngineGateway.EngineInfrastructure;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
+using Npgsql;
+using System.Data;
 
 namespace AIEngineGateway.Repositories
 {
@@ -26,7 +30,7 @@ namespace AIEngineGateway.Repositories
         }
 
         public async Task StoreChunkAtomicAsync(Guid sessionId, long chunkIndex,
-            byte[] chunkBytes, long chunkSize, CancellationToken cancellationToken)
+            Stream chunkStream, long chunkSize, CancellationToken cancellationToken)
         {
             var strategy = _engineContext.Database.CreateExecutionStrategy();
             await strategy.ExecuteAsync(async () =>
@@ -67,25 +71,27 @@ namespace AIEngineGateway.Repositories
                             throw new Exception("Chunk exceeds the remaining file size ");
                         }
 
-                        FileChunks fileChunks = new FileChunks
+                        if (_engineContext.Database.IsNpgsql())
                         {
-                            SessionId = sessionId,
-                            Chunk = chunkBytes,
-                            ChunkIndex = chunkIndex,
-                        };
-
-                        await _engineContext.FileChunks.AddAsync(fileChunks, cancellationToken);
+                            await PostgresOidStream(sessionId, chunkIndex, chunkStream, cancellationToken);
+                        }
+                        else if (_engineContext.Database.IsSqlServer())
+                        {
+                            await SqlServerStream(sessionId, chunkIndex, chunkStream, transaction, cancellationToken);
+                        }
 
                         var effectedRows = await _engineContext.EngineFileUploadingSessions
                             .Where(u => u.Id == sessionId)
-                        .ExecuteUpdateAsync(setters => setters
-                        .SetProperty(x => x.UploadStatus, UploadStatus.Uploading)
-                        .SetProperty(x => x.UpdatedAt, DateTime.UtcNow)
-                        .SetProperty(x => x.UploadedBytes, x => x.UploadedBytes + chunkSize));
+                            .ExecuteUpdateAsync(setters => setters
+                            .SetProperty(x => x.UploadStatus, UploadStatus.Uploading)
+                            .SetProperty(x => x.UpdatedAt, DateTime.UtcNow)
+                            .SetProperty(x => x.UploadedBytes, x => x.UploadedBytes + chunkSize));
+
                         if (effectedRows != 1)
                         {
                             throw new Exception("Upload session could not be updated.");
                         }
+
                         await _engineContext.SaveChangesAsync(cancellationToken);
                         await transaction.CommitAsync(cancellationToken);
                     }
@@ -100,6 +106,59 @@ namespace AIEngineGateway.Repositories
                     await transaction.DisposeAsync();
                 }
             });
+        }
+
+        private async Task PostgresOidStream(Guid sessionId, long chunkIndex, Stream chunkStream, CancellationToken cancellationToken)
+        {
+            var connection = (NpgsqlConnection)_engineContext.Database.GetDbConnection();
+            if (connection.State != ConnectionState.Open)
+            {
+                await connection.OpenAsync(cancellationToken);
+            }
+            var manager = new NpgsqlLargeObjectManager(connection);
+            uint oid = await manager.CreateAsync(0, cancellationToken);
+            await using (var loStream = await manager.OpenReadWriteAsync(oid, cancellationToken))
+            {
+                await chunkStream.CopyToAsync(loStream, cancellationToken);
+            }
+
+            FileChunks fileChunks = new FileChunks
+            {
+                SessionId = sessionId,
+                ChunkIndex = chunkIndex,
+                ChunkOid = oid,
+                ChunkData = null
+            };
+            await _engineContext.FileChunks.AddAsync(fileChunks, cancellationToken);
+            await _engineContext.SaveChangesAsync(cancellationToken);
+        }
+
+        private async Task SqlServerStream(Guid sessionId, long chunkIndex, Stream chunkStream, IDbContextTransaction transaction,
+            CancellationToken cancellationToken)
+        {
+            var connection = (SqlConnection)_engineContext.Database.GetDbConnection();
+            if (connection.State != ConnectionState.Open)
+            {
+                await connection.OpenAsync(cancellationToken);
+            }
+
+            var dbTransaction = (SqlTransaction)transaction.GetDbTransaction();
+            var chunkId = Guid.NewGuid();
+            const string sql = @"
+                    INSERT INTO [FileChunks] ([Id], [SessionId], [ChunkIndex], [ChunkOid], [ChunkData])
+                    VALUES (@Id, @SessionId, @ChunkIndex, NULL, @ChunkData);";
+
+            await using var cmd = new SqlCommand(sql, connection, dbTransaction);
+            cmd.Parameters.Add(new SqlParameter("@Id", SqlDbType.UniqueIdentifier) { Value = chunkId });
+            cmd.Parameters.Add(new SqlParameter("@SessionId", SqlDbType.UniqueIdentifier) { Value = sessionId });
+            cmd.Parameters.Add(new SqlParameter("@ChunkIndex", SqlDbType.BigInt) { Value = chunkIndex });
+            var dataParam = new SqlParameter("@ChunkData", SqlDbType.VarBinary, -1)
+            {
+                Value = chunkStream
+            };
+            cmd.Parameters.Add(dataParam);
+
+            await cmd.ExecuteNonQueryAsync(cancellationToken);
         }
     }
 }

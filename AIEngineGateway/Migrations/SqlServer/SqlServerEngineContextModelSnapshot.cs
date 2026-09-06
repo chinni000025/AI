@@ -408,10 +408,13 @@ namespace AIEngineGateway.Migrations.SqlServer
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<byte[]>("Chunk")
+                    b.Property<byte[]>("ChunkData")
                         .HasColumnType("varbinary(max)");
 
                     b.Property<long>("ChunkIndex")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("ChunkOid")
                         .HasColumnType("bigint");
 
                     b.Property<Guid>("SessionId")
@@ -419,7 +422,8 @@ namespace AIEngineGateway.Migrations.SqlServer
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SessionId");
+                    b.HasIndex("SessionId", "ChunkIndex")
+                        .IsUnique();
 
                     b.ToTable("FileChunks");
                 });
@@ -430,8 +434,11 @@ namespace AIEngineGateway.Migrations.SqlServer
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<byte[]>("Content")
+                    b.Property<byte[]>("ContentData")
                         .HasColumnType("varbinary(max)");
+
+                    b.Property<long?>("ContentOid")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 

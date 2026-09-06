@@ -8,7 +8,7 @@ namespace AIEngineConnectivity.Repositories
     public interface IEngineDriveRepository
     {
         public Task<List<FileChunks>?> GetFileChunksAsync(Guid sesssionId, CancellationToken cancellationToken);
-        public Task StoreChunkAtomicAsync(Guid sessionId, long chunkIndex, byte[] chunkBytes, long chunkSize,
+        public Task StoreChunkAtomicAsync(Guid sessionId, long chunkIndex, Stream chunkStream, long chunkSize,
             CancellationToken cancellationToken);
     }
 }
