@@ -265,7 +265,7 @@ export class EngineDrive implements OnInit, OnDestroy {
 
         return this.uploadChunksAdaptive(file, res.uploadSessionId, 0, 0, this.MIN_CHUNK_SIZE, task).pipe(
           defaultIfEmpty(undefined),
-          concatMap(() => this.uploadService.finalize(res.uploadSessionId)),
+          concatMap(() => this.uploadService.finalize(this.uploadService.getUploadSessionId(fileKey))),
           tap(() => this.uploadService.removeUploadSessionId(fileKey)),
           map(() => file.name),
         );

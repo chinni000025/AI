@@ -50,25 +50,21 @@ namespace AIEngineGateway.Services
 
         public async Task UploadChunks(IFormFile formFile, long chunkIndex, Guid sessionId, CancellationToken cancellationToken)
         {
-
-            await using var memoryStream = new MemoryStream();
-            await formFile.CopyToAsync(memoryStream, cancellationToken);
-            var chunkBytes = memoryStream.ToArray();
+            await using var chunkStream = formFile.OpenReadStream();    
             await _repositoryWrapper.EngineDriveRepository.StoreChunkAtomicAsync(sessionId, chunkIndex,
-                formFile.OpenReadStream(), formFile.Length, cancellationToken);
+                chunkStream, formFile.Length, cancellationToken);
         }
 
         public async Task FinalizeUploadAsync(Guid sessionId, CancellationToken cancellationToken)
         {
-            var chunks = await _repositoryWrapper.EngineDriveRepository.GetFileChunksAsync(sessionId, cancellationToken);
-            if (chunks is null || !chunks.Any())
+            try
             {
-                _logger.LogError($"No Chunks found for the sessionId {sessionId}");
-                throw new Exception("No chunks found!");
+                await _repositoryWrapper.EngineDriveRepository.FinalizeUploadAtomicAsync(sessionId, _userService, cancellationToken);
             }
-            foreach (var chunk in chunks)
+            catch(Exception ex)
             {
-
+                _logger.LogError(ex.Message);
+                throw new Exception("Error Occured while saving the file");
             }
         }
     }

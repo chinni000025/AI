@@ -32,7 +32,7 @@ export class FileUploadService {
   }
 
   finalize(sessionId: any) {
-    return this.engineCore.post(`${EngineControllers.EngineDriveController}/finalize`, { sessionId });
+    return this.engineCore.post(`${EngineControllers.EngineDriveController}/finalize?sessionId=${sessionId}`, null);
   }
 
   private getUploadSessions(): Record<string, string> {

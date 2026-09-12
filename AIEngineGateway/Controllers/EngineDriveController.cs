@@ -34,9 +34,17 @@ namespace AIEngineGateway.Controllers
         }
 
         [HttpPost("finalize")]
-        public async Task<ActionResult> FinalizeUpload([FromBody] Guid sessionId, CancellationToken cancellationToken)
+        public async Task<ActionResult> FinalizeUpload([FromQuery] Guid sessionId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            try
+            {
+                await _engineDriveService.FinalizeUploadAsync(sessionId, cancellationToken);
+                return Ok();
+            }
+            catch
+            {
+                return BadRequest("Error Occured While saving the File");
+            }
         }
     }
 }

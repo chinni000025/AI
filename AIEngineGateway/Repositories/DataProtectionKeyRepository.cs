@@ -20,11 +20,18 @@ namespace AIEngineGateway.Repositories
         {
             if (_EngineConfig.IsEngineConfig())
             {
-                var dataProtectionKey = await (from d in _EngineContext.DataProtectionKeys
-                                               where d.ProtectionType.Equals(name)
-                                               select d).AsNoTracking()
+                try
+                {
+                    var dataProtectionKey = await (from d in _EngineContext.DataProtectionKeys
+                                                   where d.ProtectionType.Equals(name)
+                                                   select d).AsNoTracking()
                                                .FirstOrDefaultAsync(cancellationToken);
-                return dataProtectionKey;
+                    return dataProtectionKey;
+                }
+                catch
+                {
+                    return null;
+                }
             }
             return null;
         }

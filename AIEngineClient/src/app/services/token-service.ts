@@ -18,7 +18,7 @@ export class TokenService {
     }
 
     setEngineValidationToken(engineValiationToken: any) {
-        localStorage.setItem(this._engineValidationToken, engineValiationToken);//Engine Validation Token.
+        console.log(engineValiationToken);
     }
 
     getEngineValidationToken(): any {
