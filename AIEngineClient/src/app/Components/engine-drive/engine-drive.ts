@@ -50,8 +50,6 @@ export class EngineDrive implements OnInit, OnDestroy {
   // Navigation
   currentFolderId: string | null = null;
 
-
-
   // Create folder modal state
   isCreateFolderModalOpen = false;
   newFolderName = '';
@@ -61,7 +59,6 @@ export class EngineDrive implements OnInit, OnDestroy {
 
   // Delete modal state
   isDeleteModalOpen = false;
-
 
   // Upload progress dock
   uploads: UploadFileTask[] = [];
@@ -75,14 +72,12 @@ export class EngineDrive implements OnInit, OnDestroy {
   toastMessage: string | null = null;
   toastType: 'success' | 'info' | 'warning' = 'info';
 
-
   private toastTimeout: any = null;
   private readonly MIN_CHUNK_SIZE = 64 * 1024; //64kb
   private readonly MAX_CHUNK_SIZE = 8 * 1024 * 1024; // 8mb
   private readonly TARGET_DURATION_MS = 2000;
   private readonly MaxParallelUploads = 3;
   private uploadCancelSubjects = new Map<string, Subject<void>>();
-
 
   constructor(private cdr: ChangeDetectorRef,
     private uploadService: FileUploadService,

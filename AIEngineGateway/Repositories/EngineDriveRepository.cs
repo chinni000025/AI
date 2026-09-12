@@ -339,5 +339,22 @@ namespace AIEngineGateway.Repositories
             cmd.CommandTimeout = 300;
             await cmd.ExecuteNonQueryAsync(cancellationToken);
         }
+
+        public async Task<object> GetEngineFilesAsync(int userId,CancellationToken cancellationToken)
+        {
+            var query = await (from f in _engineContext.EngineFiles
+                               where f.CreatedBy == userId
+                               where !f.IsRecyled
+                               select new
+                               {
+                                   f.FileName,
+                                   f.ContentType,
+                                   f.CreatedAt,
+                                   f.ModifiedBy,
+                                   f.Location,
+                                   f.ParentId,
+                               }).ToListAsync(cancellationToken);
+            return query;
+        }
     }
 }

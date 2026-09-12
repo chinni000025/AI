@@ -67,5 +67,10 @@ namespace AIEngineGateway.Services
                 throw new Exception("Error Occured while saving the file");
             }
         }
+
+        public async Task GetAvailableFilesAsync(CancellationToken cancellationToken)
+        {
+
+        }
     }
 }

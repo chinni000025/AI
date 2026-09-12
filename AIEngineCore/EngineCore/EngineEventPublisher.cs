@@ -18,6 +18,7 @@ namespace AIEngineCore.EngineCore
             _EngineBus = engineBus;
             _engineLatch = engineLatch;
         }
+
         public async Task PublishEvent(EngineNotificationRequest @event, Priority priority = Priority.None, CancellationToken cancellationToken = default)
         {
             var EventId = Guid.NewGuid();
