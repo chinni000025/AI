@@ -36,6 +36,17 @@ namespace AIEngineUnitTest.Controller
             result.Should().BeOfType<OkResult>();
         }
 
+        [Fact]
+        public async Task ConnectionController_SaveGoogleConnection_WithInvalidDetails()
+        {
+            SetUpMockHttpContext(scheme: "https", host: "api.aiengine.com");
+            string clientSecret = "client-secret-xyz";
+            var cancellationToken = CancellationToken.None;
+            var result = await _Sut.SaveGoogleConnection(null, clientSecret, cancellationToken);
+            result.Should().BeOfType<OkResult>();
+
+        }
+
         private void SetUpMockHttpContext(string scheme = "https", string host = "localhost:5001")
         {
             var httpContext = new DefaultHttpContext();
