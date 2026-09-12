@@ -3,15 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EngineDriveSvg } from '../svgs/engine-drive-svg/engine-drive-svg';
 import {
-  catchError,
-  concatMap,
-  defaultIfEmpty,
-  EMPTY,
-  finalize,
-  from,
-  map,
-  mergeMap,
-  Observable,
+  catchError, concatMap, defaultIfEmpty, EMPTY, finalize, from, map, mergeMap, Observable,
   retry,
   Subject,
   takeUntil,
