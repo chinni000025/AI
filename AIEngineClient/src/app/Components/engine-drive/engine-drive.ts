@@ -108,10 +108,6 @@ export class EngineDrive implements OnInit, OnDestroy {
     }
   }
 
-  private updateFolderCounts(): void {
-
-  }
-
   get totalUsedBytes(): number {
     return 0;
   }
@@ -266,7 +262,11 @@ export class EngineDrive implements OnInit, OnDestroy {
         return this.uploadChunksAdaptive(file, res.uploadSessionId, 0, 0, this.MIN_CHUNK_SIZE, task).pipe(
           defaultIfEmpty(undefined),
           concatMap(() => this.uploadService.finalize(this.uploadService.getUploadSessionId(fileKey))),
-          tap(() => this.uploadService.removeUploadSessionId(fileKey)),
+          tap(() => {
+            this.uploadService.removeUploadSessionId(fileKey);
+            task.status = 'completed';
+            this.cdr.markForCheck();
+          }),
           map(() => file.name),
         );
       }),
@@ -328,21 +328,6 @@ export class EngineDrive implements OnInit, OnDestroy {
     return Math.floor(adjustedSize / 1024) * 1024;
   }
 
-  simulateQuickUpload(): void {
-    const sampleFiles = [
-      { name: 'deepseek_v3_moe_layers.safetensors', size: 1.8 * 1024 * 1024 * 1024, type: 'model' },
-      { name: 'enterprise_rag_knowledge_v3.pdf', size: 6.4 * 1024 * 1024, type: 'document' },
-      { name: 'benchmark_token_throughput.csv', size: 28.5 * 1024 * 1024, type: 'dataset' }
-    ];
-    this.startUploadSimulation(sampleFiles);
-  }
-
-  startUploadSimulation(files: { name: string; size: number; type: string }[]): void {
-  }
-
-  private ensureUploadSimulationRunning(): void {
-  }
-
   private handleUploadCompleted(upload: UploadFileTask): void {
 
   }
@@ -400,30 +385,6 @@ export class EngineDrive implements OnInit, OnDestroy {
     this.isDragOver = false;
   }
 
-  onDrop(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.isDragOver = false;
-
-    if (event.dataTransfer && event.dataTransfer.files.length > 0) {
-      const files = Array.from(event.dataTransfer.files).map(f => ({
-        name: f.name,
-        size: f.size || 1024 * 1024 * 4,
-        type: f.type
-      }));
-      this.startUploadSimulation(files);
-    }
-  }
-
-  openPreview(event?: MouseEvent): void {
-
-  }
-
-  closePreview(): void {
-
-  }
-
-
   // ----------------------------------------------------
   // TOAST NOTIFICATION
   // ----------------------------------------------------
@@ -440,9 +401,6 @@ export class EngineDrive implements OnInit, OnDestroy {
     this.cdr.markForCheck();
   }
 
-  // ----------------------------------------------------
-  // HELPERS & FORMATTING
-  // ----------------------------------------------------
   formatBytes(bytes: number, decimals = 1): string {
     if (bytes === 0) return '0 B';
     const k = 1024;
@@ -455,44 +413,6 @@ export class EngineDrive implements OnInit, OnDestroy {
   extractExtension(fileName: string): string {
     const parts = fileName.split('.');
     return parts.length > 1 ? parts.pop()!.toLowerCase() : '';
-  }
-
-  detectCategory(ext: string): ItemCategory {
-    const models = ['onnx', 'safetensors', 'gguf', 'pt', 'pth', 'bin', 'ckpt'];
-    const datasets = ['csv', 'parquet', 'jsonl', 'tsv', 'arrow'];
-    const docs = ['pdf', 'docx', 'doc', 'txt', 'md', 'rtf'];
-    const media = ['png', 'jpg', 'jpeg', 'webp', 'svg', 'mp4', 'mp3', 'wav'];
-    const code = ['json', 'py', 'ts', 'js', 'html', 'css', 'yaml', 'yml', 'sh'];
-    const archives = ['zip', 'tar', 'gz', '7z', 'rar'];
-
-    if (models.includes(ext)) return 'model';
-    if (datasets.includes(ext)) return 'dataset';
-    if (docs.includes(ext)) return 'document';
-    if (media.includes(ext)) return 'media';
-    if (code.includes(ext)) return 'code';
-    if (archives.includes(ext)) return 'archive';
-    return 'other';
-  }
-
-  getFileBadgeClass(category: ItemCategory): string {
-    switch (category) {
-      case 'model': return 'ed-badge--model';
-      case 'dataset': return 'ed-badge--dataset';
-      case 'document': return 'ed-badge--document';
-      case 'media': return 'ed-badge--media';
-      case 'code': return 'ed-badge--code';
-      case 'archive': return 'ed-badge--archive';
-      default: return 'ed-badge--default';
-    }
-  }
-
-  formatDate(date: Date): string {
-    const now = new Date();
-    const isToday = date.toDateString() === now.toDateString();
-    if (isToday) {
-      return 'Today at ' + date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-    }
-    return date.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
   }
 
   toggleMaximize(): void {
