@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { defer, map, Observable } from 'rxjs';
 import { ChunkInitalize, ChunkResult, ChunkUpload, EngineConstants, EngineControllers, InitiateUploadRequest } from './engine-route-constants';
-import { form } from '@angular/forms/signals';
 import { EngineCore } from './engine-core';
 @Injectable({
   providedIn: 'root',
@@ -9,6 +8,7 @@ import { EngineCore } from './engine-core';
 export class FileUploadService {
   constructor(private engineCore: EngineCore) { }
   private readonly _uploadSessionId = EngineConstants.UploadingSessionId;
+
   initializeUpload(initiateUpload: InitiateUploadRequest): Observable<ChunkInitalize> {
     return this.engineCore.post(`${EngineControllers.EngineDriveController}/initiate-upload`, initiateUpload);
   }

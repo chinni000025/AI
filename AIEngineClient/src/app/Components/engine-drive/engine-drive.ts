@@ -2,27 +2,15 @@ import { Component, EventEmitter, OnInit, OnDestroy, Output, ElementRef, ViewChi
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EngineDriveSvg } from '../svgs/engine-drive-svg/engine-drive-svg';
-import {
-  catchError, concatMap, defaultIfEmpty, EMPTY, finalize, from, map, mergeMap, Observable,
-  retry,
-  Subject,
-  takeUntil,
-  tap
-} from 'rxjs';
-import { form } from '@angular/forms/signals';
+import { catchError, concatMap, defaultIfEmpty, EMPTY, finalize, from, map, mergeMap, Observable, retry, Subject, takeUntil, tap } from 'rxjs';
 import { FileUploadService } from '../../services/file-upload-service';
 import { ChunkInitalize, ChunkUpload, InitiateUploadRequest } from '../../services/engine-route-constants';
 import { SnackbarService } from '../../services/snackbar-service';
 import { UploadFileTask } from '../../models/snackbar-config';
-
 export type ItemCategory = 'folder' | 'model' | 'dataset' | 'document' | 'media' | 'code' | 'archive' | 'other';
 export type ViewMode = 'grid' | 'table';
 export type SortField = 'name' | 'modifiedAt' | 'size';
 export type SortOrder = 'asc' | 'desc';
-
-
-
-
 
 @Component({
   selector: 'app-engine-drive',
@@ -31,6 +19,7 @@ export type SortOrder = 'asc' | 'desc';
   templateUrl: './engine-drive.html',
   styleUrl: './engine-drive.css'
 })
+
 export class EngineDrive implements OnInit, OnDestroy {
   @Output() closed = new EventEmitter<void>();
   @ViewChild('fileInput') fileInputRef?: ElementRef<HTMLInputElement>;
@@ -214,7 +203,8 @@ export class EngineDrive implements OnInit, OnDestroy {
 
   FileInput(event: Event): void {
     const input = event.target as HTMLInputElement;
-    if (!input.files || input.files.length === 0) return;
+    if (!input.files || input.files.length === 0)
+      return;
     const filesArray = Array.from(input.files);
     this.isUploadDockExpanded = true;
     const tasks = filesArray.map(file => this.createUploadTask(file));
@@ -262,12 +252,11 @@ export class EngineDrive implements OnInit, OnDestroy {
         task.status = 'completed';
         task.progress = 100;
         task.uploadedBytes = task.fileSize;
-        this.handleUploadCompleted(task);
       }),
       catchError(err => {
         task.status = 'failed';
         this.cdr.markForCheck();
-        return EMPTY; // swallow here so ONE file's failure doesn't kill the other 2 in-flight uploads
+        return EMPTY;
       }),
       finalize(() => this.uploadCancelSubjects.delete(task.id))
     );
@@ -315,10 +304,6 @@ export class EngineDrive implements OnInit, OnDestroy {
     return Math.floor(adjustedSize / 1024) * 1024;
   }
 
-  private handleUploadCompleted(upload: UploadFileTask): void {
-
-  }
-
   cancelUpload(taskId: string): void {
     const task = this.uploads.find(u => u.id === taskId);
     if (task) {
@@ -357,9 +342,6 @@ export class EngineDrive implements OnInit, OnDestroy {
     return Math.min(100, Math.round((uploadedBytes / totalBytes) * 100));
   }
 
-  // ----------------------------------------------------
-  // DRAG & DROP
-  // ----------------------------------------------------
   onDragOver(event: DragEvent): void {
     event.preventDefault();
     event.stopPropagation();
@@ -372,9 +354,6 @@ export class EngineDrive implements OnInit, OnDestroy {
     this.isDragOver = false;
   }
 
-  // ----------------------------------------------------
-  // TOAST NOTIFICATION
-  // ----------------------------------------------------
   showToast(message: string, type: 'success' | 'info' | 'warning' = 'info'): void {
     this.toastMessage = message;
     this.toastType = type;
