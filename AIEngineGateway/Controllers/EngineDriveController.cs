@@ -46,5 +46,19 @@ namespace AIEngineGateway.Controllers
                 return BadRequest("Error Occured While saving the File");
             }
         }
+
+        [HttpGet("getEngineFiles")]
+        public async Task<ActionResult<List<EngineFileResponse>>> GetEngineFiles(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var result = await _engineDriveService.GetAvailableFilesAsync(cancellationToken);
+                return Ok(result);
+            }
+            catch
+            {
+                return BadRequest("Error Occured while Getting Engine Files");
+            }
+        }
     }
 }

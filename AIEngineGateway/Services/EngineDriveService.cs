@@ -5,7 +5,6 @@ using AIEngineConnectivity.Models;
 using AIEngineConnectivity.Repositories;
 using AIEngineConnectivity.Services;
 using Microsoft.Extensions.Options;
-using System.CodeDom;
 
 namespace AIEngineGateway.Services
 {
@@ -68,11 +67,12 @@ namespace AIEngineGateway.Services
             }
         }
 
-        public async Task GetAvailableFilesAsync(CancellationToken cancellationToken)
+        public async Task<List<EngineFileResponse>> GetAvailableFilesAsync(CancellationToken cancellationToken)
         {
             try
             {
-
+                return await _repositoryWrapper.EngineDriveRepository
+                    .GetEngineFilesAsync(int.Parse(_userService?.GetCurrentUser?.UserId),cancellationToken);
             }
             catch(Exception ex)
             {
