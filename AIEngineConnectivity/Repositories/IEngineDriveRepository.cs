@@ -1,8 +1,6 @@
-﻿using AIEngineConnectivity.Entities;
+﻿using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.Entities;
 using AIEngineConnectivity.Services;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace AIEngineConnectivity.Repositories
 {
@@ -12,5 +10,6 @@ namespace AIEngineConnectivity.Repositories
         public Task StoreChunkAtomicAsync(Guid sessionId, long chunkIndex, Stream chunkStream, long chunkSize,
             CancellationToken cancellationToken);
         public Task FinalizeUploadAtomicAsync(Guid sessionId, IUserService userService, CancellationToken cancellationToken);
+        public Task<List<EngineFileResponse>> GetEngineFilesAsync(int userId, CancellationToken cancellationToken);
     }
 }

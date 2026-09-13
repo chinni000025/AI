@@ -70,7 +70,15 @@ namespace AIEngineGateway.Services
 
         public async Task GetAvailableFilesAsync(CancellationToken cancellationToken)
         {
+            try
+            {
 
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                throw new Exception(ex.Message);
+            }
         }
     }
 }

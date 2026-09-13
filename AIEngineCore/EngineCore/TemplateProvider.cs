@@ -11,6 +11,7 @@ namespace AIEngineCore.EngineCore
         {
             _EmbeddedResourceProvider = embeddedResourceProvider;
         }
+
         public Task<string> GetTemplate(EngineEvents @event, CancellationToken ct = default)
         {
             if (Templates.EmailTemplates.TryGetValue(@event, out var resourcePath))

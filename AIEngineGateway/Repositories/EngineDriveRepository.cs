@@ -1,10 +1,10 @@
 ﻿using AIEngineConnectivity.Constants;
+using AIEngineConnectivity.DTOs;
 using AIEngineConnectivity.Entities;
 using AIEngineConnectivity.Models;
 using AIEngineConnectivity.Repositories;
 using AIEngineConnectivity.Services;
 using AIEngineGateway.EngineInfrastructure;
-using Google.GenAI.Types;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -340,20 +340,22 @@ namespace AIEngineGateway.Repositories
             await cmd.ExecuteNonQueryAsync(cancellationToken);
         }
 
-        public async Task<object> GetEngineFilesAsync(int userId,CancellationToken cancellationToken)
+        public async Task<List<EngineFileResponse>> GetEngineFilesAsync(int userId,CancellationToken cancellationToken)
         {
             var query = await (from f in _engineContext.EngineFiles
                                where f.CreatedBy == userId
                                where !f.IsRecyled
-                               select new
-                               {
+                               select new EngineFileResponse(
+                                   f.Id,
                                    f.FileName,
+                                   f.FileSize,
+                                   f.ItemType,
                                    f.ContentType,
                                    f.CreatedAt,
                                    f.ModifiedBy,
                                    f.Location,
-                                   f.ParentId,
-                               }).ToListAsync(cancellationToken);
+                                   f.ParentId
+                               )).ToListAsync(cancellationToken);
             return query;
         }
     }
