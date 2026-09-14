@@ -282,7 +282,7 @@ namespace AIEngineGateway.Repositories
                     {
                         throw new InvalidOperationException($"Chunk index {chunk.ChunkIndex} is missing OID.");
                     }
-                    await using (var chunkStream = await manager.OpenReadAsync(finalOid, cancellationToken))
+                    await using (var chunkStream = await manager.OpenReadAsync(chunk.ChunkOid.Value, cancellationToken))
                     {
                         await chunkStream.CopyToAsync(finalStream, cancellationToken);
                     }
