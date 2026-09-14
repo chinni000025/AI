@@ -52,5 +52,4 @@ export class EncryptionInterceptor implements HttpInterceptor {
     private isExcludedEndPoints(request: HttpRequest<any>): boolean {
         return ExcludeEncryptionEndPoints.some(e => request.url.includes(e));
     }
-
 }

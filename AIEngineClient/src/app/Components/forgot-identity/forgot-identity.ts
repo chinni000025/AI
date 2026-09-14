@@ -57,6 +57,5 @@ export class ForgotIdentity {
                     this.snack.showErrorMessage(err);
                 }
             });
-
     }
 }

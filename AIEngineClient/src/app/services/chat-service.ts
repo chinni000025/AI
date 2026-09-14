@@ -44,5 +44,4 @@ export class ChatService {
     getModels(): any {
         return this.http.get(`${EngineControllers.DashboardController}/GetModels`);
     }
-
 }
