@@ -35,6 +35,10 @@ export class FileUploadService {
     return this.engineCore.post(`${EngineControllers.EngineDriveController}/finalize?sessionId=${sessionId}`, null);
   }
 
+  getEngineFiles() {
+    return this.engineCore.get(`${EngineControllers.EngineDriveController}/getEngineFiles`);
+  }
+
   private getUploadSessions(): Record<string, string> {
     var raw = localStorage.getItem(this._uploadSessionId);
     return raw ? JSON.parse(raw) : {};

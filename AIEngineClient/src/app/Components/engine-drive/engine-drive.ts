@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { EngineDriveSvg } from '../svgs/engine-drive-svg/engine-drive-svg';
 import { catchError, concatMap, defaultIfEmpty, EMPTY, finalize, from, map, mergeMap, Observable, retry, Subject, takeUntil, tap } from 'rxjs';
 import { FileUploadService } from '../../services/file-upload-service';
-import { ChunkInitalize, ChunkUpload, InitiateUploadRequest } from '../../services/engine-route-constants';
+import { ChunkInitalize, ChunkUpload, EngineDriveItem, InitiateUploadRequest } from '../../services/engine-route-constants';
 import { SnackbarService } from '../../services/snackbar-service';
 import { UploadFileTask } from '../../models/snackbar-config';
 export type ItemCategory = 'folder' | 'model' | 'dataset' | 'document' | 'media' | 'code' | 'archive' | 'other';
@@ -67,12 +67,29 @@ export class EngineDrive implements OnInit, OnDestroy {
   private readonly TARGET_DURATION_MS = 2000;
   private readonly MaxParallelUploads = 3;
   private uploadCancelSubjects = new Map<string, Subject<void>>();
+  items: EngineDriveItem[] = [];
+
+
 
   constructor(private cdr: ChangeDetectorRef,
     private uploadService: FileUploadService,
     private snack: SnackbarService) { }
 
   ngOnInit(): void {
+    this.loadEngineFiles();
+  }
+
+  private loadEngineFiles() {
+    this.uploadService.getEngineFiles().subscribe({
+      next: (res: any) => {
+        this.items = res as EngineDriveItem[];
+        console.log(this.items);
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.log(err)
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -114,12 +131,12 @@ export class EngineDrive implements OnInit, OnDestroy {
     return 0;
   }
 
-  get displayedFiles(): null {
-    return null;
+  get displayedFiles(): EngineDriveItem[] {
+    return this.items;
   }
 
   get totalCurrentItemCount(): number {
-    return 2;
+    return this.displayedFiles.length;
   }
 
   get currentFolderName(): string {
@@ -242,6 +259,7 @@ export class EngineDrive implements OnInit, OnDestroy {
           tap(() => {
             this.uploadService.removeUploadSessionId(fileKey);
             task.status = 'completed';
+            this.loadEngineFiles();
             this.cdr.markForCheck();
           }),
           map(() => file.name),

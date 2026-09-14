@@ -163,3 +163,15 @@ export interface InitiateUploadRequest {
     fileSize: number,
     contentType: string,
 }
+
+export interface EngineDriveItem {
+    id: string;
+    fileName: string;
+    fileSize: number,
+    engineFileType: number;
+    contentType: string,
+    createdAt: string,
+    modifiedAt: string,
+    location?: string,
+    parentId?: string,
+}

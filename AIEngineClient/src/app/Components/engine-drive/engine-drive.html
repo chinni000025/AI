@@ -212,8 +212,141 @@
     </div>
 
     <!-- MAIN BROWSER CONTENT & DROPZONE -->
-    <div class="ed-content" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)"></div>
+    <div class="ed-content" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)">
 
+      <!-- 1. EMPTY STATE (When no files are loaded) -->
+      @if (displayedFiles.length === 0) {
+      <div class="ed-empty-state">
+        <div class="ed-empty-state__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+            <polyline points="13 2 13 9 20 9"></polyline>
+          </svg>
+        </div>
+        <h3 class="ed-empty-state__title">No files found</h3>
+        <p class="ed-empty-state__subtitle">Upload models, datasets, documents, or media to get started with Engine
+          Drive.
+        </p>
+        <div class="ed-empty-state__actions">
+          <button type="button" class="ed-btn ed-btn--primary" (click)="triggerFileInput()">
+            Upload Files
+          </button>
+        </div>
+      </div>
+      }
+
+      <!-- 2. GRID VIEW (When viewMode === 'grid') -->
+      @if (displayedFiles.length > 0 && viewMode === 'grid') {
+      <section class="ed-section">
+        <h3 class="ed-section__title">
+          <span>Files</span>
+          <span class="ed-section__count">{{ displayedFiles.length }}</span>
+        </h3>
+
+        <div class="ed-file-grid">
+          @for (file of displayedFiles; track file.id) {
+          <div class="ed-file-card">
+            <!-- Card Top: Extension badge & formatted size -->
+            <div class="ed-file-card__top">
+              <span class="ed-badge ed-badge--default">{{ extractExtension(file.fileName) || 'file' }}</span>
+              <span class="ed-file-card__meta">{{ formatBytes(file.fileSize) }}</span>
+            </div>
+
+            <!-- Card Center Graphic Icon -->
+            <div class="ed-file-card__visual">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+              </svg>
+            </div>
+
+            <!-- Card Details: File Name & Date -->
+            <div class="ed-file-card__content">
+              <span class="ed-file-card__name" [title]="file.fileName">{{ file.fileName }}</span>
+              <span class="ed-file-card__meta">{{ file.modifiedAt | date:'mediumDate' }}</span>
+            </div>
+
+            <!-- Hover Action Overlay -->
+            <div class="ed-file-card__actions" (click)="$event.stopPropagation()">
+              <a class="ed-card-action ed-card-action--download" [href]="file.location || '#'" [download]="file.fileName" [title]="'Download ' + file.fileName">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+              </a>
+            </div>
+          </div>
+          }
+        </div>
+      </section>
+      }
+
+      <!-- 3. TABLE VIEW (When viewMode === 'table') -->
+      @if (displayedFiles.length > 0 && viewMode === 'table') {
+      <section class="ed-section">
+        <h3 class="ed-section__title">
+          <span>Files</span>
+          <span class="ed-section__count">{{ displayedFiles.length }}</span>
+        </h3>
+
+        <div class="ed-table-wrap">
+          <table class="ed-table">
+            <thead>
+              <tr>
+                <th class="ed-table__th">File Name</th>
+                <th class="ed-table__th">Type</th>
+                <th class="ed-table__th">Size</th>
+                <th class="ed-table__th">Modified Date</th>
+                <th class="ed-table__th" style="text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (file of displayedFiles; track file.id) {
+              <tr class="ed-table__row">
+                <!-- File Name with Icon -->
+                <td class="ed-table__td">
+                  <div class="ed-table__file-cell">
+                    <span class="ed-table__icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                        <polyline points="13 2 13 9 20 9"></polyline>
+                      </svg>
+                    </span>
+                    <span class="ed-table__filename" [title]="file.fileName">{{ file.fileName }}</span>
+                  </div>
+                </td>
+                <!-- Extension / Type Badge -->
+                <td class="ed-table__td">
+                  <span class="ed-badge ed-badge--default">{{ extractExtension(file.fileName) || 'file' }}</span>
+                </td>
+                <!-- Size -->
+                <td class="ed-table__td">{{ formatBytes(file.fileSize) }}</td>
+                <!-- Date -->
+                <td class="ed-table__td">{{ file.modifiedAt | date:'mediumDate' }}</td>
+                <!-- Download Action -->
+                <td class="ed-table__td" style="text-align: right;">
+                  <div class="ed-table__action-group" style="justify-content: flex-end;" (click)="$event.stopPropagation()">
+                    <a class="ed-card-action ed-card-action--download" [href]="file.location || '#'" [download]="file.fileName" [title]="'Download ' + file.fileName">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                      </svg>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+      }
+
+    </div>
     <!-- Drag & Drop Hover Overlay -->
     @if (isDragOver) {
     <div class="ed-dropzone-overlay">

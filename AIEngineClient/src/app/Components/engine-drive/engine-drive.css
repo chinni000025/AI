@@ -1066,6 +1066,8 @@
   border: none;
   color: var(--text-secondary);
   cursor: pointer;
+  text-decoration: none;
+  box-sizing: border-box;
   transition: all var(--transition-fast);
 }
 
@@ -1077,6 +1079,11 @@
 .ed-card-action:hover {
   background: var(--surface-card);
   color: var(--text-primary);
+}
+
+.ed-card-action--download:hover {
+  background: rgba(0, 240, 255, 0.15);
+  color: var(--color-primary);
 }
 
 .ed-card-action--danger:hover {
