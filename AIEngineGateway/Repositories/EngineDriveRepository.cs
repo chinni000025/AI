@@ -55,7 +55,7 @@ namespace AIEngineGateway.Repositories
                         throw new Exception($"Uploading session Id is not fount {sessionId}");
                     }
 
-                    if (uploadingSession.UploadStatus != UploadStatus.Initated
+                    if (uploadingSession.UploadStatus != UploadStatus.Initiated
                     && uploadingSession.UploadStatus != UploadStatus.Uploading)
                     {
                         throw new Exception($"Upload session {sessionId} is not accepting chunks. Current status: {uploadingSession.UploadStatus}");
@@ -187,7 +187,7 @@ namespace AIEngineGateway.Repositories
                         throw new Exception($"Upload session {sessionId} not found");
                     }
 
-                    if (uploadingSession.UploadStatus != UploadStatus.Initated && uploadingSession.UploadStatus != UploadStatus.Uploading)
+                    if (uploadingSession.UploadStatus != UploadStatus.Initiated && uploadingSession.UploadStatus != UploadStatus.Uploading)
                     {
                         _logger.LogError($"Session is in an invalid state for finalizing: {uploadingSession.UploadStatus}");
                         throw new Exception($"Session is in an invalid state for finalizing: {uploadingSession.UploadStatus}");

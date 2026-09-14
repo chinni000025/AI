@@ -37,7 +37,7 @@ namespace AIEngineGateway.Services
                 ContentType = request.ContentType,
                 FileSize = request.FileSize,
                 UploadedBytes = 0,
-                UploadStatus = UploadStatus.Initated,
+                UploadStatus = UploadStatus.Initiated,
                 CreatedAt = now,
                 UpdatedAt = now,
                 ExpiresAt = now + _engineUploadFileTTL,
@@ -49,7 +49,7 @@ namespace AIEngineGateway.Services
 
         public async Task UploadChunks(IFormFile formFile, long chunkIndex, Guid sessionId, CancellationToken cancellationToken)
         {
-            await using var chunkStream = formFile.OpenReadStream();    
+            await using var chunkStream = formFile.OpenReadStream();
             await _repositoryWrapper.EngineDriveRepository.StoreChunkAtomicAsync(sessionId, chunkIndex,
                 chunkStream, formFile.Length, cancellationToken);
         }
@@ -60,7 +60,7 @@ namespace AIEngineGateway.Services
             {
                 await _repositoryWrapper.EngineDriveRepository.FinalizeUploadAtomicAsync(sessionId, _userService, cancellationToken);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
                 throw new Exception("Error Occured while saving the file");
@@ -72,9 +72,9 @@ namespace AIEngineGateway.Services
             try
             {
                 return await _repositoryWrapper.EngineDriveRepository
-                    .GetEngineFilesAsync(int.Parse(_userService?.GetCurrentUser?.UserId),cancellationToken);
+                    .GetEngineFilesAsync(int.Parse(_userService?.GetCurrentUser?.UserId), cancellationToken);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
                 throw new Exception(ex.Message);

@@ -215,7 +215,7 @@ namespace AIEngineConnectivity.Constants
 
     public enum UploadStatus
     {
-        Initated = 0,
+        Initiated = 0,
         Uploading = 1,
         Completed = 2,
         Cancelled = 3,
