@@ -39,6 +39,10 @@ export class FileUploadService {
     return this.engineCore.get(`${EngineControllers.EngineDriveController}/getEngineFiles`);
   }
 
+  getStorageInfo() {
+    return this.engineCore.get(`${EngineControllers.EngineDriveController}/getEngineStorageInfo`);
+  }
+
   private getUploadSessions(): Record<string, string> {
     var raw = localStorage.getItem(this._uploadSessionId);
     return raw ? JSON.parse(raw) : {};

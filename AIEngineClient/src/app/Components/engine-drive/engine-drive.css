@@ -297,8 +297,13 @@
 
 .ed-storage-bar__segment {
   height: 100%;
-  transition: width 0.4s ease;
+  transition: width 0.4s ease, filter 0.2s ease;
   position: relative;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+.ed-storage-bar__segment:hover {
+  filter: brightness(1.25);
 }
 
 .ed-storage-bar__segment:first-child {
@@ -334,6 +339,7 @@
   height: 7px;
   border-radius: 50%;
   flex-shrink: 0;
+  box-shadow: 0 0 6px currentColor;
 }
 
 .ed-storage-chip__label {

@@ -60,5 +60,19 @@ namespace AIEngineGateway.Controllers
                 return BadRequest("Error Occured while Getting Engine Files");
             }
         }
+
+        [HttpGet("getEngineStorageInfo")]
+        public async Task<ActionResult<EngineFileStorageInfo>> GetStorageInfor(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var info = await _engineDriveService.GetEngineStorageInfo(cancellationToken);
+                return Ok(info);
+            }
+            catch
+            {
+                return BadRequest("Error Ocurred While Getting Storage Info");
+            }
+        }
     }
 }

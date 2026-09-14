@@ -80,5 +80,19 @@ namespace AIEngineGateway.Services
                 throw new Exception(ex.Message);
             }
         }
+
+        public async Task<EngineFileStorageInfo> GetEngineStorageInfo(CancellationToken cancellationToken)
+        {
+            try
+            {
+                return await _repositoryWrapper.EngineDriveRepository
+                    .GetEngineStorageInfo(int.Parse(_userService.GetCurrentUser?.UserId), cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Exception occure while getting Storage Info :: " + ex);
+                throw new Exception("Error Occured While Getting Storage Info");
+            }
+        }
     }
 }

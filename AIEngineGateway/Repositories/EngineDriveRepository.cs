@@ -422,5 +422,17 @@ namespace AIEngineGateway.Repositories
                 await command.ExecuteNonQueryAsync(cancellationToken);
             }
         }
+
+        public async Task<EngineFileStorageInfo> GetEngineStorageInfo(int userId, CancellationToken cancellationToken)
+        {
+            var query = await (from f in _engineContext.EngineFiles
+                               where f.CreatedBy == userId
+                               group f by 1 into g
+                               select new EngineFileStorageInfo
+                               (g.Where(x => !x.IsRecyled).Sum(f => f.FileSize),
+                               g.Where(x => x.IsRecyled).Sum(f => f.FileSize)
+                               )).FirstOrDefaultAsync(cancellationToken);
+            return query;
+        }
     }
 }

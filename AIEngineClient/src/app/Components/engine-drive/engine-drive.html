@@ -93,12 +93,32 @@
       <div class="ed-storage-bar" role="progressbar" [attr.aria-valuenow]="usedPercentage" aria-valuemin="0"
         aria-valuemax="100">
         <div class="ed-storage-bar__track">
+          @for (seg of storageBreakdown; track seg.label) {
+          <div class="ed-storage-bar__segment" [style.width.%]="seg.percentage" [style.background-color]="seg.color"
+            [title]="seg.label + ': ' + formatBytes(seg.bytes) + ' (' + seg.percentage + '%)'">
+          </div>
+          }
         </div>
       </div>
 
       <!-- Storage Category Breakdown Chips -->
       <div class="ed-storage-chips">
-
+        @if (storageBreakdown && storageBreakdown.length > 0) {
+        @for (seg of storageBreakdown; track seg.label) {
+        <div class="ed-storage-chip">
+          <span class="ed-storage-chip__dot" [style.background-color]="seg.color" [style.color]="seg.color"></span>
+          <span class="ed-storage-chip__label">{{ seg.label }}:</span>
+          <span class="ed-storage-chip__size">{{ formatBytes(seg.bytes) }}</span>
+        </div>
+        }
+        } @else {
+        <div class="ed-storage-chip">
+          <span class="ed-storage-chip__dot"
+            style="background-color: var(--color-primary); color: var(--color-primary)"></span>
+          <span class="ed-storage-chip__label">Available Space:</span>
+          <span class="ed-storage-chip__size">{{ formattedTotalStorage }}</span>
+        </div>
+        }
       </div>
     </section>
 
@@ -270,8 +290,10 @@
 
             <!-- Hover Action Overlay -->
             <div class="ed-file-card__actions" (click)="$event.stopPropagation()">
-              <a class="ed-card-action ed-card-action--download" [href]="file.location || '#'" [download]="file.fileName" [title]="'Download ' + file.fileName">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <a class="ed-card-action ed-card-action--download" [href]="file.location || '#'"
+                [download]="file.fileName" [title]="'Download ' + file.fileName">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                   <polyline points="7 10 12 15 17 10"></polyline>
                   <line x1="12" y1="15" x2="12" y2="3"></line>
@@ -328,9 +350,12 @@
                 <td class="ed-table__td">{{ file.modifiedAt | date:'mediumDate' }}</td>
                 <!-- Download Action -->
                 <td class="ed-table__td" style="text-align: right;">
-                  <div class="ed-table__action-group" style="justify-content: flex-end;" (click)="$event.stopPropagation()">
-                    <a class="ed-card-action ed-card-action--download" [href]="file.location || '#'" [download]="file.fileName" [title]="'Download ' + file.fileName">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <div class="ed-table__action-group" style="justify-content: flex-end;"
+                    (click)="$event.stopPropagation()">
+                    <a class="ed-card-action ed-card-action--download" [href]="file.location || '#'"
+                      [download]="file.fileName" [title]="'Download ' + file.fileName">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                         <polyline points="7 10 12 15 17 10"></polyline>
                         <line x1="12" y1="15" x2="12" y2="3"></line>

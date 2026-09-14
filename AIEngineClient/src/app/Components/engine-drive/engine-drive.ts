@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { EngineDriveSvg } from '../svgs/engine-drive-svg/engine-drive-svg';
 import { catchError, concatMap, defaultIfEmpty, EMPTY, finalize, from, map, mergeMap, Observable, retry, Subject, takeUntil, tap } from 'rxjs';
 import { FileUploadService } from '../../services/file-upload-service';
-import { ChunkInitalize, ChunkUpload, EngineDriveItem, InitiateUploadRequest } from '../../services/engine-route-constants';
+import { ChunkInitalize, ChunkUpload, EngineDriveItem, InitiateUploadRequest, StorageInfo } from '../../services/engine-route-constants';
 import { SnackbarService } from '../../services/snackbar-service';
 import { UploadFileTask } from '../../models/snackbar-config';
 export type ItemCategory = 'folder' | 'model' | 'dataset' | 'document' | 'media' | 'code' | 'archive' | 'other';
@@ -26,7 +26,7 @@ export class EngineDrive implements OnInit, OnDestroy {
   @ViewChild('folderInput') folderInputRef?: ElementRef<HTMLInputElement>;
 
   // Storage Quota: 50 GB
-  readonly totalStorageBytes = 50 * 1024 * 1024 * 1024;
+  readonly totalStorageBytes = 1024 * 1024 * 1024;
 
   // View state
   viewMode: ViewMode = 'grid';
@@ -68,8 +68,7 @@ export class EngineDrive implements OnInit, OnDestroy {
   private readonly MaxParallelUploads = 3;
   private uploadCancelSubjects = new Map<string, Subject<void>>();
   items: EngineDriveItem[] = [];
-
-
+  private storageInfo: StorageInfo | null = null;
 
   constructor(private cdr: ChangeDetectorRef,
     private uploadService: FileUploadService,
@@ -77,17 +76,29 @@ export class EngineDrive implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadEngineFiles();
+    this.loadStorageInfo();
   }
 
-  private loadEngineFiles() {
-    this.uploadService.getEngineFiles().subscribe({
-      next: (res: any) => {
-        this.items = res as EngineDriveItem[];
-        console.log(this.items);
+  private loadStorageInfo(): void {
+    this.uploadService.getStorageInfo().subscribe({
+      next: (res) => {
+        this.storageInfo = res as StorageInfo;
         this.cdr.markForCheck();
       },
       error: (err) => {
-        console.log(err)
+        this.snack.showErrorMessage("Error Occured while getting Storage Info");
+      }
+    });
+  }
+
+  private loadEngineFiles(): void {
+    this.uploadService.getEngineFiles().subscribe({
+      next: (res: any) => {
+        this.items = res as EngineDriveItem[];
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        this.snack.showErrorMessage("Error Occured while Getting Available Files");
       }
     });
   }
@@ -102,7 +113,10 @@ export class EngineDrive implements OnInit, OnDestroy {
   }
 
   get totalUsedBytes(): number {
-    return 0;
+    if (!this.storageInfo) {
+      return this.items.reduce((sum, item) => sum + (item.fileSize || 0), 0);
+    }
+    return (this.storageInfo.activeStorage || 0) + (this.storageInfo.trashStorage || 0);
   }
 
   get usedPercentage(): number {
@@ -123,8 +137,36 @@ export class EngineDrive implements OnInit, OnDestroy {
     return this.formatBytes(Math.max(0, this.totalStorageBytes - this.totalUsedBytes));
   }
 
-  get storageBreakdown(): null {
-    return null;
+  get storageBreakdown(): { label: string; bytes: number; percentage: number; color: string }[] {
+    if (!this.storageInfo && (!this.items || this.items.length === 0)) {
+      return [];
+    }
+
+    const total = this.totalStorageBytes || (50 * 1024 * 1024 * 1024);
+    const active = this.storageInfo?.activeStorage ?? this.items.reduce((sum, item) => sum + (item.fileSize || 0), 0);
+    const trash = this.storageInfo?.trashStorage ?? 0;
+
+    const list: { label: string; bytes: number; percentage: number; color: string }[] = [];
+
+    if (active > 0) {
+      list.push({
+        label: 'Active Files',
+        bytes: active,
+        percentage: Math.max(0.2, Math.round((active / total) * 1000) / 10),
+        color: '#00f0ff'
+      });
+    }
+
+    if (trash > 0) {
+      list.push({
+        label: 'Trash',
+        bytes: trash,
+        percentage: Math.max(0.2, Math.round((trash / total) * 1000) / 10),
+        color: '#f59e0b'
+      });
+    }
+
+    return list;
   }
 
   get displayedFolders() {
@@ -260,6 +302,7 @@ export class EngineDrive implements OnInit, OnDestroy {
             this.uploadService.removeUploadSessionId(fileKey);
             task.status = 'completed';
             this.loadEngineFiles();
+            this.loadStorageInfo();
             this.cdr.markForCheck();
           }),
           map(() => file.name),

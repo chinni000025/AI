@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { DialogButton } from '../Components/dialogs/confirmation-dialog/confirmation-dialog';
 import { StreamInvocationMessage } from '@microsoft/signalr';
+import { Expression } from '@angular/compiler';
 
 @Injectable({
     providedIn: 'root',
@@ -174,4 +175,9 @@ export interface EngineDriveItem {
     modifiedAt: string,
     location?: string,
     parentId?: string,
+}
+
+export interface StorageInfo {
+    activeStorage: number,
+    trashStorage: number,
 }
