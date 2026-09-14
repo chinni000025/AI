@@ -4,6 +4,6 @@ namespace AIEngineGateway.Contracts
 {
     public interface ICleanUpJob
     {
-        Task ExecuteAsync(EngineContext engineContext);
+        Task ExecuteAsync(EngineContext engineContext,CancellationToken cancellationToken);
     }
 }

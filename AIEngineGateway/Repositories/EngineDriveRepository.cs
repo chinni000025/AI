@@ -19,7 +19,7 @@ namespace AIEngineGateway.Repositories
         private readonly EngineContext _engineContext;
         private readonly ILogger<EngineDriveRepository> _logger;
         private readonly TimeSpan _engineUploadFileTTL;
-        public EngineDriveRepository(EngineContext engineContext, ILogger<EngineDriveRepository> logger, 
+        public EngineDriveRepository(EngineContext engineContext, ILogger<EngineDriveRepository> logger,
             IOptions<EngineUploadFileTTL> options)
         {
             _engineContext = engineContext;
@@ -68,7 +68,7 @@ namespace AIEngineGateway.Repositories
                     }
                     var existingChunk = await _engineContext.FileChunks.AsNoTracking()
                                          .FirstOrDefaultAsync(f => f.SessionId == sessionId
-                                         && f.ChunkIndex == chunkIndex , cancellationToken);
+                                         && f.ChunkIndex == chunkIndex, cancellationToken);
 
                     if (existingChunk is null)
                     {
@@ -88,11 +88,11 @@ namespace AIEngineGateway.Repositories
                         }
 
                         var effectedRows = await _engineContext.EngineFileUploadingSessions
-                            .Where(u => u.Id == sessionId )
+                            .Where(u => u.Id == sessionId)
                             .ExecuteUpdateAsync(setters => setters
                             .SetProperty(x => x.UploadStatus, UploadStatus.Uploading)
                             .SetProperty(x => x.UpdatedAt, DateTime.UtcNow)
-                            .SetProperty(x=>x.ExpiresAt, DateTime.UtcNow +_engineUploadFileTTL)
+                            .SetProperty(x => x.ExpiresAt, DateTime.UtcNow + _engineUploadFileTTL)
                             .SetProperty(x => x.UploadedBytes, x => x.UploadedBytes + chunkSize));
 
                         if (effectedRows != 1)
@@ -169,12 +169,12 @@ namespace AIEngineGateway.Repositories
             await cmd.ExecuteNonQueryAsync(cancellationToken);
         }
 
-        public async Task FinalizeUploadAtomicAsync(Guid sessionId,IUserService userService ,CancellationToken cancellationToken)
+        public async Task FinalizeUploadAtomicAsync(Guid sessionId, IUserService userService, CancellationToken cancellationToken)
         {
             var strategy = _engineContext.Database.CreateExecutionStrategy();
             await strategy.ExecuteAsync(async () =>
             {
-                    var transaction = await _engineContext.Database.BeginTransactionAsync(cancellationToken);
+                var transaction = await _engineContext.Database.BeginTransactionAsync(cancellationToken);
                 try
                 {
                     var uploadingSession = await (from us in _engineContext.EngineFileUploadingSessions
@@ -264,17 +264,17 @@ namespace AIEngineGateway.Repositories
             });
         }
 
-        private async Task PostgresFinalizeOidAsync(Guid fileContentId,List<FileChunks> chunks,CancellationToken cancellationToken)
+        private async Task PostgresFinalizeOidAsync(Guid fileContentId, List<FileChunks> chunks, CancellationToken cancellationToken)
         {
             var connection = (NpgsqlConnection)_engineContext.Database.GetDbConnection();
-            if(connection.State != ConnectionState.Open)
+            if (connection.State != ConnectionState.Open)
             {
                 await connection.OpenAsync(cancellationToken);
             }
 
             var manager = new NpgsqlLargeObjectManager(connection);
             uint finalOid = await manager.CreateAsync(0, cancellationToken);
-            await using(var finalStream = await manager.OpenReadWriteAsync(finalOid, cancellationToken))
+            await using (var finalStream = await manager.OpenReadWriteAsync(finalOid, cancellationToken))
             {
                 foreach (var chunk in chunks)
                 {
@@ -302,7 +302,7 @@ namespace AIEngineGateway.Repositories
             await _engineContext.SaveChangesAsync(cancellationToken);
         }
 
-        private async Task sqlServerFinalizeStreamAsync(Guid fileContentId,Guid sessionId,IDbContextTransaction transaction,
+        private async Task sqlServerFinalizeStreamAsync(Guid fileContentId, Guid sessionId, IDbContextTransaction transaction,
             CancellationToken cancellationToken)
         {
             var connection = (SqlConnection)_engineContext.Database.GetDbConnection();
@@ -340,7 +340,7 @@ namespace AIEngineGateway.Repositories
             await cmd.ExecuteNonQueryAsync(cancellationToken);
         }
 
-        public async Task<List<EngineFileResponse>> GetEngineFilesAsync(int userId,CancellationToken cancellationToken)
+        public async Task<List<EngineFileResponse>> GetEngineFilesAsync(int userId, CancellationToken cancellationToken)
         {
             var query = await (from f in _engineContext.EngineFiles
                                where f.CreatedBy == userId
@@ -357,6 +357,70 @@ namespace AIEngineGateway.Repositories
                                    f.ParentId
                                )).ToListAsync(cancellationToken);
             return query;
+        }
+
+        public async Task StaleEngineUploadingSessionsAndChunks(CancellationToken cancellationToken)
+        {
+            var expiredSessions = await _engineContext.EngineFileUploadingSessions
+                                           .Where(s => s.ExpiresAt < DateTime.UtcNow)
+                                           .Select(f => f.Id)
+                                           .ToListAsync(cancellationToken);
+            if (expiredSessions.Count == 0)
+                return;
+
+            var strategy = _engineContext.Database.CreateExecutionStrategy();
+            await strategy.ExecuteAsync(async () =>
+            {
+                var transcation = await _engineContext.Database.BeginTransactionAsync(cancellationToken);
+                try
+                {
+                    if (_engineContext.Database.IsNpgsql())
+                    {
+                        var oids = await _engineContext.FileChunks
+                        .Where(f => expiredSessions
+                        .Contains(f.SessionId)).Select(f => f.ChunkOid!.Value)
+                        .ToListAsync(cancellationToken);
+                        if (oids.Count > 0)
+                            await removeOidForPostgres(oids, cancellationToken);
+                    }
+
+
+                    await _engineContext.FileChunks
+                        .Where(f => expiredSessions.Contains(f.SessionId))
+                        .ExecuteDeleteAsync(cancellationToken);
+
+                    await _engineContext.EngineFileUploadingSessions.Where(s => expiredSessions.Contains(s.Id))
+                        .ExecuteDeleteAsync(cancellationToken);
+
+                    await transcation.CommitAsync(cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError("Exception Occured for Stale the Engine Uploading Session " + ex);
+                    await transcation.RollbackAsync(cancellationToken);
+                }
+                finally
+                {
+                    await transcation.DisposeAsync();
+                }
+            });
+        }
+
+        private async Task removeOidForPostgres(List<uint> Oids, CancellationToken cancellationToken)
+        {
+            var connection = (NpgsqlConnection)_engineContext.Database.GetDbConnection();
+            var transcation = _engineContext.Database.CurrentTransaction?.GetDbTransaction();
+            foreach (var oid in Oids)
+            {
+                await using var command = new NpgsqlCommand(
+                    "SELECT lo_unlink(@oid);",
+                    connection);
+
+                command.Transaction = (NpgsqlTransaction?)transcation;
+                command.Parameters.AddWithValue("oid", oid);
+
+                await command.ExecuteNonQueryAsync(cancellationToken);
+            }
         }
     }
 }

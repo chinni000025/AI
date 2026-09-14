@@ -157,6 +157,7 @@ namespace AIEngineGateway.Extensions
             services.AddHostedService<DataBaseCleanUpServices>();
             services.AddHostedService<UserBucketCleanUpHostedService>();
             services.AddHostedService<RestoreEngineNotifications>();
+            services.AddHostedService<CleanSessionsAndChunks>();
             services.AddScoped<ICleanUpJob, RefreshTokenCleanUpJob>();
             services.AddScoped<ICleanUpJob, DeleteConversationsJob>();
         }
