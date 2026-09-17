@@ -45,9 +45,25 @@ namespace AIEngineGateway.Repositories
             throw new NotImplementedException();
         }
 
+        public async Task<List<TEntity>?> GetByIdsAsync<Tkey>(IEnumerable<Tkey> keys, string propertyName,
+            CancellationToken cancellationToken)
+        {
+            return await _dbSet.Where(x => keys.Contains(EF.Property<Tkey>(x, propertyName)))
+            .ToListAsync(cancellationToken);
+        }
+
         public void update(TEntity entity)
         {
             _dbSet.Update(entity);
+        }
+
+        public async Task<int> UpdatePropertyByIdsAsync<TKey, TProperty>(IEnumerable<TKey> keys,
+            string idPropertyName, Expression<Func<TEntity, TProperty>> propertyExpression,
+            TProperty newValue,
+            CancellationToken cancellation)
+        {
+            return await _dbSet.Where(x => keys.Contains(EF.Property<TKey>(x, idPropertyName)))
+                .ExecuteUpdateAsync(s => s.SetProperty(propertyExpression, newValue), cancellation);
         }
     }
 }

@@ -730,6 +730,11 @@
   white-space: nowrap;
 }
 
+.ed-selected-badge {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
 /* ═══════════════════════════════════════════════════════
    7. MAIN CONTENT & DROPZONE OVERLAY
    ═══════════════════════════════════════════════════════ */
@@ -833,6 +838,95 @@
   border-radius: 10px;
   background: var(--surface-card);
   color: var(--text-muted);
+}
+
+.ed-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ed-section__controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ed-action-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  border-radius: 9px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.ed-action-pill-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--border-glow);
+  color: var(--text-primary);
+}
+
+.ed-action-pill-btn .ed-file-card__checkbox {
+  pointer-events: none;
+}
+
+.ed-trash-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 9px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.ed-trash-btn:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+  border-color: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text-muted);
+}
+
+.ed-trash-btn:not(:disabled):hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.45);
+  color: #f87171;
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.28);
+}
+
+.ed-trash-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.ed-trash-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 99px;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -975,8 +1069,48 @@
 }
 
 .ed-file-card--selected {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.25);
+  border-color: var(--color-primary) !important;
+  background: rgba(0, 240, 255, 0.05) !important;
+  box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.25), 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Multi-selection Checkbox */
+.ed-file-card__checkbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  border: 1.5px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.ed-file-card:hover .ed-file-card__checkbox,
+.ed-table__row:hover .ed-file-card__checkbox,
+.ed-table__th:hover .ed-file-card__checkbox,
+.ed-action-pill-btn:hover .ed-file-card__checkbox {
+  border-color: var(--border-glow);
+}
+
+.ed-table__th .ed-file-card__checkbox,
+.ed-table__td .ed-file-card__checkbox {
+  margin: 0 auto;
+}
+
+.ed-file-card__checkbox--checked {
+  background: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: #060913 !important;
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.5);
+}
+
+.ed-file-card__checkbox svg {
+  width: 12px;
+  height: 12px;
 }
 
 .ed-file-card__top {
@@ -1139,6 +1273,11 @@
 
 .ed-table__row:hover {
   background: rgba(255, 255, 255, 0.035);
+}
+
+.ed-table__row--selected {
+  background: rgba(0, 240, 255, 0.07) !important;
+  box-shadow: inset 3px 0 0 var(--color-primary);
 }
 
 .ed-table__file-cell {

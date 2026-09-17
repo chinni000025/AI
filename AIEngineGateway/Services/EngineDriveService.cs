@@ -90,9 +90,15 @@ namespace AIEngineGateway.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError("Exception occure while getting Storage Info :: " + ex);
-                throw new Exception("Error Occured While Getting Storage Info");
+                _logger.LogError("Exception occur while getting Storage Info :: " + ex);
+                throw new Exception("Error Occurred While Getting Storage Info");
             }
+        }
+
+        public async Task DeleteFileByIds(List<Guid> ids, CancellationToken cancellationToken)
+        {
+            var files = await _repositoryWrapper.GetEngineRepo<EngineFile>()
+                .UpdatePropertyByIdsAsync(ids, "Id", f => f.IsRecyled, true, cancellationToken);
         }
     }
 }

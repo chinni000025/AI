@@ -2,11 +2,13 @@ import { Component, EventEmitter, OnInit, OnDestroy, Output, ElementRef, ViewChi
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EngineDriveSvg } from '../svgs/engine-drive-svg/engine-drive-svg';
-import { catchError, concatMap, defaultIfEmpty, EMPTY, finalize, from, map, mergeMap, Observable, retry, Subject, takeUntil, tap } from 'rxjs';
+import { BehaviorSubject, catchError, concatMap, defaultIfEmpty, EMPTY, finalize, from, map, mergeMap, Observable, retry, Subject, take, takeUntil, tap } from 'rxjs';
 import { FileUploadService } from '../../services/file-upload-service';
-import { ChunkInitalize, ChunkUpload, EngineDriveItem, InitiateUploadRequest, StorageInfo } from '../../services/engine-route-constants';
+import { Buttons, ChunkInitalize, ChunkUpload, EngineDriveItem, InitiateUploadRequest, StorageInfo } from '../../services/engine-route-constants';
 import { SnackbarService } from '../../services/snackbar-service';
 import { UploadFileTask } from '../../models/snackbar-config';
+import { ConfirmationDialog } from '../dialogs/confirmation-dialog/confirmation-dialog';
+import { DialogService } from '../../services/dialog.service';
 export type ItemCategory = 'folder' | 'model' | 'dataset' | 'document' | 'media' | 'code' | 'archive' | 'other';
 export type ViewMode = 'grid' | 'table';
 export type SortField = 'name' | 'modifiedAt' | 'size';
@@ -46,9 +48,6 @@ export class EngineDrive implements OnInit, OnDestroy {
   folderColorOptions = ['#00f0ff', '#0072ff', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'];
   createFolderError = '';
 
-  // Delete modal state
-  isDeleteModalOpen = false;
-
   // Upload progress dock
   uploads: UploadFileTask[] = [];
   isUploadDockExpanded = true;
@@ -62,15 +61,17 @@ export class EngineDrive implements OnInit, OnDestroy {
   toastType: 'success' | 'info' | 'warning' = 'info';
 
   private toastTimeout: any = null;
-  private readonly MIN_CHUNK_SIZE = 64 * 1024; //64kb
-  private readonly MAX_CHUNK_SIZE = 8 * 1024 * 1024; // 8mb
+  private readonly MIN_CHUNK_SIZE = 64 * 1024;
+  private readonly MAX_CHUNK_SIZE = 8 * 1024 * 1024;
   private readonly TARGET_DURATION_MS = 2000;
   private readonly MaxParallelUploads = 3;
   private uploadCancelSubjects = new Map<string, Subject<void>>();
   items: EngineDriveItem[] = [];
   private storageInfo: StorageInfo | null = null;
+  selectedFiles = new Set<string>();
+  private readonly $destroy = new Subject<void>();
 
-  constructor(private cdr: ChangeDetectorRef,
+  constructor(private cdr: ChangeDetectorRef, private dialogService: DialogService,
     private uploadService: FileUploadService,
     private snack: SnackbarService) { }
 
@@ -80,7 +81,7 @@ export class EngineDrive implements OnInit, OnDestroy {
   }
 
   private loadStorageInfo(): void {
-    this.uploadService.getStorageInfo().subscribe({
+    this.uploadService.getStorageInfo().pipe(takeUntil(this.$destroy)).subscribe({
       next: (res) => {
         this.storageInfo = res as StorageInfo;
         this.cdr.markForCheck();
@@ -92,13 +93,62 @@ export class EngineDrive implements OnInit, OnDestroy {
   }
 
   private loadEngineFiles(): void {
-    this.uploadService.getEngineFiles().subscribe({
-      next: (res: any) => {
-        this.items = res as EngineDriveItem[];
-        this.cdr.markForCheck();
-      },
-      error: (err) => {
-        this.snack.showErrorMessage("Error Occured while Getting Available Files");
+    this.uploadService.getEngineFiles()
+      .pipe(takeUntil(this.$destroy))
+      .subscribe({
+        next: (res: any) => {
+          this.items = res as EngineDriveItem[];
+          this.cdr.markForCheck();
+        },
+        error: (err) => {
+          this.snack.showErrorMessage("Error Occured while Getting Available Files");
+        }
+      });
+  }
+
+  fileSelection(fileId: string, event?: MouseEvent): void {
+
+    if (event) {
+      event.stopPropagation();
+    }
+    if (this.selectedFiles.has(fileId)) {
+      this.selectedFiles.delete(fileId);
+    } else {
+      this.selectedFiles.add(fileId);
+    }
+    this.cdr.markForCheck();
+  }
+
+  toggleSelectAll() {
+    const displayFileIds = this.displayedFiles.map(f => f.id);
+    const isAllSelected = displayFileIds.length > 0 && displayFileIds.every(f => this.selectedFiles.has(f));
+    if (isAllSelected) {
+      displayFileIds.every(f => this.selectedFiles.delete(f));
+    } else {
+      displayFileIds.every(f => this.selectedFiles.add(f));
+    }
+  }
+
+  isDeleteModalOpen() {
+    this.dialogService.open(ConfirmationDialog, {
+      message: "Are you sure you want to move to the trash?",
+      subMessage: "You can restore it later from the trash folder if needed.",
+      iconType: 'trash-svg',
+      variant: 'danger',
+      buttons: [Buttons.Trash, Buttons.Cancel]
+    }).afterClosed().pipe(takeUntil(this.$destroy)).subscribe(result => {
+      if (result && this.selectedFiles) {
+        this.uploadService.movetoTrash(Array.from(this.selectedFiles)).pipe(takeUntil(this.$destroy)).subscribe({
+          next: (res) => {
+            this.snack.showSuccessMessage("Files are moved to Trash successfully");
+            this.loadEngineFiles();
+            this.selectedFiles.clear();
+          },
+          error: (err) => {
+            this.snack.showErrorMessage("Error occured");
+            console.log(err);
+          }
+        })
       }
     });
   }
@@ -107,9 +157,13 @@ export class EngineDrive implements OnInit, OnDestroy {
     if (this.uploadIntervalId) {
       clearInterval(this.uploadIntervalId);
     }
+
     if (this.toastTimeout) {
       clearTimeout(this.toastTimeout);
     }
+
+    this.$destroy?.next();
+    this.$destroy?.complete();
   }
 
   get totalUsedBytes(): number {
@@ -228,15 +282,6 @@ export class EngineDrive implements OnInit, OnDestroy {
 
   }
 
-  closeDeleteModal(): void {
-    this.isDeleteModalOpen = false;
-    this.cdr.markForCheck();
-  }
-
-  confirmDelete(): void {
-
-  }
-
   triggerFileInput(): void {
     this.fileInputRef?.nativeElement.click();
   }
@@ -272,7 +317,7 @@ export class EngineDrive implements OnInit, OnDestroy {
 
     from(filesArray).pipe(
       mergeMap((file: File, i) => this.uploadPipeLine(file, tasks[i]), this.MaxParallelUploads)
-    ).subscribe({
+    ).pipe(takeUntil(this.$destroy)).subscribe({
       error: (err) => {
         this.snack.showErrorMessage("Failed to upload");
       }

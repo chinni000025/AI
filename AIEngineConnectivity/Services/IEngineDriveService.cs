@@ -10,5 +10,6 @@ namespace AIEngineConnectivity.Services
         public Task FinalizeUploadAsync(Guid sessionId, CancellationToken cancellationToken);
         public Task<List<EngineFileResponse>> GetAvailableFilesAsync(CancellationToken cancellationToken);
         public Task<EngineFileStorageInfo> GetEngineStorageInfo(CancellationToken cancellationToken);
+        public Task DeleteFileByIds(List<Guid> ids, CancellationToken cancellationToken);
     }
 }

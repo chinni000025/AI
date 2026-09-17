@@ -18,7 +18,7 @@ namespace AIEngineGateway.Controllers
         }
 
         [HttpPost("initiate-upload")]
-        public async Task<ActionResult> InitateUpload([FromBody] UploadInitiateRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult> InitiateUpload([FromBody] UploadInitiateRequest request, CancellationToken cancellationToken)
         {
             var uploadSessionId = await _engineDriveService.InitiateFileUpload(request, cancellationToken);
             return Ok(new { uploadSessionId });
@@ -43,7 +43,7 @@ namespace AIEngineGateway.Controllers
             }
             catch
             {
-                return BadRequest("Error Occured While saving the File");
+                return BadRequest("Error Occurred While saving the File");
             }
         }
 
@@ -72,6 +72,20 @@ namespace AIEngineGateway.Controllers
             catch
             {
                 return BadRequest("Error Ocurred While Getting Storage Info");
+            }
+        }
+
+        [HttpPost("deleteEngineFiles")]
+        public async Task<IActionResult> DeleteEngineFiles([FromBody] List<Guid> FileIds, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await _engineDriveService.DeleteFileByIds(FileIds, cancellationToken);
+                return Ok();
+            }
+            catch
+            {
+                return BadRequest("Can't able to Delete the Files");
             }
         }
     }

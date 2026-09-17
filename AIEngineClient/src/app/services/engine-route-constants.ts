@@ -79,6 +79,12 @@ export class Buttons {
         value: true,
         variant: 'danger'
     };
+
+    public static readonly Trash: DialogButton = {
+        text: 'Trash',
+        value: true,
+        variant: 'warning'
+    }
 }
 
 export interface ModelProvider {

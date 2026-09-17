@@ -343,8 +343,7 @@ namespace AIEngineGateway.Repositories
         public async Task<List<EngineFileResponse>> GetEngineFilesAsync(int userId, CancellationToken cancellationToken)
         {
             var query = await (from f in _engineContext.EngineFiles
-                               where f.CreatedBy == userId
-                               where !f.IsRecyled
+                               where f.CreatedBy == userId && !f.IsRecyled
                                select new EngineFileResponse(
                                    f.Id,
                                    f.FileName,
@@ -434,5 +433,6 @@ namespace AIEngineGateway.Repositories
                                )).FirstOrDefaultAsync(cancellationToken);
             return query;
         }
+
     }
 }

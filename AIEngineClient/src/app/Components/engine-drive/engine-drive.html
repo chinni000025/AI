@@ -227,8 +227,12 @@
         </div>
       </div>
 
-      <span class="ed-item-counter">{{ totalCurrentItemCount }} {{ totalCurrentItemCount === 1 ? 'item' : 'items'
-        }}</span>
+      <span class="ed-item-counter">
+        @if (selectedFiles.size > 0) {
+        <span class="ed-selected-badge">{{ selectedFiles.size }} selected</span> •
+        }
+        {{ totalCurrentItemCount }} {{ totalCurrentItemCount === 1 ? 'item' : 'items' }}
+      </span>
     </div>
 
     <!-- MAIN BROWSER CONTENT & DROPZONE -->
@@ -258,16 +262,50 @@
       <!-- 2. GRID VIEW (When viewMode === 'grid') -->
       @if (displayedFiles.length > 0 && viewMode === 'grid') {
       <section class="ed-section">
-        <h3 class="ed-section__title">
-          <span>Files</span>
-          <span class="ed-section__count">{{ displayedFiles.length }}</span>
-        </h3>
+        <div class="ed-section__header">
+          <h3 class="ed-section__title">
+            <span>Files</span>
+            <span class="ed-section__count">{{ displayedFiles.length }}</span>
+          </h3>
+
+          <!-- Section Action Controls: Select All & Trash -->
+          <div class="ed-section__controls">
+            <button type="button" class="ed-action-pill-btn"
+              (click)="$any(this).toggleSelectAll ? $any(this).toggleSelectAll() : null" title="Select All Files">
+              <div class="ed-file-card__checkbox"
+                [class.ed-file-card__checkbox--checked]="selectedFiles.size > 0 && selectedFiles.size === displayedFiles.length">
+                @if (selectedFiles.size > 0 && selectedFiles.size === displayedFiles.length) {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                }
+              </div>
+              <span>Select All</span>
+            </button>
+
+            <button type="button" class="ed-trash-btn" [class.ed-trash-btn--active]="selectedFiles.size > 0"
+              [disabled]="selectedFiles.size === 0" (click)="isDeleteModalOpen()" title="Move selected to Trash">
+              <span>Trash</span>
+              @if (selectedFiles.size > 0) {
+              <span class="ed-trash-badge">{{ selectedFiles.size }}</span>
+              }
+            </button>
+          </div>
+        </div>
 
         <div class="ed-file-grid">
           @for (file of displayedFiles; track file.id) {
-          <div class="ed-file-card">
-            <!-- Card Top: Extension badge & formatted size -->
+          <div class="ed-file-card" [class.ed-file-card--selected]="selectedFiles.has(file.id)"
+            (click)="fileSelection(file.id, $event)">
+            <!-- Card Top: Selection checkbox, extension badge & formatted size -->
             <div class="ed-file-card__top">
+              <div class="ed-file-card__checkbox" [class.ed-file-card__checkbox--checked]="selectedFiles.has(file.id)">
+                @if (selectedFiles.has(file.id)) {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                }
+              </div>
               <span class="ed-badge ed-badge--default">{{ extractExtension(file.fileName) || 'file' }}</span>
               <span class="ed-file-card__meta">{{ formatBytes(file.fileSize) }}</span>
             </div>
@@ -309,15 +347,52 @@
       <!-- 3. TABLE VIEW (When viewMode === 'table') -->
       @if (displayedFiles.length > 0 && viewMode === 'table') {
       <section class="ed-section">
-        <h3 class="ed-section__title">
-          <span>Files</span>
-          <span class="ed-section__count">{{ displayedFiles.length }}</span>
-        </h3>
+        <div class="ed-section__header">
+          <h3 class="ed-section__title">
+            <span>Files</span>
+            <span class="ed-section__count">{{ displayedFiles.length }}</span>
+          </h3>
+
+          <!-- Section Action Controls: Select All & Trash -->
+          <div class="ed-section__controls">
+            <button type="button" class="ed-action-pill-btn"
+              (click)="$any(this).toggleSelectAll ? $any(this).toggleSelectAll() : null" title="Select All Files">
+              <div class="ed-file-card__checkbox"
+                [class.ed-file-card__checkbox--checked]="selectedFiles.size > 0 && selectedFiles.size === displayedFiles.length">
+                @if (selectedFiles.size > 0 && selectedFiles.size === displayedFiles.length) {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                }
+              </div>
+              <span>Select All</span>
+            </button>
+
+            <button type="button" class="ed-trash-btn" [class.ed-trash-btn--active]="selectedFiles.size > 0"
+              [disabled]="selectedFiles.size === 0" (click)="isDeleteModalOpen()" title="Move selected to Trash">
+              <span>Trash</span>
+              @if (selectedFiles.size > 0) {
+              <span class="ed-trash-badge">{{ selectedFiles.size }}</span>
+              }
+            </button>
+          </div>
+        </div>
 
         <div class="ed-table-wrap">
           <table class="ed-table">
             <thead>
               <tr>
+                <th class="ed-table__th" style="width: 36px; text-align: center;">
+                  <div class="ed-file-card__checkbox"
+                    [class.ed-file-card__checkbox--checked]="selectedFiles.size > 0 && selectedFiles.size === displayedFiles.length"
+                    (click)="$any(this).toggleSelectAll ? $any(this).toggleSelectAll() : null" title="Select all files">
+                    @if (selectedFiles.size > 0 && selectedFiles.size === displayedFiles.length) {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    }
+                  </div>
+                </th>
                 <th class="ed-table__th">File Name</th>
                 <th class="ed-table__th">Type</th>
                 <th class="ed-table__th">Size</th>
@@ -327,7 +402,19 @@
             </thead>
             <tbody>
               @for (file of displayedFiles; track file.id) {
-              <tr class="ed-table__row">
+              <tr class="ed-table__row" [class.ed-table__row--selected]="selectedFiles.has(file.id)"
+                (click)="fileSelection(file.id, $event)">
+                <!-- Checkbox -->
+                <td class="ed-table__td" style="width: 36px; text-align: center;">
+                  <div class="ed-file-card__checkbox"
+                    [class.ed-file-card__checkbox--checked]="selectedFiles.has(file.id)">
+                    @if (selectedFiles.has(file.id)) {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    }
+                  </div>
+                </td>
                 <!-- File Name with Icon -->
                 <td class="ed-table__td">
                   <div class="ed-table__file-cell">
@@ -531,3 +618,5 @@
       </div>
     </div>
     }
+  </section>
+</div>

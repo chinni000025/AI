@@ -23,7 +23,7 @@ using static AIEngineConnectivity.Constants.EngineConstants;
 
 namespace AIEngineGateway.Extensions
 {
-    public static class ServiceExtentions
+    public static class ServiceExtensions
     {
         public static void AddEngineServices(this IServiceCollection services, IConfiguration config)
         {

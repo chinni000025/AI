@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Text;
+﻿using System.Linq.Expressions;
 
 namespace AIEngineConnectivity.Repositories
 {
@@ -14,7 +11,12 @@ namespace AIEngineConnectivity.Repositories
                 cancellationToken = default);
         IQueryable<TEntity> Query(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken
                 = default);
-
+        Task<List<TEntity>?> GetByIdsAsync<Tkey>(IEnumerable<Tkey> keys, string propertyName,
+            CancellationToken cancellationToken);
+        Task<int> UpdatePropertyByIdsAsync<TKey, TProperty>(IEnumerable<TKey> keys,
+            string idPropertyName, Expression<Func<TEntity, TProperty>> propertyExpression,
+            TProperty newValue,
+            CancellationToken cancellation);
         void update(TEntity entity);
         void delete(TEntity entity);
     }
