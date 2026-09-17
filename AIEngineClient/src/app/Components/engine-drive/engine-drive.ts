@@ -223,10 +223,6 @@ export class EngineDrive implements OnInit, OnDestroy {
     return list;
   }
 
-  get displayedFolders() {
-    return 0;
-  }
-
   get displayedFiles(): EngineDriveItem[] {
     return this.items;
   }
@@ -251,16 +247,6 @@ export class EngineDrive implements OnInit, OnDestroy {
       this.sortOrder = 'asc';
     }
     this.cdr.markForCheck();
-  }
-
-  openFolder(): void {
-    return;
-  }
-
-  navigateToBreadcrumb(index: number): void {
-  }
-
-  navigateUp(): void {
   }
 
   openCreateFolderModal(): void {
