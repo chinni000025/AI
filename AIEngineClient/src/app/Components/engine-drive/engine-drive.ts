@@ -99,7 +99,6 @@ export class EngineDrive implements OnInit, OnDestroy {
   }
 
   fileSelection(fileId: string, event?: MouseEvent): void {
-
     if (event) {
       event.stopPropagation();
     }
