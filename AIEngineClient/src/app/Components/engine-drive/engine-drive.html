@@ -2,13 +2,11 @@
   <section class="ed-panel" [class.ed-panel--maximized]="isMaximized" role="dialog" aria-modal="true"
     aria-labelledby="engineDriveTitle" (click)="$event.stopPropagation()">
 
-    <!-- Ambient Aurora Glow Inside Modal -->
     <div class="ed-ambient-glow" aria-hidden="true">
       <span class="ed-ambient-glow__orb ed-ambient-glow__orb--cyan"></span>
       <span class="ed-ambient-glow__orb ed-ambient-glow__orb--blue"></span>
     </div>
 
-    <!-- HEADER -->
     <header class="ed-header">
       <div class="ed-header__main">
         <div class="ed-header__icon-badge">
@@ -29,12 +27,10 @@
         </div>
       </div>
 
-      <!-- Window Control Actions -->
       <div class="ed-header__actions">
         <button type="button" class="ed-window-btn" (click)="toggleMaximize()"
           [title]="isMaximized ? 'Restore window size' : 'Maximize window'">
           @if (isMaximized) {
-          <!-- Restore Icon -->
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
             stroke-linejoin="round">
             <polyline points="4 14 10 14 10 20"></polyline>
@@ -43,7 +39,6 @@
             <line x1="3" y1="21" x2="10" y2="14"></line>
           </svg>
           } @else {
-          <!-- Maximize Icon -->
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
             stroke-linejoin="round">
             <polyline points="15 3 21 3 21 9"></polyline>
@@ -64,7 +59,6 @@
       </div>
     </header>
 
-    <!-- STORAGE PROGRESS & BREAKDOWN BAR -->
     <section class="ed-storage-widget" aria-label="Storage Usage">
       <div class="ed-storage-widget__header">
         <div class="ed-storage-widget__metric">
@@ -89,7 +83,6 @@
         </div>
       </div>
 
-      <!-- Segmented glowing progress bar -->
       <div class="ed-storage-bar" role="progressbar" [attr.aria-valuenow]="usedPercentage" aria-valuemin="0"
         aria-valuemax="100">
         <div class="ed-storage-bar__track">
@@ -101,7 +94,6 @@
         </div>
       </div>
 
-      <!-- Storage Category Breakdown Chips -->
       <div class="ed-storage-chips">
         @if (storageBreakdown && storageBreakdown.length > 0) {
         @for (seg of storageBreakdown; track seg.label) {
@@ -122,9 +114,7 @@
       </div>
     </section>
 
-    <!-- TOOLBAR ACTIONS & SEARCH -->
     <div class="ed-toolbar">
-      <!-- Left Action Buttons -->
       <div class="ed-toolbar__actions">
         <button type="button" class="ed-btn ed-btn--primary" (click)="openCreateFolderModal()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -145,11 +135,9 @@
           </svg>
           <span>Upload Files</span>
         </button>
-        <!-- Hidden input for file picking -->
         <input #fileInput type="file" multiple (change)="FileInput($event)" style="display: none" />
       </div>
 
-      <!-- Right Search & Controls -->
       <div class="ed-toolbar__controls">
         <label class="ed-search">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -168,7 +156,6 @@
           }
         </label>
 
-        <!-- Sort dropdown / toggle -->
         <div class="ed-sort-group">
           <button type="button" class="ed-icon-btn" (click)="setSort('name')"
             [class.ed-icon-btn--active]="sortField === 'name'" title="Sort by Name">
@@ -193,7 +180,6 @@
           </button>
         </div>
 
-        <!-- View Mode Switcher -->
         <div class="ed-view-switch">
           <button type="button" class="ed-view-btn" [class.ed-view-btn--active]="viewMode === 'grid'"
             (click)="viewMode = 'grid'" title="Card Grid View">
@@ -219,7 +205,6 @@
       </div>
     </div>
 
-    <!-- BREADCRUMB NAVIGATION TRAIL -->
     <div class="ed-breadcrumbs-bar">
       <div class="ed-breadcrumbs">
 
@@ -234,11 +219,8 @@
         {{ totalCurrentItemCount }} {{ totalCurrentItemCount === 1 ? 'item' : 'items' }}
       </span>
     </div>
-
-    <!-- MAIN BROWSER CONTENT & DROPZONE -->
     <div class="ed-content" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)">
 
-      <!-- 1. EMPTY STATE (When no files are loaded) -->
       @if (displayedFiles.length === 0) {
       <div class="ed-empty-state">
         <div class="ed-empty-state__icon">
@@ -259,7 +241,6 @@
       </div>
       }
 
-      <!-- 2. GRID VIEW (When viewMode === 'grid') -->
       @if (displayedFiles.length > 0 && viewMode === 'grid') {
       <section class="ed-section">
         <div class="ed-section__header">
@@ -268,7 +249,6 @@
             <span class="ed-section__count">{{ displayedFiles.length }}</span>
           </h3>
 
-          <!-- Section Action Controls: Select All & Trash -->
           <div class="ed-section__controls">
             <button type="button" class="ed-action-pill-btn"
               (click)="$any(this).toggleSelectAll ? $any(this).toggleSelectAll() : null" title="Select All Files">
@@ -297,7 +277,6 @@
           @for (file of displayedFiles; track file.id) {
           <div class="ed-file-card" [class.ed-file-card--selected]="selectedFiles.has(file.id)"
             (click)="fileSelection(file.id, $event)">
-            <!-- Card Top: Selection checkbox, extension badge & formatted size -->
             <div class="ed-file-card__top">
               <div class="ed-file-card__checkbox" [class.ed-file-card__checkbox--checked]="selectedFiles.has(file.id)">
                 @if (selectedFiles.has(file.id)) {
@@ -310,7 +289,6 @@
               <span class="ed-file-card__meta">{{ formatBytes(file.fileSize) }}</span>
             </div>
 
-            <!-- Card Center Graphic Icon -->
             <div class="ed-file-card__visual">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -320,13 +298,10 @@
               </svg>
             </div>
 
-            <!-- Card Details: File Name & Date -->
             <div class="ed-file-card__content">
               <span class="ed-file-card__name" [title]="file.fileName">{{ file.fileName }}</span>
               <span class="ed-file-card__meta">{{ file.modifiedAt | date:'mediumDate' }}</span>
             </div>
-
-            <!-- Hover Action Overlay -->
             <div class="ed-file-card__actions" (click)="$event.stopPropagation()">
               <a class="ed-card-action ed-card-action--download" [href]="file.location || '#'"
                 [download]="file.fileName" [title]="'Download ' + file.fileName">
@@ -343,8 +318,6 @@
         </div>
       </section>
       }
-
-      <!-- 3. TABLE VIEW (When viewMode === 'table') -->
       @if (displayedFiles.length > 0 && viewMode === 'table') {
       <section class="ed-section">
         <div class="ed-section__header">
@@ -353,7 +326,6 @@
             <span class="ed-section__count">{{ displayedFiles.length }}</span>
           </h3>
 
-          <!-- Section Action Controls: Select All & Trash -->
           <div class="ed-section__controls">
             <button type="button" class="ed-action-pill-btn"
               (click)="$any(this).toggleSelectAll ? $any(this).toggleSelectAll() : null" title="Select All Files">
@@ -367,7 +339,6 @@
               </div>
               <span>Select All</span>
             </button>
-
             <button type="button" class="ed-trash-btn" [class.ed-trash-btn--active]="selectedFiles.size > 0"
               [disabled]="selectedFiles.size === 0" (click)="isDeleteModalOpen()" title="Move selected to Trash">
               <span>Trash</span>
@@ -377,7 +348,6 @@
             </button>
           </div>
         </div>
-
         <div class="ed-table-wrap">
           <table class="ed-table">
             <thead>
@@ -404,7 +374,6 @@
               @for (file of displayedFiles; track file.id) {
               <tr class="ed-table__row" [class.ed-table__row--selected]="selectedFiles.has(file.id)"
                 (click)="fileSelection(file.id, $event)">
-                <!-- Checkbox -->
                 <td class="ed-table__td" style="width: 36px; text-align: center;">
                   <div class="ed-file-card__checkbox"
                     [class.ed-file-card__checkbox--checked]="selectedFiles.has(file.id)">
@@ -415,7 +384,6 @@
                     }
                   </div>
                 </td>
-                <!-- File Name with Icon -->
                 <td class="ed-table__td">
                   <div class="ed-table__file-cell">
                     <span class="ed-table__icon">
@@ -427,15 +395,11 @@
                     <span class="ed-table__filename" [title]="file.fileName">{{ file.fileName }}</span>
                   </div>
                 </td>
-                <!-- Extension / Type Badge -->
                 <td class="ed-table__td">
                   <span class="ed-badge ed-badge--default">{{ extractExtension(file.fileName) || 'file' }}</span>
                 </td>
-                <!-- Size -->
                 <td class="ed-table__td">{{ formatBytes(file.fileSize) }}</td>
-                <!-- Date -->
                 <td class="ed-table__td">{{ file.modifiedAt | date:'mediumDate' }}</td>
-                <!-- Download Action -->
                 <td class="ed-table__td" style="text-align: right;">
                   <div class="ed-table__action-group" style="justify-content: flex-end;"
                     (click)="$event.stopPropagation()">
@@ -459,7 +423,6 @@
       }
 
     </div>
-    <!-- Drag & Drop Hover Overlay -->
     @if (isDragOver) {
     <div class="ed-dropzone-overlay">
       <div class="ed-dropzone-overlay__box">
@@ -476,8 +439,6 @@
     </div>
     }
 
-
-    <!-- ══ FLOATING UPLOAD PROGRESS DOCK ══ -->
     @if (uploads.length > 0) {
     <aside class="ed-upload-dock" [class.ed-upload-dock--collapsed]="!isUploadDockExpanded"
       aria-label="Upload Progress">
@@ -553,7 +514,6 @@
             </div>
           </div>
 
-          <!-- Progress Bar Line -->
           @if (task.status === 'uploading') {
           <div class="ed-upload-row__bar">
             <div class="ed-upload-row__fill" [style.width.%]="task.progress"></div>
@@ -564,59 +524,6 @@
       </div>
       }
     </aside>
-    }
-
-    <!-- ══ CREATE FOLDER MODAL ══ -->
-    @if (isCreateFolderModalOpen) {
-    <div class="ed-subdialog-backdrop" (click)="closeCreateFolderModal()">
-      <div class="ed-subdialog" (click)="$event.stopPropagation()" role="dialog" aria-modal="true"
-        aria-labelledby="createFolderTitle">
-        <header class="ed-subdialog__header">
-          <div class="ed-subdialog__icon-wrap">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-              <line x1="12" y1="11" x2="12" y2="17"></line>
-              <line x1="9" y1="14" x2="15" y2="14"></line>
-            </svg>
-          </div>
-          <div>
-            <h3 class="ed-subdialog__title" id="createFolderTitle">Create New Folder</h3>
-            <p class="ed-subdialog__subtitle">Organize your models, prompts, and vector knowledge assets.</p>
-          </div>
-        </header>
-
-        <div class="ed-subdialog__body">
-          <label class="ed-input-label">Folder Name</label>
-          <input type="text" class="ed-input" placeholder="e.g., Llama-3 Fine-Tuning" [(ngModel)]="newFolderName"
-            (keydown.enter)="submitCreateFolder()" autofocus />
-
-          @if (createFolderError) {
-          <p class="ed-input-error">{{ createFolderError }}</p>
-          }
-
-          <div class="ed-color-picker">
-            <span class="ed-input-label">Folder Accent Color</span>
-            <div class="ed-color-picker__palette">
-              @for (col of folderColorOptions; track col) {
-              <button type="button" class="ed-color-chip" [style.background-color]="col"
-                [class.ed-color-chip--selected]="selectedFolderColor === col" (click)="selectedFolderColor = col">
-                @if (selectedFolderColor === col) {
-                <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3">
-                  <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-                }
-              </button>
-              }
-            </div>
-          </div>
-        </div>
-
-        <footer class="ed-subdialog__footer">
-          <button type="button" class="ed-btn ed-btn--ghost" (click)="closeCreateFolderModal()">Cancel</button>
-          <button type="button" class="ed-btn ed-btn--primary" (click)="submitCreateFolder()">Create Folder</button>
-        </footer>
-      </div>
-    </div>
     }
   </section>
 </div>
