@@ -2,7 +2,7 @@ import { Component, EventEmitter, OnInit, OnDestroy, Output, ElementRef, ViewChi
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EngineDriveSvg } from '../svgs/engine-drive-svg/engine-drive-svg';
-import { BehaviorSubject, catchError, concatMap, defaultIfEmpty, EMPTY, finalize, from, map, mergeMap, Observable, retry, Subject, take, takeUntil, tap } from 'rxjs';
+import { catchError, concatMap, defaultIfEmpty, EMPTY, finalize, from, map, mergeMap, Observable, retry, Subject, take, takeUntil, tap } from 'rxjs';
 import { FileUploadService } from '../../services/file-upload-service';
 import { Buttons, ChunkInitalize, ChunkUpload, EngineDriveItem, InitiateUploadRequest, StorageInfo } from '../../services/engine-route-constants';
 import { SnackbarService } from '../../services/snackbar-service';
@@ -39,8 +39,6 @@ export class EngineDrive implements OnInit, OnDestroy {
 
   isCreateFolderModalOpen = false;
   newFolderName = '';
-  selectedFolderColor = '#00f0ff';
-  folderColorOptions = ['#00f0ff', '#0072ff', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'];
   createFolderError = '';
 
   uploads: UploadFileTask[] = [];
@@ -226,10 +224,6 @@ export class EngineDrive implements OnInit, OnDestroy {
     return 'folder';
   }
 
-  private sortItems(): number {
-    return 0;
-  }
-
   setSort(field: SortField): void {
     if (this.sortField === field) {
       this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
@@ -242,7 +236,6 @@ export class EngineDrive implements OnInit, OnDestroy {
 
   openCreateFolderModal(): void {
     this.newFolderName = '';
-    this.selectedFolderColor = '#00f0ff';
     this.createFolderError = '';
     this.isCreateFolderModalOpen = true;
     this.cdr.markForCheck();
@@ -253,10 +246,6 @@ export class EngineDrive implements OnInit, OnDestroy {
     this.newFolderName = '';
     this.createFolderError = '';
     this.cdr.markForCheck();
-  }
-
-  submitCreateFolder(): void {
-
   }
 
   triggerFileInput(): void {
