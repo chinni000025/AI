@@ -27,36 +27,28 @@ export class EngineDrive implements OnInit, OnDestroy {
   @ViewChild('fileInput') fileInputRef?: ElementRef<HTMLInputElement>;
   @ViewChild('folderInput') folderInputRef?: ElementRef<HTMLInputElement>;
 
-  // Storage Quota: 50 GB
   readonly totalStorageBytes = 1024 * 1024 * 1024;
 
-  // View state
   viewMode: ViewMode = 'grid';
   isMaximized = false;
   searchQuery = '';
   activeCategoryFilter: 'all' | 'folder' | 'model' | 'dataset' | 'document' | 'media' = 'all';
   sortField: SortField = 'name';
   sortOrder: SortOrder = 'asc';
-
-  // Navigation
   currentFolderId: string | null = null;
 
-  // Create folder modal state
   isCreateFolderModalOpen = false;
   newFolderName = '';
   selectedFolderColor = '#00f0ff';
   folderColorOptions = ['#00f0ff', '#0072ff', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'];
   createFolderError = '';
 
-  // Upload progress dock
   uploads: UploadFileTask[] = [];
   isUploadDockExpanded = true;
   private uploadIntervalId: any = null;
 
-  // Drag & drop state
   isDragOver = false;
 
-  // Toast notification
   toastMessage: string | null = null;
   toastType: 'success' | 'info' | 'warning' = 'info';
 
