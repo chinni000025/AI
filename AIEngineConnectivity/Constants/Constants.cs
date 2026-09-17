@@ -198,6 +198,7 @@ namespace AIEngineConnectivity.Constants
         EmailNotification = 0,
         SmsNotification = 1,
     }
+
     public enum EngineNotificationStatus
     {
         Processing,
@@ -221,5 +222,11 @@ namespace AIEngineConnectivity.Constants
         Cancelled = 3,
         Failed = 4,
         TimeOut = 5
+    }
+
+    public enum RecycleItem
+    {
+        Converstation = 0,
+        EngineFile = 1
     }
 }
