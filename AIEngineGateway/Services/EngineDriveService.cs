@@ -103,6 +103,7 @@ namespace AIEngineGateway.Services
             var recycleEntities = ids.Select(id => new RecycleBin
             {
                 EntityId = id.ToString(),
+                ItemId = RecycleItem.EngineFile,
                 CreatedAt = now,
                 ModifiedAt = now,
                 DeletedBy = userId
@@ -112,6 +113,7 @@ namespace AIEngineGateway.Services
                 .AddRangeAsync(recycleEntities, cancellationToken);
             var files = await _repositoryWrapper.GetEngineRepo<EngineFile>()
                 .UpdatePropertyByIdsAsync(ids, "Id", f => f.IsRecyled, true, cancellationToken);
+            await _repositoryWrapper.SaveChangesAsync(cancellationToken);
         }
     }
 }

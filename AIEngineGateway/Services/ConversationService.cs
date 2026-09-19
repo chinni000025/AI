@@ -40,6 +40,7 @@ namespace AIEngineGateway.Services
             {
                 EntityId = conversationId.ToString(),
                 DeletedBy = _UserService.GetCurrentUser?.UserId,
+                ItemId = RecycleItem.Converstation,
                 CreatedAt = now,
                 ModifiedAt = now
             };
