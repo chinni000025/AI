@@ -1,7 +1,6 @@
-using Microsoft.EntityFrameworkCore;
-using AIEngineConnectivity.Models;
 using AIEngineConnectivity.Entities;
-using AIEngineConnectivity.EngineCore;
+using AIEngineConnectivity.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace AIEngineGateway.EngineInfrastructure
 {
@@ -46,14 +45,24 @@ namespace AIEngineGateway.EngineInfrastructure
         public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
 
         public DbSet<EngineNotification> EngineNotifications { get; set; }
+
         public DbSet<EngineNotificationEvent> EngineNotificationEvents { get; set; }
+
         public DbSet<EngineFile> EngineFiles { get; set; }
+
         public DbSet<FileAccessors> FileAccessors { get; set; }
+
         public DbSet<FileContent> FileContents { get; set; }
+
         public DbSet<FileContext> FileContexts { get; set; }
+
         public DbSet<EngineFileUploadingSession> EngineFileUploadingSessions { get; set; }
+
         public DbSet<FileChunks> FileChunks { get; set; }
+
         public DbSet<EngineDriveMetering> EngineDriveMeterings { get; set; }
+
+        public DbSet<RecycleBin> RecycleBin { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

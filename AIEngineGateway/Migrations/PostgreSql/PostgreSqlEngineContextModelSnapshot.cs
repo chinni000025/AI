@@ -780,6 +780,34 @@ namespace AIEngineGateway.Migrations.PostgreSql
                     b.ToTable("ProjectMembers");
                 });
 
+            modelBuilder.Entity("AIEngineConnectivity.Entities.RecycleBin", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("EntityId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("ItemId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RecycleBin");
+                });
+
             modelBuilder.Entity("AIEngineConnectivity.Entities.RefreshToken", b =>
                 {
                     b.Property<int>("Id")
