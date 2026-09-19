@@ -9,15 +9,17 @@ import { SnackbarService } from '../../services/snackbar-service';
 import { UploadFileTask } from '../../models/snackbar-config';
 import { ConfirmationDialog } from '../dialogs/confirmation-dialog/confirmation-dialog';
 import { DialogService } from '../../services/dialog.service';
+import { TrashFilesDialog } from '../../Components/dialogs/trash-files-dialog/trash-files-dialog';
 export type ItemCategory = 'folder' | 'model' | 'dataset' | 'document' | 'media' | 'code' | 'archive' | 'other';
 export type ViewMode = 'grid' | 'table';
 export type SortField = 'name' | 'modifiedAt' | 'size';
 export type SortOrder = 'asc' | 'desc';
 
+
 @Component({
   selector: 'app-engine-drive',
   standalone: true,
-  imports: [CommonModule, FormsModule, EngineDriveSvg],
+  imports: [CommonModule, FormsModule, EngineDriveSvg, TrashFilesDialog],
   templateUrl: './engine-drive.html',
   styleUrl: './engine-drive.css'
 })
@@ -60,6 +62,7 @@ export class EngineDrive implements OnInit, OnDestroy {
   private storageInfo: StorageInfo | null = null;
   selectedFiles = new Set<string>();
   private readonly $destroy = new Subject<void>();
+  isTrashDialogOpen = false;
 
   constructor(private cdr: ChangeDetectorRef, private dialogService: DialogService,
     private uploadService: FileUploadService,
@@ -116,6 +119,14 @@ export class EngineDrive implements OnInit, OnDestroy {
     } else {
       displayFileIds.every(f => this.selectedFiles.add(f));
     }
+  }
+
+  OpenTrashDialog() {
+    this.isTrashDialogOpen = true;
+  }
+
+  closeTrashDialog() {
+    this.isTrashDialogOpen = false;
   }
 
   isDeleteModalOpen() {
