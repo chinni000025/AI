@@ -345,7 +345,7 @@ export class PromptSpace implements AfterViewChecked {
 
         this.dialogService.open(ConfirmationDialog, {
             message: 'Delete Conversation',
-            subMessage: `"${conv.conversationTitle}" will be moved to the AIEngine Recycle Bin and permanently deleted after 24 hours.\n You can restore it anytime before deletion.`,
+            subMessage: `"${conv.conversationTitle}" will be moved to the Engine Recycle Bin.`,
             iconType: 'trash-svg',
             variant: 'danger',
             buttons: [Buttons.Cancel, Buttons.Delete]

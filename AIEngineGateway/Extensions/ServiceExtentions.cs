@@ -159,7 +159,6 @@ namespace AIEngineGateway.Extensions
             services.AddHostedService<RestoreEngineNotifications>();
             services.AddHostedService<CleanSessionsAndChunks>();
             services.AddScoped<ICleanUpJob, RefreshTokenCleanUpJob>();
-            services.AddScoped<ICleanUpJob, DeleteConversationsJob>();
         }
 
         public static void CorsOrigin(IServiceCollection services)

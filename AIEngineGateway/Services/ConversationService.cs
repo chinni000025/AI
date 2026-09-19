@@ -34,6 +34,17 @@ namespace AIEngineGateway.Services
                 throw new Exception($"Conversation with Id {conversationId} Not Found");
 
             await _Repository.ConversationRepository.DeleteConversation(conversation);
+            var now = DateTime.UtcNow;
+
+            var entity = new RecycleBin
+            {
+                EntityId = conversationId.ToString(),
+                DeletedBy = _UserService.GetCurrentUser?.UserId,
+                CreatedAt = now,
+                ModifiedAt = now
+            };
+
+            await _Repository.GetEngineRepo<RecycleBin>().AddAsync(entity, cancellationToken);
             await _Repository.SaveChangesAsync(cancellationToken);
 
             return new

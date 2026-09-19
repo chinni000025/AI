@@ -27,7 +27,7 @@ namespace AIEngineGateway.BackgroundServices
                     {
                         try
                         {
-                            await job.ExecuteAsync(context,cancellationToken);
+                            await job.ExecuteAsync(context, cancellationToken);
                         }
                         catch
                         {

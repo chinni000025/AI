@@ -5,7 +5,7 @@ using AIEngineConnectivity.Models;
 using AIEngineConnectivity.Repositories;
 using AIEngineConnectivity.Services;
 using Microsoft.Extensions.Options;
-
+#nullable disable
 namespace AIEngineGateway.Services
 {
     public class EngineDriveService : IEngineDriveService
@@ -97,6 +97,19 @@ namespace AIEngineGateway.Services
 
         public async Task DeleteFileByIds(List<Guid> ids, CancellationToken cancellationToken)
         {
+            var now = DateTime.Now;
+            var userId = _userService?.GetCurrentUser?.UserId;
+
+            var recycleEntities = ids.Select(id => new RecycleBin
+            {
+                EntityId = id.ToString(),
+                CreatedAt = now,
+                ModifiedAt = now,
+                DeletedBy = userId
+            }).ToList();
+
+            await _repositoryWrapper.GetEngineRepo<RecycleBin>()
+                .AddRangeAsync(recycleEntities, cancellationToken);
             var files = await _repositoryWrapper.GetEngineRepo<EngineFile>()
                 .UpdatePropertyByIdsAsync(ids, "Id", f => f.IsRecyled, true, cancellationToken);
         }

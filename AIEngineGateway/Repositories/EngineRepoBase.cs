@@ -20,6 +20,11 @@ namespace AIEngineGateway.Repositories
             return entry.Entity;
         }
 
+        public async Task AddRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
+        {
+            await _dbSet.AddRangeAsync(entities, cancellationToken);
+        }
+
         public void delete(TEntity entity)
         {
             _dbSet.Remove(entity);
