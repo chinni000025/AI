@@ -1,0 +1,13 @@
+1. Understand the Requirements.
+
+2. Identify the Core Entities.
+
+3. Deep Analyse the Execution flow.
+
+4. Identify the entity relationship.
+
+5. Analyse the Failure Cases.
+
+6. Scale.
+
+7. Code.
