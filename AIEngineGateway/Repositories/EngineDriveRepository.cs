@@ -434,5 +434,39 @@ namespace AIEngineGateway.Repositories
             return query;
         }
 
+        public async Task DeleteEngineFileAsync(Guid Id, CancellationToken cancellationToken)
+        {
+            var engineFile = await _engineContext.EngineFiles
+                .FirstOrDefaultAsync(id => id.Id == Id, cancellationToken);
+            if (engineFile is null)
+            {
+                return;
+            }
+            var fileContent = await _engineContext.FileContents
+                .FirstOrDefaultAsync(c => c.Id == engineFile.ContentId, cancellationToken);
+            if (fileContent is not null)
+            {
+                if (_engineContext.Database.IsNpgsql() &&
+            fileContent.ContentOid.HasValue)
+                {
+                    var connection = (NpgsqlConnection)_engineContext.Database.GetDbConnection();
+                    if (connection.State != ConnectionState.Open)
+                    {
+                        await connection.OpenAsync(cancellationToken);
+                    }
+                    var transaction = _engineContext.Database.CurrentTransaction?.GetDbTransaction() as NpgsqlTransaction;
+
+                    await using var command = new NpgsqlCommand(
+                        "SELECT lo_unlink(@oid);",
+                        connection,
+                        transaction);
+
+                    command.Parameters.AddWithValue("oid", fileContent.ContentOid.Value);
+                    await command.ExecuteNonQueryAsync(cancellationToken);
+                }
+                _engineContext.FileContents.Remove(fileContent);
+            }
+            _engineContext.EngineFiles.Remove(engineFile);
+        }
     }
 }

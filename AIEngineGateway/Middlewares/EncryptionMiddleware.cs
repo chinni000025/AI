@@ -1,7 +1,7 @@
-﻿using System.Text;
-using System.Text.Json;
-using AIEngineConnectivity.Models;
+﻿using AIEngineConnectivity.Models;
 using AIEngineConnectivity.Services;
+using System.Text;
+using System.Text.Json;
 
 namespace AIEngineGateway.Middlewares
 {

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace AIEngineConnectivity.Repositories
+﻿namespace AIEngineConnectivity.Repositories
 {
     public interface IRepositoryWrapper
     {
@@ -13,6 +9,8 @@ namespace AIEngineConnectivity.Repositories
         IEngineRepoBase<TEntity> GetEngineRepo<TEntity>() where TEntity : class;
         IEngineNotificationRepository EngineNotificationRepository { get; }
         IEngineDriveRepository EngineDriveRepository { get; }
+        IEngineRecycleBinRepository EngineRecycleBinRepository { get; }
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+        Task ExecuteInTransactionAsync(Func<Task> action, CancellationToken cancellationToken = default);
     }
 }

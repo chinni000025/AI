@@ -1,9 +1,6 @@
 ﻿using AIEngineConnectivity.DTOs;
 using AIEngineConnectivity.Entities;
 using AIEngineConnectivity.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace AIEngineConnectivity.Repositories
 {
@@ -26,5 +23,6 @@ namespace AIEngineConnectivity.Repositories
         public Task DeleteConversation(Conversation conversation);
         public Task<PagedResponse<ArchiveChatItem>> GetUserArchiveConversation(String userId, ArchiveChatRequest archiveChatRequest,
             CancellationToken cancellationToken);
+        public Task DeleteConversationAsync(Guid Id, CancellationToken cancellationToken);
     }
 }

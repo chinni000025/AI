@@ -226,7 +226,7 @@ namespace AIEngineConnectivity.Constants
 
     public enum RecycleItem
     {
-        Converstation = 1,
+        conversation = 1,
         EngineFile = 2,
         Project = 3
     }

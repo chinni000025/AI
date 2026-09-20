@@ -14,14 +14,17 @@ namespace AIEngineGateway.Services
         private readonly TimeSpan _engineUploadFileTTL;
         private readonly IRepositoryWrapper _repositoryWrapper;
         private readonly ILogger<EngineDriveService> _logger;
+        private readonly IEngineScheduler _engineScheduler;
 
         public EngineDriveService(IUserService userService, IRepositoryWrapper repositoryWrapper,
-            IOptions<EngineUploadFileTTL> options, ILogger<EngineDriveService> logger)
+            IOptions<EngineUploadFileTTL> options, ILogger<EngineDriveService> logger,
+            IEngineScheduler engineScheduler)
         {
             _userService = userService;
             _repositoryWrapper = repositoryWrapper;
             _engineUploadFileTTL = TimeSpan.FromMinutes(options.Value.Expires);
             _logger = logger;
+            _engineScheduler = engineScheduler;
         }
 
         public async Task<Guid> InitiateFileUpload(UploadInitiateRequest request, CancellationToken cancellationToken)
@@ -108,12 +111,15 @@ namespace AIEngineGateway.Services
                 ModifiedAt = now,
                 DeletedBy = userId
             }).ToList();
-
             await _repositoryWrapper.GetEngineRepo<RecycleBin>()
                 .AddRangeAsync(recycleEntities, cancellationToken);
             var files = await _repositoryWrapper.GetEngineRepo<EngineFile>()
                 .UpdatePropertyByIdsAsync(ids, "Id", f => f.IsRecyled, true, cancellationToken);
             await _repositoryWrapper.SaveChangesAsync(cancellationToken);
+            foreach (var entity in recycleEntities)
+            {
+                await _engineScheduler.DeleteEngineRecycleItems(entity, cancellationToken);
+            }
         }
     }
 }

@@ -93,6 +93,8 @@ namespace AIEngineGateway.Extensions
             services.AddScoped<EngineDbConfigurator>();
             services.AddScoped<IEngineDataBaseService, EngineConfigureService>();
             services.AddScoped<IEngineDriveService, EngineDriveService>();
+            services.AddKeyedScoped<IRecycleItemHandler, ConversationRecycleHandler>(RecycleItem.conversation);
+            services.AddKeyedScoped<IRecycleItemHandler, EngineFileRecycleHandler>(RecycleItem.EngineFile);
         }
 
         public static void EngineRepositories(IServiceCollection services)

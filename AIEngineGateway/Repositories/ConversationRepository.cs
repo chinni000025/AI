@@ -158,5 +158,11 @@ namespace AIEngineGateway.Repositories
                 PageSize = archiveChatRequest.PageSize
             };
         }
+
+        public async Task DeleteConversationAsync(Guid Id, CancellationToken cancellationToken)
+        {
+            await _EngineContext.Conversations.Select(id => id.ConversationId == Id)
+                .ExecuteDeleteAsync(cancellationToken);
+        }
     }
 }

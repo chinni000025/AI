@@ -1,5 +1,5 @@
-﻿
-using AIEngineConnectivity.DTOs;
+﻿using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.Entities;
 using AIEngineConnectivity.Services;
 using AIEngineGateway.BackgroundServices.Jobs;
 using Quartz;
@@ -14,7 +14,8 @@ namespace AIEngineGateway.Services
             _SchedulerFactory = schedulerFactory;
         }
 
-        public async Task ScheduleJobAsync(IJobDetail job, ITrigger trigger, CancellationToken ct = default)
+        public async Task ScheduleJobAsync(IJobDetail job, ITrigger trigger,
+            CancellationToken ct = default)
         {
             var scheduler = await _SchedulerFactory.GetScheduler();
             var IsJobExists = await scheduler.CheckExists(job.Key, ct);
@@ -50,6 +51,24 @@ namespace AIEngineGateway.Services
 
             var trigger = TriggerBuilder.Create().WithIdentity(triggerKey).ForJob(job)
                 .StartAt(scheduleEngineNotification.RetryAt).Build();
+
+            await ScheduleJobAsync(job, trigger, ct);
+        }
+
+        public async Task DeleteEngineRecycleItems(RecycleBin recycleBin, CancellationToken ct = default)
+        {
+            var jobKey = new JobKey($"EngineRecycleBin-{recycleBin.EntityId}", "RecycleEntityId");
+
+            var triggerKey = new TriggerKey($"EngineRecycleBinTrigger-{recycleBin.EntityId}", "RecycleEntityId");
+
+            var job = JobBuilder.Create<EngineRecycleBinJob>().WithIdentity(jobKey)
+                .UsingJobData("RecycleBinId", recycleBin.Id)
+                .UsingJobData("RecycleItem", recycleBin.ItemId.ToString())
+                .UsingJobData("EntityId", recycleBin.EntityId)
+                .Build();
+
+            var trigger = TriggerBuilder.Create().WithIdentity(triggerKey).ForJob(job)
+                .StartAt(recycleBin.CreatedAt.AddDays(30)).Build();
 
             await ScheduleJobAsync(job, trigger, ct);
         }

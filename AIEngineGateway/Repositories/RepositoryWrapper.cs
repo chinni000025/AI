@@ -1,5 +1,6 @@
 ﻿using AIEngineConnectivity.Repositories;
 using AIEngineGateway.EngineInfrastructure;
+using Microsoft.EntityFrameworkCore;
 
 namespace AIEngineGateway.Repositories
 {
@@ -18,11 +19,14 @@ namespace AIEngineGateway.Repositories
         public IServiceProvider _ServiceProvider;
         public IEngineDriveRepository EngineDriveRepository { get; set; }
 
+        public IEngineRecycleBinRepository EngineRecycleBinRepository { get; set; }
+
         public RepositoryWrapper(IIdentityRepository identityRepository, IConversationRepository conversationRepository,
             IConnectionRepository connectionRepository,
             IDataProtectionKeyRepository dataProtectionKeyRepository,
             IEngineNotificationRepository engineNotificationRepository,
             IEngineDriveRepository engineDriveRepository,
+            IEngineRecycleBinRepository engineRecycleBinRepository,
             EngineContext engineContext, IServiceProvider serviceProvider)
         {
             IdentityRepository = identityRepository;
@@ -32,6 +36,7 @@ namespace AIEngineGateway.Repositories
             DataProtectionKeyRepository = dataProtectionKeyRepository;
             _ServiceProvider = serviceProvider;
             EngineNotificationRepository = engineNotificationRepository;
+            EngineRecycleBinRepository = engineRecycleBinRepository;
             EngineDriveRepository = engineDriveRepository;
         }
 
@@ -44,6 +49,26 @@ namespace AIEngineGateway.Repositories
         public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             return await EngineContext.SaveChangesAsync(cancellationToken); // 1 --> success.
+        }
+
+        public async Task ExecuteInTransactionAsync(Func<Task> action, CancellationToken cancellationToken = default)
+        {
+            var executionStrategy = EngineContext.Database.CreateExecutionStrategy();
+            await executionStrategy.ExecuteAsync(async () =>
+            {
+                await using var transaction = await EngineContext.Database
+                            .BeginTransactionAsync(cancellationToken);
+                try
+                {
+                    await action();
+                    await transaction.CommitAsync(cancellationToken);
+                }
+                catch
+                {
+                    await transaction.RollbackAsync(cancellationToken);
+                    throw;
+                }
+            });
         }
     }
 }

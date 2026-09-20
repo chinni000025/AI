@@ -1,8 +1,6 @@
 ﻿using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.Entities;
 using Quartz;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace AIEngineConnectivity.Services
 {
@@ -12,5 +10,6 @@ namespace AIEngineConnectivity.Services
         public Task DeleteJobAsync(JobKey jobKey, CancellationToken ct = default);
         public Task ScheduleEngineNotification(ScheduleEngineNotificationDTO scheduleEngineNotification,
             CancellationToken ct = default);
+        public Task DeleteEngineRecycleItems(RecycleBin recycleBin, CancellationToken ct = default);
     }
 }

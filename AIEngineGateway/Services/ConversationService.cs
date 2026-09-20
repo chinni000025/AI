@@ -17,12 +17,14 @@ namespace AIEngineGateway.Services
         private readonly IUserService _UserService;
         private readonly IRepositoryWrapper _Repository;
         private readonly IAIOrchestrator _aIOrchestrator;
+        private readonly IEngineScheduler _engineScheduler;
         public ConversationService(IUserService userService, IRepositoryWrapper repository,
-            IAIOrchestrator aIOrchestrator)
+            IAIOrchestrator aIOrchestrator, IEngineScheduler engineScheduler)
         {
             _UserService = userService;
             _Repository = repository;
             _aIOrchestrator = aIOrchestrator;
+            _engineScheduler = engineScheduler;
         }
 
         public async Task<object> DeleteConversation(Guid conversationId, CancellationToken cancellationToken)
@@ -40,14 +42,14 @@ namespace AIEngineGateway.Services
             {
                 EntityId = conversationId.ToString(),
                 DeletedBy = _UserService.GetCurrentUser?.UserId,
-                ItemId = RecycleItem.Converstation,
+                ItemId = RecycleItem.conversation,
                 CreatedAt = now,
                 ModifiedAt = now
             };
 
             await _Repository.GetEngineRepo<RecycleBin>().AddAsync(entity, cancellationToken);
             await _Repository.SaveChangesAsync(cancellationToken);
-
+            await _engineScheduler.DeleteEngineRecycleItems(entity, cancellationToken);
             return new
             {
                 response = "Ok"
