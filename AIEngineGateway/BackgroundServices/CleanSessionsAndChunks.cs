@@ -23,7 +23,10 @@ namespace AIEngineGateway.BackgroundServices
         {
             await using var scope = _serviceScopeFactory.CreateAsyncScope();
             var repo = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
-            await repo.EngineDriveRepository.StaleEngineUploadingSessionsAndChunks(cancellationToken);
+            await repo.ExecuteInTransactionAsync(async () =>
+             {
+                 await repo.EngineDriveRepository.StaleEngineUploadingSessionsAndChunks(cancellationToken);
+             }, cancellationToken);
         }
     }
 }

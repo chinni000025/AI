@@ -53,15 +53,22 @@ namespace AIEngineGateway.Services
         public async Task UploadChunks(IFormFile formFile, long chunkIndex, Guid sessionId, CancellationToken cancellationToken)
         {
             await using var chunkStream = formFile.OpenReadStream();
-            await _repositoryWrapper.EngineDriveRepository.StoreChunkAtomicAsync(sessionId, chunkIndex,
-                chunkStream, formFile.Length, cancellationToken);
+            await _repositoryWrapper.ExecuteInTransactionAsync(async () =>
+            {
+                await _repositoryWrapper.EngineDriveRepository
+                        .StoreChunkAtomicAsync(sessionId, chunkIndex,
+                            chunkStream, formFile.Length, cancellationToken);
+            }, cancellationToken);
         }
 
         public async Task FinalizeUploadAsync(Guid sessionId, CancellationToken cancellationToken)
         {
             try
             {
-                await _repositoryWrapper.EngineDriveRepository.FinalizeUploadAtomicAsync(sessionId, _userService, cancellationToken);
+                await _repositoryWrapper.ExecuteInTransactionAsync(async () =>
+                {
+                    await _repositoryWrapper.EngineDriveRepository.FinalizeUploadAtomicAsync(sessionId, _userService, cancellationToken);
+                }, cancellationToken);
             }
             catch (Exception ex)
             {

@@ -92,9 +92,6 @@ namespace AIEngineGateway.Extensions
             services.AddScoped<SqlServerProvider>();
             services.AddScoped<EngineDbConfigurator>();
             services.AddScoped<IEngineDataBaseService, EngineConfigureService>();
-            services.AddScoped<IEngineDriveService, EngineDriveService>();
-            services.AddKeyedScoped<IRecycleItemHandler, ConversationRecycleHandler>(RecycleItem.conversation);
-            services.AddKeyedScoped<IRecycleItemHandler, EngineFileRecycleHandler>(RecycleItem.EngineFile);
         }
 
         public static void EngineRepositories(IServiceCollection services)
@@ -107,6 +104,7 @@ namespace AIEngineGateway.Extensions
             services.AddScoped<IDataProtectionKeyRepository, DataProtectionKeyRepository>();
             services.AddScoped<IEngineNotificationRepository, EngineNotificationRepository>();
             services.AddScoped<IEngineDriveRepository, EngineDriveRepository>();
+            services.AddScoped<IEngineRecycleBinRepository, EngineRecycleBinRepository>();
         }
 
         public static void EngineServices(IServiceCollection services)
@@ -122,6 +120,10 @@ namespace AIEngineGateway.Extensions
             services.AddScoped<IEmailService, EmailService>();
             services.AddSingleton<IEngineScheduler, EngineScheduler>();
             services.AddScoped<IEngineNotificationService, EngineNotificationService>();
+            services.AddScoped<IEngineDriveService, EngineDriveService>();
+            services.AddKeyedScoped<IRecycleItemHandler, ConversationRecycleHandler>(RecycleItem.conversation);
+            services.AddKeyedScoped<IRecycleItemHandler, EngineFileRecycleHandler>(RecycleItem.EngineFile);
+
         }
 
         public static void AIExtensions(IServiceCollection services)

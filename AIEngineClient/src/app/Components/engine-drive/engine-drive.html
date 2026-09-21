@@ -259,6 +259,7 @@
           </h3>
 
           <div class="ed-section__controls">
+            @if(selectedFiles.size > 0){
             <button type="button" class="ed-action-pill-btn"
               (click)="$any(this).toggleSelectAll ? $any(this).toggleSelectAll() : null" title="Select All Files">
               <div class="ed-file-card__checkbox"
@@ -271,7 +272,6 @@
               </div>
               <span>Select All</span>
             </button>
-
             <button type="button" class="ed-trash-btn" [class.ed-trash-btn--active]="selectedFiles.size > 0"
               [disabled]="selectedFiles.size === 0" (click)="isDeleteModalOpen()" title="Move selected to Trash">
               <span>Trash</span>
@@ -279,6 +279,7 @@
               <span class="ed-trash-badge">{{ selectedFiles.size }}</span>
               }
             </button>
+            }
           </div>
         </div>
 
@@ -336,6 +337,7 @@
           </h3>
 
           <div class="ed-section__controls">
+            @if(selectedFiles.size > 0){
             <button type="button" class="ed-action-pill-btn"
               (click)="$any(this).toggleSelectAll ? $any(this).toggleSelectAll() : null" title="Select All Files">
               <div class="ed-file-card__checkbox"
@@ -355,6 +357,7 @@
               <span class="ed-trash-badge">{{ selectedFiles.size }}</span>
               }
             </button>
+            }
           </div>
         </div>
         <div class="ed-table-wrap">
