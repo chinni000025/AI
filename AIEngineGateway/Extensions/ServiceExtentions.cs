@@ -123,7 +123,6 @@ namespace AIEngineGateway.Extensions
             services.AddScoped<IEngineDriveService, EngineDriveService>();
             services.AddKeyedScoped<IRecycleItemHandler, ConversationRecycleHandler>(RecycleItem.conversation);
             services.AddKeyedScoped<IRecycleItemHandler, EngineFileRecycleHandler>(RecycleItem.EngineFile);
-
         }
 
         public static void AIExtensions(IServiceCollection services)
