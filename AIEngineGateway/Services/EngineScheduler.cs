@@ -62,13 +62,13 @@ namespace AIEngineGateway.Services
             var triggerKey = new TriggerKey($"EngineRecycleBinTrigger-{recycleBin.EntityId}", "RecycleEntityId");
 
             var job = JobBuilder.Create<EngineRecycleBinJob>().WithIdentity(jobKey)
-                .UsingJobData("RecycleBinId", recycleBin.Id)
+                .UsingJobData("RecycleBinId", recycleBin.Id.ToString())
                 .UsingJobData("RecycleItem", recycleBin.ItemId.ToString())
                 .UsingJobData("EntityId", recycleBin.EntityId)
                 .Build();
 
             var trigger = TriggerBuilder.Create().WithIdentity(triggerKey).ForJob(job)
-                .StartAt(recycleBin.CreatedAt.AddDays(30)).Build();
+                .StartAt(DateTimeOffset.UtcNow.AddDays(30)).Build();
 
             await ScheduleJobAsync(job, trigger, ct);
         }

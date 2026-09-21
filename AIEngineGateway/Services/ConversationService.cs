@@ -29,27 +29,32 @@ namespace AIEngineGateway.Services
 
         public async Task<object> DeleteConversation(Guid conversationId, CancellationToken cancellationToken)
         {
-            var currentUser = _UserService.GetCurrentUser;
-            var conversation = await _Repository.ConversationRepository
-                    .GetConversation(conversationId, currentUser.UserId, cancellationToken);
-            if (conversation is null)
-                throw new Exception($"Conversation with Id {conversationId} Not Found");
-
-            await _Repository.ConversationRepository.DeleteConversation(conversation);
-            var now = DateTime.UtcNow;
-
-            var entity = new RecycleBin
+            await _Repository.ExecuteInTransactionAsync(async () =>
             {
-                EntityId = conversationId.ToString(),
-                DeletedBy = _UserService.GetCurrentUser?.UserId,
-                ItemId = RecycleItem.conversation,
-                CreatedAt = now,
-                ModifiedAt = now
-            };
+                var currentUser = _UserService.GetCurrentUser;
+                var conversation = await _Repository.ConversationRepository
+                        .GetConversation(conversationId, currentUser.UserId, cancellationToken);
+                if (conversation is null)
+                    throw new Exception($"Conversation with Id {conversationId} Not Found");
 
-            await _Repository.GetEngineRepo<RecycleBin>().AddAsync(entity, cancellationToken);
-            await _Repository.SaveChangesAsync(cancellationToken);
-            await _engineScheduler.DeleteEngineRecycleItems(entity, cancellationToken);
+                await _Repository.ConversationRepository.DeleteConversation(conversation);
+                var now = DateTime.UtcNow;
+
+                var entity = new RecycleBin
+                {
+                    Id = Guid.NewGuid(),
+                    EntityId = conversationId.ToString(),
+                    DeletedBy = _UserService.GetCurrentUser?.UserId,
+                    ItemId = RecycleItem.conversation,
+                    CreatedAt = now,
+                    ModifiedAt = now
+                };
+
+                await _Repository.GetEngineRepo<RecycleBin>().AddAsync(entity, cancellationToken);
+                await _Repository.SaveChangesAsync(cancellationToken);
+                await _engineScheduler.DeleteEngineRecycleItems(entity, cancellationToken);
+            }, cancellationToken);
+
             return new
             {
                 response = "Ok"

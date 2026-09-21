@@ -107,26 +107,30 @@ namespace AIEngineGateway.Services
 
         public async Task DeleteFileByIds(List<Guid> ids, CancellationToken cancellationToken)
         {
-            var now = DateTime.Now;
-            var userId = _userService?.GetCurrentUser?.UserId;
+            await _repositoryWrapper.ExecuteInTransactionAsync(async () =>
+            {
+                var now = DateTime.Now;
+                var userId = _userService?.GetCurrentUser?.UserId;
 
-            var recycleEntities = ids.Select(id => new RecycleBin
-            {
-                EntityId = id.ToString(),
-                ItemId = RecycleItem.EngineFile,
-                CreatedAt = now,
-                ModifiedAt = now,
-                DeletedBy = userId
-            }).ToList();
-            await _repositoryWrapper.GetEngineRepo<RecycleBin>()
-                .AddRangeAsync(recycleEntities, cancellationToken);
-            var files = await _repositoryWrapper.GetEngineRepo<EngineFile>()
-                .UpdatePropertyByIdsAsync(ids, "Id", f => f.IsRecyled, true, cancellationToken);
-            await _repositoryWrapper.SaveChangesAsync(cancellationToken);
-            foreach (var entity in recycleEntities)
-            {
-                await _engineScheduler.DeleteEngineRecycleItems(entity, cancellationToken);
-            }
+                var recycleEntities = ids.Select(id => new RecycleBin
+                {
+                    Id = Guid.NewGuid(),
+                    EntityId = id.ToString(),
+                    ItemId = RecycleItem.EngineFile,
+                    CreatedAt = now,
+                    ModifiedAt = now,
+                    DeletedBy = userId
+                }).ToList();
+                await _repositoryWrapper.GetEngineRepo<RecycleBin>()
+                    .AddRangeAsync(recycleEntities, cancellationToken);
+                var files = await _repositoryWrapper.GetEngineRepo<EngineFile>()
+                    .UpdatePropertyByIdsAsync(ids, "Id", f => f.IsRecyled, true, cancellationToken);
+                await _repositoryWrapper.SaveChangesAsync(cancellationToken);
+                foreach (var entity in recycleEntities)
+                {
+                    await _engineScheduler.DeleteEngineRecycleItems(entity, cancellationToken);
+                }
+            }, cancellationToken);
         }
     }
 }

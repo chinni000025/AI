@@ -121,6 +121,7 @@ namespace AIEngineGateway.Extensions
             services.AddSingleton<IEngineScheduler, EngineScheduler>();
             services.AddScoped<IEngineNotificationService, EngineNotificationService>();
             services.AddScoped<IEngineDriveService, EngineDriveService>();
+            services.AddScoped<IEngineRecycleBinService, EngineRecycleBinService>();
             services.AddKeyedScoped<IRecycleItemHandler, ConversationRecycleHandler>(RecycleItem.conversation);
             services.AddKeyedScoped<IRecycleItemHandler, EngineFileRecycleHandler>(RecycleItem.EngineFile);
         }
