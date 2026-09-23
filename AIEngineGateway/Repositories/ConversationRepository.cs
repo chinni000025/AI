@@ -161,8 +161,9 @@ namespace AIEngineGateway.Repositories
 
         public async Task DeleteConversationAsync(Guid Id, CancellationToken cancellationToken)
         {
-            await _EngineContext.Conversations.Select(id => id.ConversationId == Id)
-                .ExecuteDeleteAsync(cancellationToken);
+            await (from c in _EngineContext.Conversations
+                   where c.ConversationId == Id
+                   select c).ExecuteDeleteAsync(cancellationToken);
         }
     }
 }
