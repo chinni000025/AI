@@ -13,7 +13,6 @@ namespace AIEngineGateway.Services
 #nullable disable
     public class ConversationService : IConversationService
     {
-
         private readonly IUserService _UserService;
         private readonly IRepositoryWrapper _Repository;
         private readonly IAIOrchestrator _aIOrchestrator;

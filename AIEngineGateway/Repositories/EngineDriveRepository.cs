@@ -348,10 +348,10 @@ namespace AIEngineGateway.Repositories
             await cmd.ExecuteNonQueryAsync(cancellationToken);
         }
 
-        public async Task<List<EngineFileResponse>> GetEngineFilesAsync(int userId, CancellationToken cancellationToken)
+        public async Task<List<EngineFileResponse>> GetEngineFilesAsync(int userId, bool IsIncludeTrash, CancellationToken cancellationToken)
         {
             var query = await (from f in _engineContext.EngineFiles
-                               where f.CreatedBy == userId && !f.IsRecyled
+                               where f.CreatedBy == userId && IsIncludeTrash
                                select new EngineFileResponse(
                                    f.Id,
                                    f.FileName,
@@ -410,6 +410,8 @@ namespace AIEngineGateway.Repositories
             }
         }
 
+
+        //Needs to optimize using indexing.
         public async Task<EngineFileStorageInfo> GetEngineStorageInfo(int userId, CancellationToken cancellationToken)
         {
             var query = await (from f in _engineContext.EngineFiles

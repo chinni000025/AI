@@ -434,13 +434,16 @@
     width: 6px;
     height: 6px;
 }
+
 .tfd-content::-webkit-scrollbar-track {
     background: rgba(255, 255, 255, 0.02);
 }
+
 .tfd-content::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.15);
     border-radius: 4px;
 }
+
 .tfd-content::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.25);
 }
@@ -547,7 +550,7 @@
 }
 
 .tfd-file-icon {
-    width: 32px;
+    width: 70px;
     height: 32px;
     border-radius: 8px;
     background: rgba(255, 255, 255, 0.04);

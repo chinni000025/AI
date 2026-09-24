@@ -88,5 +88,12 @@ namespace AIEngineGateway.Controllers
                 return BadRequest("Can't able to Delete the Files");
             }
         }
+
+        [HttpGet("getTrashFiles")]
+        public async Task<ActionResult<List<EngineFileResponse>>> GetTrashFiles(CancellationToken cancellationToken)
+        {
+            var files = await _engineDriveService.GetTrashFilesAsync(cancellationToken);
+            return Ok(files);
+        }
     }
 }

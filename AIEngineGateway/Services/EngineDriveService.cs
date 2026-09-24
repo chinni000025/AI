@@ -82,13 +82,19 @@ namespace AIEngineGateway.Services
             try
             {
                 return await _repositoryWrapper.EngineDriveRepository
-                    .GetEngineFilesAsync(int.Parse(_userService?.GetCurrentUser?.UserId), cancellationToken);
+                    .GetEngineFilesAsync(int.Parse(_userService?.GetCurrentUser?.UserId), false, cancellationToken);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
+        }
+
+        public async Task<List<EngineFileResponse>> GetTrashFilesAsync(CancellationToken cancellationToken)
+        {
+            return await _repositoryWrapper.EngineDriveRepository
+                .GetEngineFilesAsync(int.Parse(_userService?.GetCurrentUser?.UserId), true, cancellationToken);
         }
 
         public async Task<EngineFileStorageInfo> GetEngineStorageInfo(CancellationToken cancellationToken)
@@ -121,11 +127,13 @@ namespace AIEngineGateway.Services
                     ModifiedAt = now,
                     DeletedBy = userId
                 }).ToList();
+
                 await _repositoryWrapper.GetEngineRepo<RecycleBin>()
                     .AddRangeAsync(recycleEntities, cancellationToken);
                 var files = await _repositoryWrapper.GetEngineRepo<EngineFile>()
                     .UpdatePropertyByIdsAsync(ids, "Id", f => f.IsRecyled, true, cancellationToken);
                 await _repositoryWrapper.SaveChangesAsync(cancellationToken);
+
                 foreach (var entity in recycleEntities)
                 {
                     await _engineScheduler.DeleteEngineRecycleItems(entity, cancellationToken);

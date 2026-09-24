@@ -39,6 +39,10 @@ export class FileUploadService {
     return this.engineCore.get(`${EngineControllers.EngineDriveController}/getEngineFiles`);
   }
 
+  getTrashFiles() {
+    return this.engineCore.get(`${EngineControllers.EngineDriveController}/getTrashFiles`);
+  }
+
   getStorageInfo() {
     return this.engineCore.get(`${EngineControllers.EngineDriveController}/getEngineStorageInfo`);
   }

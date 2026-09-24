@@ -1,17 +1,12 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { EngineDriveItem } from '../../../services/engine-route-constants';
+import { FileUploadService } from '../../../services/file-upload-service';
+import { SnackbarService } from '../../../services/snackbar-service';
 
 export type FileContextType = 'Chat' | 'Conversation' | 'Browse';
 
-export interface TrashItem {
-  id: string;
-  fileName: string;
-  location: string;
-  fileSize: number;
-  context: FileContextType;
-  deletedAt: Date;
-}
 
 @Component({
   selector: 'app-trash-files-dialog',
@@ -20,81 +15,20 @@ export interface TrashItem {
   templateUrl: './trash-files-dialog.html',
   styleUrl: './trash-files-dialog.css',
 })
-export class TrashFilesDialog {
+export class TrashFilesDialog implements OnInit {
   @Output() closed = new EventEmitter<void>();
 
-  searchQuery = '';
-  selectedContextFilter: 'all' | FileContextType = 'all';
-  selectedIds = new Set<string>();
-
-  feedbackMessage: string | null = null;
-  feedbackType: 'success' | 'danger' | 'info' = 'info';
-  private feedbackTimeout: any = null;
+  constructor(private uploadService: FileUploadService,
+    private snackBar: SnackbarService, private cdr: ChangeDetectorRef) { }
+  ngOnInit(): void {
+    this.loadTrashFilesAsync();
+  }
 
   // Mock UI Data matching all your contexts: Chat, Conversation, and Browse
-  trashItems: TrashItem[] = [
-    {
-      id: 'trash-1',
-      fileName: 'rag-vector-knowledge-base.bin',
-      location: '/engine-drive/knowledge-base/models/',
-      fileSize: 142 * 1024 * 1024, // 142 MB
-      context: 'Browse',
-      deletedAt: new Date(Date.now() - 1000 * 60 * 60 * 5),
-    },
-    {
-      id: 'trash-2',
-      fileName: 'system-architecture-proposal.pdf',
-      location: '/chat/prompt-space/attachments/',
-      fileSize: 3.4 * 1024 * 1024, // 3.4 MB
-      context: 'Chat',
-      deletedAt: new Date(Date.now() - 1000 * 60 * 60 * 24),
-    },
-    {
-      id: 'trash-3',
-      fileName: 'conversation-history-2026.json',
-      location: '/conversations/sessions/archived/',
-      fileSize: 840 * 1024, // 840 KB
-      context: 'Conversation',
-      deletedAt: new Date(Date.now() - 1000 * 60 * 60 * 48),
-    },
-    {
-      id: 'trash-4',
-      fileName: 'dataset-training-sample.csv',
-      location: '/engine-drive/datasets/sample-v1/',
-      fileSize: 45.8 * 1024 * 1024, // 45.8 MB
-      context: 'Browse',
-      deletedAt: new Date(Date.now() - 1000 * 60 * 60 * 72),
-    },
-    {
-      id: 'trash-5',
-      fileName: 'agent-debug-session-transcript.txt',
-      location: '/chat/debug-logs/',
-      fileSize: 128 * 1024, // 128 KB
-      context: 'Chat',
-      deletedAt: new Date(Date.now() - 1000 * 60 * 60 * 96),
-    },
-    {
-      id: 'trash-6',
-      fileName: 'multi-turn-dialogue-export.md',
-      location: '/conversations/exports/',
-      fileSize: 512 * 1024, // 512 KB
-      context: 'Conversation',
-      deletedAt: new Date(Date.now() - 1000 * 60 * 60 * 120),
-    }
-  ];
+  trashItems: EngineDriveItem[] = [];
 
-  get filteredItems(): TrashItem[] {
-    return this.trashItems.filter(item => {
-      const matchesSearch =
-        !this.searchQuery ||
-        item.fileName.toLowerCase().includes(this.searchQuery.toLowerCase().trim()) ||
-        item.location.toLowerCase().includes(this.searchQuery.toLowerCase().trim());
-
-      const matchesContext =
-        this.selectedContextFilter === 'all' || item.context === this.selectedContextFilter;
-
-      return matchesSearch && matchesContext;
-    });
+  get filteredItems(): any[] {
+    return this.trashItems;
   }
 
   get totalTrashSizeBytes(): number {
@@ -102,75 +36,43 @@ export class TrashFilesDialog {
   }
 
   get isAllSelected(): boolean {
-    return (
-      this.filteredItems.length > 0 &&
-      this.filteredItems.every(item => this.selectedIds.has(item.id))
-    );
+    return false;
   }
 
   setContextFilter(filter: 'all' | FileContextType): void {
-    this.selectedContextFilter = filter;
+
   }
 
   countByContext(context: 'all' | FileContextType): number {
-    if (context === 'all') return this.trashItems.length;
-    return this.trashItems.filter(i => i.context === context).length;
+    return 1;
   }
 
   toggleSelection(id: string, event?: MouseEvent): void {
-    if (event) {
-      event.stopPropagation();
-    }
-    if (this.selectedIds.has(id)) {
-      this.selectedIds.delete(id);
-    } else {
-      this.selectedIds.add(id);
-    }
+
   }
 
   toggleSelectAll(): void {
-    if (this.isAllSelected) {
-      this.filteredItems.forEach(i => this.selectedIds.delete(i.id));
-    } else {
-      this.filteredItems.forEach(i => this.selectedIds.add(i.id));
-    }
+
   }
 
   // Action: Restore Single File
-  restoreFile(file: TrashItem): void {
-    this.trashItems = this.trashItems.filter(item => item.id !== file.id);
-    this.selectedIds.delete(file.id);
-    this.showFeedback(`"${file.fileName}" has been restored to ${file.location}`, 'success');
+  restoreFile(file: any): void {
   }
 
   // Action: Restore Selected
   restoreSelected(): void {
-    const count = this.selectedIds.size;
-    this.trashItems = this.trashItems.filter(item => !this.selectedIds.has(item.id));
-    this.selectedIds.clear();
-    this.showFeedback(`${count} ${count === 1 ? 'file' : 'files'} restored successfully`, 'success');
   }
 
   // Action: Delete Permanently Single File
-  deletePermanently(file: TrashItem): void {
-    this.trashItems = this.trashItems.filter(item => item.id !== file.id);
-    this.selectedIds.delete(file.id);
-    this.showFeedback(`"${file.fileName}" permanently deleted`, 'danger');
+  deletePermanently(file: any): void {
   }
 
   // Action: Delete Selected Permanently
   deletePermanentlySelected(): void {
-    const count = this.selectedIds.size;
-    this.trashItems = this.trashItems.filter(item => !this.selectedIds.has(item.id));
-    this.selectedIds.clear();
-    this.showFeedback(`${count} ${count === 1 ? 'file' : 'files'} permanently purged`, 'danger');
   }
 
   // Action: Empty Trash
   emptyTrash(): void {
-    this.trashItems = [];
-    this.selectedIds.clear();
-    this.showFeedback('Trash repository has been emptied', 'danger');
   }
 
   closeDialog(): void {
@@ -191,14 +93,15 @@ export class TrashFilesDialog {
     return parts.length > 1 ? parts.pop()!.toLowerCase() : 'file';
   }
 
-  private showFeedback(message: string, type: 'success' | 'danger' | 'info' = 'info'): void {
-    this.feedbackMessage = message;
-    this.feedbackType = type;
-    if (this.feedbackTimeout) {
-      clearTimeout(this.feedbackTimeout);
-    }
-    this.feedbackTimeout = setTimeout(() => {
-      this.feedbackMessage = null;
-    }, 3500);
+  private loadTrashFilesAsync() {
+    this.uploadService.getTrashFiles().subscribe({
+      next: (res: any) => {
+        this.trashItems = res as EngineDriveItem[];
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        this.snackBar.showErrorMessage(err.message);
+      }
+    });
   }
 }
