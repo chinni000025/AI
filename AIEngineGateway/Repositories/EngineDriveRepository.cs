@@ -458,5 +458,95 @@ namespace AIEngineGateway.Repositories
             }
             _engineContext.EngineFiles.Remove(engineFile);
         }
+
+        public async Task<DownloadFileResult?> GetDownloadStreamAsync(Guid FileId, string UserId, CancellationToken cancellationToken)
+        {
+
+            int userId = int.Parse(UserId);
+            var fileMetaData = await (from f in _engineContext.EngineFiles
+                                      where f.Id == FileId && f.CreatedBy == userId && !f.IsRecyled
+                                      select f).AsNoTracking().FirstOrDefaultAsync(cancellationToken);
+
+            if (fileMetaData is null)
+            {
+                _logger.LogError($"File Metadata is not exists with File Id {FileId}");
+                throw new Exception($"File Metadata is not exists with File Id {FileId}");
+            }
+            var fileContent = await (from c in _engineContext.FileContents
+                                     where c.Id == fileMetaData.ContentId
+                                     select c).AsNoTracking().FirstOrDefaultAsync(cancellationToken);
+
+            if (fileContent is null)
+            {
+                _logger.LogError($"File Content  is not exists with Content Id {fileMetaData.ContentId}");
+                throw new Exception($"File Content  is not exists with Content Id {fileMetaData.ContentId}");
+            }
+
+            Stream stream = null;
+            if (_engineContext.Database.IsNpgsql())
+            {
+                if (fileContent.ContentOid != null)
+                {
+                    stream = await GetPostgresServerStreamAsync(fileContent.ContentOid.Value, cancellationToken);
+                }
+                else
+                {
+                    _logger.LogError($"File Content OId is missing  for File {FileId}");
+                    throw new Exception($"File Content OId is missing  for File {FileId}");
+                }
+            }
+            else if (_engineContext.Database.IsSqlServer())
+            {
+                stream = await GetSqlServerStreamAsync(fileContent.Id, cancellationToken);
+            }
+            else
+            {
+                throw new NotSupportedException("The configured database provider does not support file downloads.");
+            }
+
+            return new DownloadFileResult
+            {
+                Stream = stream,
+                FileName = fileMetaData.FileName,
+                FileSize = fileMetaData.FileSize,
+                ContentType = fileMetaData.ContentType
+            };
+        }
+
+        private async Task<Stream> GetPostgresServerStreamAsync(uint Oid, CancellationToken cancellationToken)
+        {
+            var connection = (NpgsqlConnection)_engineContext.Database.GetDbConnection();
+            if (connection.State != ConnectionState.Open)
+            {
+                await connection.OpenAsync(cancellationToken);
+            }
+
+            var manger = new NpgsqlLargeObjectManager(connection);
+            return await manger.OpenReadAsync(Oid, cancellationToken);
+        }
+
+        private async Task<Stream> GetSqlServerStreamAsync(Guid ContentId, CancellationToken cancellationToken)
+        {
+            var connection = (SqlConnection)_engineContext.Database.GetDbConnection();
+            if (connection.State != ConnectionState.Open)
+            {
+                await connection.OpenAsync(cancellationToken);
+            }
+            const string sql = """SELECT  ContentData FROM FileContents WHERE Id = @ContentId""";
+            var command = new SqlCommand(sql, connection);
+            command.Parameters.Add(new SqlParameter("@ContentId", SqlDbType.UniqueIdentifier)
+            {
+                Value = ContentId
+            });
+
+            var reader = await command.ExecuteReaderAsync(CommandBehavior.SequentialAccess, cancellationToken);
+            if (!await reader.ReadAsync(cancellationToken))
+            {
+                await reader.DisposeAsync();
+                await command.DisposeAsync();
+                throw new FileNotFoundException("File content not found.");
+            }
+            return reader.GetStream(0);
+        }
     }
 }

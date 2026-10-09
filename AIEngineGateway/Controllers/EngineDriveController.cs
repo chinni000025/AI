@@ -95,5 +95,21 @@ namespace AIEngineGateway.Controllers
             var files = await _engineDriveService.GetTrashFilesAsync(cancellationToken);
             return Ok(files);
         }
+
+        [HttpGet("file/{fileId}/download")]
+        public async Task<IActionResult> DownloadFile(Guid fileId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var result = await _engineDriveService.GetDownloadStreamAsync(fileId, cancellationToken);
+                if (result is null)
+                    return NotFound();
+                return File(result.Stream, result.ContentType ?? "", result.FileName, enableRangeProcessing: true); // Needs to support Http Range.
+            }
+            catch
+            {
+                return BadRequest("Error Occurred While Download the File");
+            }
+        }
     }
 }

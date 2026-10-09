@@ -1,5 +1,6 @@
 ﻿using AIEngineConnectivity.DTOs;
 using AIEngineConnectivity.Entities;
+using AIEngineConnectivity.Models;
 using AIEngineConnectivity.Services;
 
 namespace AIEngineConnectivity.Repositories
@@ -14,5 +15,6 @@ namespace AIEngineConnectivity.Repositories
         public Task StaleEngineUploadingSessionsAndChunks(CancellationToken cancellationToken);
         public Task<EngineFileStorageInfo> GetEngineStorageInfo(int userId, CancellationToken cancellationToken);
         public Task DeleteEngineFileAsync(Guid Id, CancellationToken cancellationToken);
+        public Task<DownloadFileResult?> GetDownloadStreamAsync(Guid FileId, string UserId, CancellationToken cancellationToken);
     }
 }
