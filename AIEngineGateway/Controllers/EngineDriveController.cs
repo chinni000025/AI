@@ -97,11 +97,11 @@ namespace AIEngineGateway.Controllers
         }
 
         [HttpGet("file/{fileId}/download")]
-        public async Task<IActionResult> DownloadFile(Guid fileId, CancellationToken cancellationToken)
+        public async Task<IActionResult> DownloadFile(Guid fileId, long offset, long? requestLength, CancellationToken cancellationToken)
         {
             try
             {
-                var result = await _engineDriveService.GetDownloadStreamAsync(fileId, cancellationToken);
+                var result = await _engineDriveService.GetDownloadStreamAsync(fileId, offset, requestLength, cancellationToken);
                 if (result is null)
                     return NotFound();
                 return File(result.Stream, result.ContentType ?? "", result.FileName, enableRangeProcessing: true); // Needs to support Http Range.

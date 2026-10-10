@@ -13,6 +13,6 @@ namespace AIEngineConnectivity.Services
         public Task<List<EngineFileResponse>> GetTrashFilesAsync(CancellationToken cancellationToken);
         public Task<EngineFileStorageInfo> GetEngineStorageInfo(CancellationToken cancellationToken);
         public Task DeleteFileByIds(List<Guid> ids, CancellationToken cancellationToken);
-        public Task<DownloadFileResult?> GetDownloadStreamAsync(Guid FileId, CancellationToken cancellationToken);
+        public Task<DownloadFileResult?> GetDownloadStreamAsync(Guid FileId, long offset, long? requestLength, CancellationToken cancellationToken);
     }
 }

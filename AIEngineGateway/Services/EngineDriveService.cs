@@ -141,12 +141,12 @@ namespace AIEngineGateway.Services
             }, cancellationToken);
         }
 
-        public async Task<DownloadFileResult?> GetDownloadStreamAsync(Guid FileId, CancellationToken cancellationToken)
+        public async Task<DownloadFileResult?> GetDownloadStreamAsync(Guid FileId, long offset, long? requestLength, CancellationToken cancellationToken)
         {
             try
             {
                 return await _repositoryWrapper.EngineDriveRepository
-                    .GetDownloadStreamAsync(FileId, _userService?.GetCurrentUser?.UserId, cancellationToken);
+                    .GetDownloadStreamAsync(FileId, _userService?.GetCurrentUser?.UserId, offset, requestLength, cancellationToken);
             }
             catch (Exception ex)
             {

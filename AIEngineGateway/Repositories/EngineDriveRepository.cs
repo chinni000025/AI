@@ -459,10 +459,15 @@ namespace AIEngineGateway.Repositories
             _engineContext.EngineFiles.Remove(engineFile);
         }
 
-        public async Task<DownloadFileResult?> GetDownloadStreamAsync(Guid FileId, string UserId, CancellationToken cancellationToken)
+        public async Task<DownloadFileResult?> GetDownloadStreamAsync(Guid FileId, string UserId,
+            long offset, long? RequestLength, CancellationToken cancellationToken)
         {
+            if (!int.TryParse(UserId, out var userId))
+            {
+                _logger.LogError("Error while Paring User Id ");
+                new FormatException("Error occured while parse the UserId");
+            }
 
-            int userId = int.Parse(UserId);
             var fileMetaData = await (from f in _engineContext.EngineFiles
                                       where f.Id == FileId && f.CreatedBy == userId && !f.IsRecyled
                                       select f).AsNoTracking().FirstOrDefaultAsync(cancellationToken);
@@ -481,13 +486,27 @@ namespace AIEngineGateway.Repositories
                 _logger.LogError($"File Content  is not exists with Content Id {fileMetaData.ContentId}");
                 throw new Exception($"File Content  is not exists with Content Id {fileMetaData.ContentId}");
             }
+            long fileSize = fileMetaData.FileSize;
 
-            Stream stream = null;
+            if (fileSize < 0 || offset < 0 || offset > fileSize && (fileSize > 0 && offset == fileSize))
+                throw new ArgumentOutOfRangeException(nameof(offset));
+
+            var bytesToSend = RequestLength ?? (fileSize - offset);
+            if (bytesToSend < 0)
+                throw new ArgumentOutOfRangeException(nameof(bytesToSend));
+
+            bytesToSend = Math.Min(bytesToSend, fileSize - offset);
+            if (fileSize > 0 && bytesToSend == 0)
+                throw new ArgumentOutOfRangeException(nameof(RequestLength));
+
+            (Stream stream, Func<Task> cleanup) opened;
+
             if (_engineContext.Database.IsNpgsql())
             {
                 if (fileContent.ContentOid != null)
                 {
-                    stream = await GetPostgresServerStreamAsync(fileContent.ContentOid.Value, cancellationToken);
+                    opened = await GetPostgresServerStreamAsync(fileContent.ContentOid.Value, offset,
+                        bytesToSend, cancellationToken);
                 }
                 else
                 {
@@ -497,7 +516,8 @@ namespace AIEngineGateway.Repositories
             }
             else if (_engineContext.Database.IsSqlServer())
             {
-                stream = await GetSqlServerStreamAsync(fileContent.Id, cancellationToken);
+                opened = await GetSqlServerStreamAsync(fileContent.Id, offset,
+                        bytesToSend, cancellationToken);
             }
             else
             {
@@ -506,47 +526,122 @@ namespace AIEngineGateway.Repositories
 
             return new DownloadFileResult
             {
-                Stream = stream,
+                Stream = opened.stream,
                 FileName = fileMetaData.FileName,
                 FileSize = fileMetaData.FileSize,
-                ContentType = fileMetaData.ContentType
+                ContentType = fileMetaData.ContentType ?? "application/octet-stream",
+                CleanUpAsync = opened.cleanup,
+                RangeStart = offset,
+                BytesToSend = bytesToSend
             };
         }
 
-        private async Task<Stream> GetPostgresServerStreamAsync(uint Oid, CancellationToken cancellationToken)
+        private async Task<(Stream stream, Func<Task> cleanup)> GetPostgresServerStreamAsync(uint Oid, long offset,
+            long bytesToSend, CancellationToken cancellationToken)
         {
-            var connection = (NpgsqlConnection)_engineContext.Database.GetDbConnection();
-            if (connection.State != ConnectionState.Open)
+            var connection = new NpgsqlConnection(_engineContext.Database.GetConnectionString());
+            NpgsqlTransaction? transaction = null;
+            Stream? innerStream = null;
+            try
             {
                 await connection.OpenAsync(cancellationToken);
-            }
+                transaction = await connection.BeginTransactionAsync(cancellationToken);
+                var manger = new NpgsqlLargeObjectManager(connection);
+                innerStream = await manger.OpenReadAsync(Oid, cancellationToken);
+                if (offset > 0)
+                    innerStream.Seek(offset, SeekOrigin.Begin);
+                return (innerStream, async () =>
+                {
+                    try
+                    {
+                        await transaction.DisposeAsync();
+                    }
+                    finally
+                    {
+                        await connection.DisposeAsync();
+                    }
+                }
+                );
 
-            var manger = new NpgsqlLargeObjectManager(connection);
-            return await manger.OpenReadAsync(Oid, cancellationToken);
+            }
+            catch
+            {
+                if (innerStream is not null)
+                    await innerStream.DisposeAsync();
+
+                if (transaction is not null)
+                    await transaction.DisposeAsync();
+
+                await connection.DisposeAsync();
+                throw;
+            }
         }
 
-        private async Task<Stream> GetSqlServerStreamAsync(Guid ContentId, CancellationToken cancellationToken)
+        private async Task<(Stream stream, Func<Task> cleanup)> GetSqlServerStreamAsync(Guid ContentId,
+            long offset, long? bytesToSend, CancellationToken cancellationToken)
         {
-            var connection = (SqlConnection)_engineContext.Database.GetDbConnection();
-            if (connection.State != ConnectionState.Open)
+            var connection = new SqlConnection(_engineContext.Database.GetConnectionString());
+            SqlCommand? command = null;
+            SqlDataReader? reader = null;
+            Stream? stream = null;
+            try
             {
-                await connection.OpenAsync(cancellationToken);
-            }
-            const string sql = """SELECT  ContentData FROM FileContents WHERE Id = @ContentId""";
-            var command = new SqlCommand(sql, connection);
-            command.Parameters.Add(new SqlParameter("@ContentId", SqlDbType.UniqueIdentifier)
-            {
-                Value = ContentId
-            });
 
-            var reader = await command.ExecuteReaderAsync(CommandBehavior.SequentialAccess, cancellationToken);
-            if (!await reader.ReadAsync(cancellationToken))
-            {
-                await reader.DisposeAsync();
-                await command.DisposeAsync();
-                throw new FileNotFoundException("File content not found.");
+                await connection.OpenAsync(cancellationToken);
+                const string sql = """SELECT  ContentData FROM FileContents WHERE Id = @ContentId""";
+                command = new SqlCommand(sql, connection);
+                command.Parameters.Add(new SqlParameter("@ContentId", SqlDbType.UniqueIdentifier)
+                {
+                    Value = ContentId
+                });
+
+                command.Parameters.Add(new SqlParameter("@Start", SqlDbType.BigInt)
+                {
+                    Value = checked(offset + 1)
+                });
+
+                command.Parameters.Add(new SqlParameter("@Length", SqlDbType.BigInt)
+                {
+                    Value = bytesToSend
+                });
+                reader = await command.ExecuteReaderAsync(CommandBehavior.SequentialAccess | CommandBehavior.SingleRow, cancellationToken);
+                if (!await reader.ReadAsync(cancellationToken))
+                    throw new FileNotFoundException("File Content Not Found");
+                if (await reader.IsDBNullAsync(0, cancellationToken))
+                    throw new InvalidDataException("File content is NULL.");
+                stream = reader.GetStream(0);
+                return (stream, async () =>
+                {
+                    try
+                    {
+                        await reader.DisposeAsync();
+                    }
+                    finally
+                    {
+                        try
+                        {
+                            await command.DisposeAsync();
+                        }
+                        finally
+                        {
+                            await connection.DisposeAsync();
+                        }
+                    }
+                }
+                );
             }
-            return reader.GetStream(0);
+            catch
+            {
+                if (stream is null)
+                    await stream.DisposeAsync();
+                if (command is null)
+                    await command.DisposeAsync();
+                if (reader is not null)
+                    await reader.DisposeAsync();
+
+                await connection.DisposeAsync();
+                throw;
+            }
         }
     }
 }
