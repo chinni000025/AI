@@ -313,8 +313,8 @@
               <span class="ed-file-card__meta">{{ file.modifiedAt | date:'mediumDate' }}</span>
             </div>
             <div class="ed-file-card__actions" (click)="$event.stopPropagation()">
-              <a class="ed-card-action ed-card-action--download" [href]="'#'"
-                (click)="downloadFile(file.id,file.fileName)" [title]="'Download ' + file.fileName">
+              <a class="ed-card-action ed-card-action--download" [href]="'#'" (click)="downloadFile(file.id)"
+                [title]="'Download ' + file.fileName">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                   stroke-linejoin="round">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -415,8 +415,8 @@
                 <td class="ed-table__td" style="text-align: right;">
                   <div class="ed-table__action-group" style="justify-content: flex-end;"
                     (click)="$event.stopPropagation()">
-                    <a class="ed-card-action ed-card-action--download" [href]="'#'"
-                      (click)="downloadFile(file.id,file.fileName)" [title]="'Download ' + file.fileName">
+                    <a class="ed-card-action ed-card-action--download" [href]="'#'" (click)="downloadFile(file.id)"
+                      [title]="'Download ' + file.fileName">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
