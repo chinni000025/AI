@@ -468,7 +468,8 @@ namespace AIEngineGateway.Repositories
                                      {
                                          c.ContentOid,
                                          c.Id
-                                     }).AsNoTracking().FirstOrDefaultAsync(cancellationToken);
+                                     }).AsNoTracking()
+                                     .FirstOrDefaultAsync(cancellationToken); // don' load Entire File content server will crush if you forget to select only Id or ContentId.
 
             if (fileContent is null)
             {

@@ -1,5 +1,4 @@
 ﻿using AIEngineConnectivity.EngineCore;
-using AIEngineConnectivity.Entities;
 using AIEngineConnectivity.Repositories;
 using AIEngineConnectivity.Services;
 
@@ -47,7 +46,8 @@ namespace AIEngineGateway.BackgroundServices
                 .EngineNotificationRepository.GetNotificationByPriority(stoppingToken))
             {
                 var engineNotificationMessage = engineLatch.Deserialize<EngineNotificationMessage>(engineEvents.EventData);
-                if (engineNotificationMessage.NotificationId.HasValue && await engineNotificationService.IsValidNotification(engineNotificationMessage.NotificationId.Value, stoppingToken))
+                if (engineNotificationMessage.NotificationId.HasValue
+                    && await engineNotificationService.IsValidNotification(engineNotificationMessage.NotificationId.Value, stoppingToken))
                 {
                     await engineQueue.publishAsync(engineNotificationMessage, engineNotificationMessage.NotificationPriority, stoppingToken);
                     _logger.LogInformation("Successfully restored and re-enqueued Notification {NotificationId}", engineNotificationMessage.NotificationId.Value);
