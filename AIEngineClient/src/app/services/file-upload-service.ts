@@ -51,6 +51,10 @@ export class FileUploadService {
     return this.engineCore.post(`${EngineControllers.EngineDriveController}/deleteEngineFiles`, ids);
   }
 
+  downloadFile(fileId: string): Observable<Blob> {
+    return this.engineCore.getBlob(`${EngineControllers.EngineDriveController}/file/${encodeURIComponent(fileId)}/download`);
+  }
+
   private getUploadSessions(): Record<string, string> {
     var raw = localStorage.getItem(this._uploadSessionId);
     return raw ? JSON.parse(raw) : {};

@@ -37,4 +37,11 @@ export class EngineCore {
             }
         );
     }
+
+    getBlob(endpoint: string): Observable<Blob> {
+        return this.httpClient.get(`${this.baseUrl}/${endpoint}`, {
+            responseType: 'blob',
+            withCredentials: true
+        });
+    }
 }

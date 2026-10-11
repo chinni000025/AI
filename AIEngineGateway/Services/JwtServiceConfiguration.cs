@@ -42,7 +42,8 @@ namespace AIEngineGateway.Services
                         var acessToken = context.Request.Query[AuthConstants.EngineIgnition];
                         var path = context.HttpContext.Request.Path;
                         if (!string.IsNullOrEmpty(acessToken) &&
-                            path.StartsWithSegments("/api/notificationHub"))
+                            path.StartsWithSegments("/api/notificationHub") ||
+                            path.Value?.Contains("/download") == true)
                         {
                             context.Token = acessToken;
                         }

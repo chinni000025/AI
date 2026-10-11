@@ -166,7 +166,7 @@ namespace AIEngineGateway.Controllers
                     Response.Headers.ContentDisposition = new System.Net.Mime.ContentDisposition
                     {
                         FileName = result.FileName,
-                        Inline = false
+                        Inline = false // Inline = false tells Chrome: "Do NOT display in tab; download immediately as attachment!"
                     }.ToString();
 
                     if (partial)

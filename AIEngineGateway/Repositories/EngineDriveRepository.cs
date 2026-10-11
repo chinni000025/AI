@@ -464,7 +464,11 @@ namespace AIEngineGateway.Repositories
         {
             var fileContent = await (from c in _engineContext.FileContents
                                      where c.Id == fileMetaData.ContentId
-                                     select c).AsNoTracking().FirstOrDefaultAsync(cancellationToken);
+                                     select new
+                                     {
+                                         c.ContentOid,
+                                         c.Id
+                                     }).AsNoTracking().FirstOrDefaultAsync(cancellationToken);
 
             if (fileContent is null)
             {
@@ -617,9 +621,9 @@ namespace AIEngineGateway.Repositories
             }
             catch
             {
-                if (stream is null)
+                if (stream is not null)
                     await stream.DisposeAsync();
-                if (command is null)
+                if (command is not null)
                     await command.DisposeAsync();
                 if (reader is not null)
                     await reader.DisposeAsync();

@@ -4,12 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { EngineDriveSvg } from '../svgs/engine-drive-svg/engine-drive-svg';
 import { catchError, concatMap, defaultIfEmpty, EMPTY, finalize, from, map, mergeMap, Observable, retry, Subject, take, takeUntil, tap } from 'rxjs';
 import { FileUploadService } from '../../services/file-upload-service';
-import { Buttons, ChunkInitalize, ChunkUpload, EngineControllers, EngineDriveItem, InitiateUploadRequest, StorageInfo } from '../../services/engine-route-constants';
+import { Buttons, ChunkInitalize, ChunkUpload, EngineConstants, EngineControllers, EngineDriveItem, InitiateUploadRequest, StorageInfo } from '../../services/engine-route-constants';
 import { SnackbarService } from '../../services/snackbar-service';
 import { UploadFileTask } from '../../models/snackbar-config';
 import { ConfirmationDialog } from '../dialogs/confirmation-dialog/confirmation-dialog';
 import { DialogService } from '../../services/dialog.service';
 import { TrashFilesDialog } from '../../Components/dialogs/trash-files-dialog/trash-files-dialog';
+import { TokenService } from '../../services/token-service';
+import { environment } from '../../../environments/environment.developement';
 export type ItemCategory = 'folder' | 'model' | 'dataset' | 'document' | 'media' | 'code' | 'archive' | 'other';
 export type ViewMode = 'grid' | 'table';
 export type SortField = 'name' | 'modifiedAt' | 'size';
@@ -64,9 +66,11 @@ export class EngineDrive implements OnInit, OnDestroy {
   selectedFiles = new Set<string>();
   private readonly $destroy = new Subject<void>();
   isTrashDialogOpen = false;
+  private iframeId: any;
 
   constructor(private cdr: ChangeDetectorRef, private dialogService: DialogService,
     private uploadService: FileUploadService,
+    private tokenService: TokenService,
     private snack: SnackbarService) { }
 
   ngOnInit(): void {
@@ -122,14 +126,25 @@ export class EngineDrive implements OnInit, OnDestroy {
     }
   }
 
-  downloadFile(fileId: string): void {
-    const downloadUrl = `${EngineControllers.EngineDriveController}/file/${encodeURIComponent(fileId)}/download`;
-    const link = document.createElement('a');
-    link.href = downloadUrl;
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+  downloadFile(file: EngineDriveItem, event: MouseEvent): void {
+    event.stopPropagation();
+    event.preventDefault();
+
+    const token = this.tokenService.getAccessToken();
+    if (!token) {
+      this.snack.showErrorMessage("Session expired. Please log in again.");
+      return;
+    }
+    const downloadUrl = `${environment.apiUrl}/${EngineControllers.EngineDriveController}/file/
+    ${encodeURIComponent(file.id)}/download?${EngineConstants.AccessToken}=${encodeURIComponent(token)}`;
+
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = downloadUrl;
+    document.body.appendChild(iframe);
+    this.iframeId = setTimeout(() => {
+      iframe.remove();
+    }, 30000);
   }
 
   OpenTrashDialog() {
@@ -167,6 +182,10 @@ export class EngineDrive implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.uploadIntervalId) {
       clearInterval(this.uploadIntervalId);
+    }
+
+    if (this.iframeId) {
+      clearTimeout(this.iframeId);
     }
 
     if (this.toastTimeout) {
