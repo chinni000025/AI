@@ -20,5 +20,6 @@ namespace AIEngineConnectivity.Repositories
             CancellationToken cancellation);
         void update(TEntity entity);
         void delete(TEntity entity);
+        public Task<TEntity?> FirstOrDefaultNoTrackingAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellation);
     }
 }

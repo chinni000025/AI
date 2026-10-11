@@ -351,7 +351,7 @@ namespace AIEngineGateway.Repositories
         public async Task<List<EngineFileResponse>> GetEngineFilesAsync(int userId, bool IsIncludeTrash, CancellationToken cancellationToken)
         {
             var query = await (from f in _engineContext.EngineFiles
-                               where f.CreatedBy == userId && IsIncludeTrash
+                               where f.CreatedBy == userId && (IsIncludeTrash ? f.IsRecyled : !f.IsRecyled)
                                select new EngineFileResponse(
                                    f.Id,
                                    f.FileName,
@@ -459,24 +459,9 @@ namespace AIEngineGateway.Repositories
             _engineContext.EngineFiles.Remove(engineFile);
         }
 
-        public async Task<DownloadFileResult?> GetDownloadStreamAsync(Guid FileId, string UserId,
-            long offset, long? RequestLength, CancellationToken cancellationToken)
+        public async Task<DownloadFileResult?> GetDownloadStreamAsync(Guid FileId,
+            long offset, long? RequestLength, EngineFile fileMetaData, CancellationToken cancellationToken)
         {
-            if (!int.TryParse(UserId, out var userId))
-            {
-                _logger.LogError("Error while Paring User Id ");
-                new FormatException("Error occured while parse the UserId");
-            }
-
-            var fileMetaData = await (from f in _engineContext.EngineFiles
-                                      where f.Id == FileId && f.CreatedBy == userId && !f.IsRecyled
-                                      select f).AsNoTracking().FirstOrDefaultAsync(cancellationToken);
-
-            if (fileMetaData is null)
-            {
-                _logger.LogError($"File Metadata is not exists with File Id {FileId}");
-                throw new Exception($"File Metadata is not exists with File Id {FileId}");
-            }
             var fileContent = await (from c in _engineContext.FileContents
                                      where c.Id == fileMetaData.ContentId
                                      select c).AsNoTracking().FirstOrDefaultAsync(cancellationToken);

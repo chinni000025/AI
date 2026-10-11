@@ -15,6 +15,6 @@ namespace AIEngineConnectivity.Repositories
         public Task StaleEngineUploadingSessionsAndChunks(CancellationToken cancellationToken);
         public Task<EngineFileStorageInfo> GetEngineStorageInfo(int userId, CancellationToken cancellationToken);
         public Task DeleteEngineFileAsync(Guid Id, CancellationToken cancellationToken);
-        public Task<DownloadFileResult?> GetDownloadStreamAsync(Guid FileId, string UserId, long offset, long? RequestLength, CancellationToken cancellationToken);
+        public Task<DownloadFileResult?> GetDownloadStreamAsync(Guid FileId, long offset, long? RequestLength, EngineFile fileMetaData, CancellationToken cancellationToken);
     }
 }

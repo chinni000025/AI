@@ -7,7 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace AIEngineCore.EngineNotifications
+namespace AIEngineCore.EngineNotifications.Email
 {
 # nullable disable
     public class EngineEmailWorker : BackgroundService

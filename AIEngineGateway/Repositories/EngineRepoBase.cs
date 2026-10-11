@@ -70,5 +70,10 @@ namespace AIEngineGateway.Repositories
             return await _dbSet.Where(x => keys.Contains(EF.Property<TKey>(x, idPropertyName)))
                 .ExecuteUpdateAsync(s => s.SetProperty(propertyExpression, newValue), cancellation);
         }
+
+        public async Task<TEntity?> FirstOrDefaultNoTrackingAsync(Expression<Func<TEntity, bool>> expression, CancellationToken cancellationToken)
+        {
+            return await _dbSet.AsNoTracking().FirstOrDefaultAsync(expression, cancellationToken);
+        }
     }
 }

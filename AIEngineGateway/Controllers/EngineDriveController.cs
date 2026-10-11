@@ -96,20 +96,111 @@ namespace AIEngineGateway.Controllers
             return Ok(files);
         }
 
-        [HttpGet("file/{fileId}/download")]
-        public async Task<IActionResult> DownloadFile(Guid fileId, long offset, long? requestLength, CancellationToken cancellationToken)
+        [HttpGet("file/{fileId:guid}/download")]
+        public async Task<IActionResult> DownloadFile(Guid fileId, CancellationToken cancellationToken)
         {
             try
             {
-                var result = await _engineDriveService.GetDownloadStreamAsync(fileId, offset, requestLength, cancellationToken);
+                var metadata = await _engineDriveService.GetDownloadMetadataAsync(fileId, cancellationToken);
+                if (metadata is null)
+                    return NotFound();
+
+                long fileSize = metadata.FileSize;
+                long offset = 0;
+                long bytesToSend = fileSize;
+                bool partial = false;
+                var rangeHeader = Request.Headers.Range.ToString();
+
+                if (!string.IsNullOrWhiteSpace(rangeHeader))
+                {
+                    if (!System.Net.Http.Headers.RangeHeaderValue.TryParse(rangeHeader, out var range) ||
+                        range is null || !string.Equals(range.Unit, "bytes", StringComparison.OrdinalIgnoreCase) ||
+                        range.Ranges.Count != 1)
+                    {
+                        return RangeNotSatisfiable(fileSize);
+                    }
+
+                    var item = range.Ranges.First();
+
+                    if (fileSize == 0)
+                        return RangeNotSatisfiable(fileSize);
+
+                    if (item.From.HasValue)
+                    {
+                        offset = item.From.Value;
+                        if (offset >= fileSize)
+                            return RangeNotSatisfiable(fileSize);
+
+                        long end = item.To ?? (fileSize - 1);
+                        if (end < offset)
+                            return RangeNotSatisfiable(fileSize);
+
+                        end = Math.Min(end, fileSize - 1);
+                        bytesToSend = end - offset + 1;
+                    }
+                    else if (item.To.HasValue && item.To.Value > 0)
+                    {
+                        bytesToSend = Math.Min(item.To.Value, fileSize);
+                        offset = fileSize - bytesToSend;
+                    }
+                    else
+                        return RangeNotSatisfiable(fileSize);
+                    partial = true;
+                }
+
+                var result = await _engineDriveService.GetDownloadStreamAsync(fileId, offset, bytesToSend, metadata, cancellationToken);
+
                 if (result is null)
                     return NotFound();
-                return File(result.Stream, result.ContentType ?? "", result.FileName, enableRangeProcessing: true); // Needs to support Http Range.
+
+                await using (result)
+                {
+                    Response.StatusCode = partial ? StatusCodes.Status206PartialContent : StatusCodes.Status200OK;
+
+                    Response.ContentType = string.IsNullOrWhiteSpace(result.ContentType) ? "application/octet-stream"
+                                            : result.ContentType;
+
+                    Response.ContentLength = bytesToSend;
+                    Response.Headers.AcceptRanges = "bytes";
+
+                    Response.Headers.ContentDisposition = new System.Net.Mime.ContentDisposition
+                    {
+                        FileName = result.FileName,
+                        Inline = false
+                    }.ToString();
+
+                    if (partial)
+                        Response.Headers.ContentRange = $"bytes {offset}-{offset + bytesToSend - 1}/{fileSize}";
+
+
+                    var buffer = new byte[81920];
+                    long remaining = bytesToSend;
+
+                    while (remaining > 0)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                        int requested = (int)Math.Min(buffer.Length, remaining);
+                        int read = await result.Stream.ReadAsync(buffer.AsMemory(0, requested), cancellationToken);
+                        if (read == 0)
+                            throw new EndOfStreamException("File content ended before the expected length.");
+
+                        await Response.Body.WriteAsync(buffer.AsMemory(0, read), cancellationToken);
+                        remaining -= read;
+                    }
+                }
+
+                return new EmptyResult();
             }
             catch
             {
-                return BadRequest("Error Occurred While Download the File");
+                return BadRequest("Error Occurred While Downloading the File");
             }
+        }
+
+        private IActionResult RangeNotSatisfiable(long fileSize)
+        {
+            Response.Headers.ContentRange = $"bytes */{fileSize}";
+            return StatusCode(StatusCodes.Status416RangeNotSatisfiable);
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using AIEngineConnectivity.EngineCore;
 using AIEngineCore.EngineCore;
-using AIEngineCore.EngineNotifications;
+using AIEngineCore.EngineNotifications.Email;
 using AIEngineCore.Providers;
 using AIEngineCore.Services;
 using Microsoft.Extensions.DependencyInjection;

@@ -1,9 +1,6 @@
 ﻿using AIEngineConnectivity.EngineCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace AIEngineCore.EngineNotifications
+namespace AIEngineCore.EngineNotifications.Email
 {
     public class EngineEmailRouter : IEngineNotificationRouter
     {

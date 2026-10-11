@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { EngineDriveSvg } from '../svgs/engine-drive-svg/engine-drive-svg';
 import { catchError, concatMap, defaultIfEmpty, EMPTY, finalize, from, map, mergeMap, Observable, retry, Subject, take, takeUntil, tap } from 'rxjs';
 import { FileUploadService } from '../../services/file-upload-service';
-import { Buttons, ChunkInitalize, ChunkUpload, EngineDriveItem, InitiateUploadRequest, StorageInfo } from '../../services/engine-route-constants';
+import { Buttons, ChunkInitalize, ChunkUpload, EngineControllers, EngineDriveItem, InitiateUploadRequest, StorageInfo } from '../../services/engine-route-constants';
 import { SnackbarService } from '../../services/snackbar-service';
 import { UploadFileTask } from '../../models/snackbar-config';
 import { ConfirmationDialog } from '../dialogs/confirmation-dialog/confirmation-dialog';
@@ -25,6 +25,7 @@ export type SortOrder = 'asc' | 'desc';
 })
 
 export class EngineDrive implements OnInit, OnDestroy {
+
   @Output() closed = new EventEmitter<void>();
   @ViewChild('fileInput') fileInputRef?: ElementRef<HTMLInputElement>;
   @ViewChild('folderInput') folderInputRef?: ElementRef<HTMLInputElement>;
@@ -119,6 +120,16 @@ export class EngineDrive implements OnInit, OnDestroy {
     } else {
       displayFileIds.every(f => this.selectedFiles.add(f));
     }
+  }
+
+  downloadFile(fileId: string): void {
+    const downloadUrl = `${EngineControllers.EngineDriveController}/file/${encodeURIComponent(fileId)}/download`;
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
   }
 
   OpenTrashDialog() {

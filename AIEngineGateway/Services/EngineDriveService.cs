@@ -141,12 +141,45 @@ namespace AIEngineGateway.Services
             }, cancellationToken);
         }
 
-        public async Task<DownloadFileResult?> GetDownloadStreamAsync(Guid FileId, long offset, long? requestLength, CancellationToken cancellationToken)
+        public async Task<EngineFile?> GetDownloadMetadataAsync(Guid FileId, CancellationToken cancellationToken)
         {
             try
             {
+                if (!int.TryParse(_userService?.GetCurrentUser?.UserId, out var userId))
+                {
+                    _logger.LogError("Error while Paring User Id ");
+                    throw new FormatException("Error occured while parse the UserId");
+                }
+
+                return await _repositoryWrapper.GetEngineRepo<EngineFile>()
+                    .FirstOrDefaultNoTrackingAsync(f => f.Id == FileId &&
+                        f.CreatedBy == userId && !f.IsRecyled, cancellationToken);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public async Task<DownloadFileResult?> GetDownloadStreamAsync(Guid fileId, long offset, long? bytesToSend, EngineFile metadata, CancellationToken cancellationToken)
+        {
+            try
+            {
+                if (!int.TryParse(_userService?.GetCurrentUser?.UserId, out var userId))
+                {
+                    _logger.LogError("Error while Paring User Id ");
+                    throw new FormatException("Error occured while parse the UserId");
+                }
+                var fileMetaData = await _repositoryWrapper.GetEngineRepo<EngineFile>().
+                    FirstOrDefaultNoTrackingAsync(f => f.Id == fileId && f.CreatedBy == userId, cancellationToken);
+                if (fileMetaData is null)
+                {
+                    _logger.LogError($"File Metadata is not exists with File Id {fileId}");
+                    throw new Exception($"File Metadata is not exists with File Id {fileId}");
+                }
+
                 return await _repositoryWrapper.EngineDriveRepository
-                    .GetDownloadStreamAsync(FileId, _userService?.GetCurrentUser?.UserId, offset, requestLength, cancellationToken);
+                    .GetDownloadStreamAsync(fileId, offset, bytesToSend, fileMetaData, cancellationToken);
             }
             catch (Exception ex)
             {
