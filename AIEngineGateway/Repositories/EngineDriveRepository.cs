@@ -436,8 +436,7 @@ namespace AIEngineGateway.Repositories
                 .FirstOrDefaultAsync(c => c.Id == engineFile.ContentId, cancellationToken);
             if (fileContent is not null)
             {
-                if (_engineContext.Database.IsNpgsql() &&
-            fileContent.ContentOid.HasValue)
+                if (_engineContext.Database.IsNpgsql() && fileContent.ContentOid.HasValue)
                 {
                     var connection = (NpgsqlConnection)_engineContext.Database.GetDbConnection();
                     if (connection.State != ConnectionState.Open)

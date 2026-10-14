@@ -111,7 +111,7 @@ namespace AIEngineGateway.Services
             }
         }
 
-        public async Task DeleteFileByIds(List<Guid> ids, CancellationToken cancellationToken)
+        public async Task TrashFileByIds(List<Guid> ids, CancellationToken cancellationToken)
         {
             await _repositoryWrapper.ExecuteInTransactionAsync(async () =>
             {
@@ -184,6 +184,24 @@ namespace AIEngineGateway.Services
             catch (Exception ex)
             {
                 _logger.LogError($"Error Occurred While Get Download Stream Async :: {ex}");
+                throw;
+            }
+        }
+
+        public async Task DeleteFileAsync(List<Guid> fileIds, CancellationToken cancellation)
+        {
+            try
+            {
+                foreach (var file in fileIds)
+                {
+                    await _repositoryWrapper.ExecuteInTransactionAsync(async () =>
+                    {
+                        await _repositoryWrapper.EngineDriveRepository.DeleteEngineFileAsync(file, cancellation);
+                    });
+                }
+            }
+            catch
+            {
                 throw;
             }
         }

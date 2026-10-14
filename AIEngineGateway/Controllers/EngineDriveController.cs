@@ -76,11 +76,11 @@ namespace AIEngineGateway.Controllers
         }
 
         [HttpPost("deleteEngineFiles")]
-        public async Task<IActionResult> DeleteEngineFiles([FromBody] List<Guid> FileIds, CancellationToken cancellationToken)
+        public async Task<IActionResult> TrashEngineFilesAsync([FromBody] List<Guid> FileIds, CancellationToken cancellationToken)
         {
             try
             {
-                await _engineDriveService.DeleteFileByIds(FileIds, cancellationToken);
+                await _engineDriveService.TrashFileByIds(FileIds, cancellationToken);
                 return Ok();
             }
             catch
@@ -94,6 +94,20 @@ namespace AIEngineGateway.Controllers
         {
             var files = await _engineDriveService.GetTrashFilesAsync(cancellationToken);
             return Ok(files);
+        }
+
+        [HttpPost("deleteEngineFile")]
+        public async Task<IActionResult> DeleteEngineFilesAsync([FromBody] List<Guid> fileIds, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await _engineDriveService.DeleteFileAsync(fileIds, cancellationToken);
+                return Ok("File Deleted Successfull");
+            }
+            catch
+            {
+                return BadRequest("Error While Deleting the File");
+            }
         }
 
         [HttpGet("file/{fileId:guid}/download")]

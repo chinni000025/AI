@@ -13,9 +13,10 @@ namespace AIEngineConnectivity.Services
         public Task<List<EngineFileResponse>> GetAvailableFilesAsync(CancellationToken cancellationToken);
         public Task<List<EngineFileResponse>> GetTrashFilesAsync(CancellationToken cancellationToken);
         public Task<EngineFileStorageInfo> GetEngineStorageInfo(CancellationToken cancellationToken);
-        public Task DeleteFileByIds(List<Guid> ids, CancellationToken cancellationToken);
+        public Task TrashFileByIds(List<Guid> ids, CancellationToken cancellationToken);
         public Task<EngineFile?> GetDownloadMetadataAsync(Guid FileId, CancellationToken cancellationToken);
         public Task<DownloadFileResult?> GetDownloadStreamAsync(Guid fileId, long offset,
             long? bytesToSend, EngineFile metadata, CancellationToken cancellationToken);
+        public Task DeleteFileAsync(List<Guid> fileId, CancellationToken cancellation);
     }
 }
