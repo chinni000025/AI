@@ -1,5 +1,4 @@
-﻿using AIEngineGateway.Hub;
-using AIEngineGateway.Middlewares;
+﻿using AIEngineGateway.Middlewares;
 
 namespace AIEngineGateway.Extensions
 {
@@ -7,6 +6,7 @@ namespace AIEngineGateway.Extensions
     {
         public static void AddEngineMiddleware(this IApplicationBuilder app)
         {
+            app.UseMiddleware<GlobalExceptionMiddleware>();
             app.UseMiddleware<SecurityHeadersMiddleware>();
             app.UseHttpsRedirection();
             app.UseRouting();

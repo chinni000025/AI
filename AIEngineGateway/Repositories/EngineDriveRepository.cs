@@ -414,14 +414,16 @@ namespace AIEngineGateway.Repositories
         //Needs to optimize using indexing.
         public async Task<EngineFileStorageInfo> GetEngineStorageInfo(int userId, CancellationToken cancellationToken)
         {
-            var query = await (from f in _engineContext.EngineFiles
-                               where f.CreatedBy == userId
-                               group f by 1 into g
-                               select new EngineFileStorageInfo
-                               (g.Where(x => !x.IsRecyled).Sum(f => f.FileSize),
-                               g.Where(x => x.IsRecyled).Sum(f => f.FileSize)
-                               )).FirstOrDefaultAsync(cancellationToken);
-            return query;
+            var engineFiles = await (from f in _engineContext.EngineFiles
+                                     where f.CreatedBy == userId
+                                     select new
+                                     {
+                                         f.FileSize,
+                                         f.IsRecyled
+                                     }).ToListAsync(cancellationToken);
+
+            return new EngineFileStorageInfo(engineFiles.Where(f => !f.IsRecyled).Sum(f => f.FileSize),
+                            engineFiles.Where(f => f.IsRecyled).Sum(f => f.FileSize));
         }
 
         public async Task DeleteEngineFileAsync(Guid Id, CancellationToken cancellationToken)

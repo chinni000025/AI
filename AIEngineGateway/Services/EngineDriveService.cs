@@ -107,7 +107,7 @@ namespace AIEngineGateway.Services
             catch (Exception ex)
             {
                 _logger.LogError("Exception occur while getting Storage Info :: " + ex);
-                throw new Exception("Error Occurred While Getting Storage Info");
+                throw;
             }
         }
 
