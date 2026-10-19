@@ -1,4 +1,5 @@
 ﻿using AIEngineConnectivity.Models;
+using Serilog.Context;
 namespace AIEngineGateway.Middlewares
 {
     public class GlobalExceptionMiddleware
@@ -23,48 +24,67 @@ namespace AIEngineGateway.Middlewares
             context.TraceIdentifier = correlationId;
             context.Response.Headers[CorrelationIdHeader] = correlationId;
 
-            try
+            using (LogContext.PushProperty("CorrelationId", correlationId))
             {
-                await _next(context);
-            }
-            catch (OperationCanceledException ex)
-            {
-                _logger.LogError(ex, "Unhandled exception occurred while processing the HTTP request. " +
-                "CorrelationId: {CorrelationId}", correlationId);
-                if (context.RequestAborted.IsCancellationRequested)
+                try
                 {
-                    return;
+                    await _next(context);
                 }
-                await HandleExceptionAsync(context, ex, correlationId);
-            }
-            catch (Exception ex)
-            {
-                if (context.Response.HasStarted)
+                catch (OperationCanceledException) when (context.RequestAborted.IsCancellationRequested)
                 {
-                    throw;
+                    _logger.LogInformation("Request cancelled by client. CorrelationId: {CorrelationId}", correlationId);
+                    if (!context.Response.HasStarted)
+                    {
+                        context.Response.StatusCode = 499; // Client Closed Request
+                    }
                 }
-                await HandleExceptionAsync(context, ex, correlationId);
+                catch (Exception ex)
+                {
+                    if (context.Response.HasStarted)
+                    {
+                        _logger.LogWarning(ex, "Response already started. Cannot write error response. CorrelationId: {CorrelationId}", correlationId);
+                        throw;
+                    }
+
+                    var statusCode = GetStatusCode(ex);
+
+                    if (statusCode >= 500)
+                    {
+                        _logger.LogError(ex, "Unhandled server error processing request {Path}. Status: {StatusCode}, CorrelationId: {CorrelationId}",
+                            context.Request.Path, statusCode, correlationId);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Client error processing request {Path}: {Message}. Status: {StatusCode}, CorrelationId: {CorrelationId}",
+                            context.Request.Path, ex.Message, statusCode, correlationId);
+                    }
+
+                    await HandleExceptionAsync(context, ex, correlationId, statusCode);
+                }
             }
         }
 
-        private async Task HandleExceptionAsync(HttpContext context, Exception ex, string correlationId)
+        private async Task HandleExceptionAsync(HttpContext context, Exception ex, string correlationId, int statusCode)
         {
             try
             {
-                context.Response.StatusCode = 500;
+                var clientMessage = statusCode >= 500
+                    ? "An unexpected error occurred. Please contact support."
+                    : ex.Message;
+
+                context.Response.StatusCode = statusCode;
+                context.Response.ContentType = "application/json";
+
                 await context.Response.WriteAsJsonAsync(new EngineErrorResponse
                 {
-                    StatusCode = GetStatusCode(ex),
-                    ErrorMessage = "An unexpected error occurred.",
+                    StatusCode = statusCode,
+                    ErrorMessage = clientMessage,
                     CorrelationId = correlationId
                 });
             }
             catch (Exception e)
             {
-                _logger.LogWarning(
-                   e, "Failed to write the error response. " +
-                   "CorrelationId: {CorrelationId}",
-                   correlationId);
+                _logger.LogWarning(e, "Failed to write the error response. CorrelationId: {CorrelationId}", correlationId);
             }
         }
 
@@ -74,6 +94,7 @@ namespace AIEngineGateway.Middlewares
             {
                 KeyNotFoundException => StatusCodes.Status404NotFound,
                 InvalidOperationException => StatusCodes.Status400BadRequest,
+                TimeoutException => StatusCodes.Status504GatewayTimeout,
                 _ => StatusCodes.Status500InternalServerError
             };
             return statusCode;

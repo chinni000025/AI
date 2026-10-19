@@ -187,3 +187,8 @@ export interface StorageInfo {
     activeStorage: number,
     trashStorage: number,
 }
+export interface EngineErrorResponseDto {
+    statusCode: number;
+    errorMessage: string;
+    correlationId?: string;
+}

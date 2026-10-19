@@ -174,8 +174,8 @@ namespace AIEngineGateway.Extensions
                     policy.WithOrigins("http://localhost:4200")
                     .AllowAnyHeader()
                     .AllowAnyMethod()
-                    .AllowCredentials();
-
+                    .AllowCredentials()
+                    .WithExposedHeaders("X-Correlation-ID");
                 });
             });
         }
@@ -192,7 +192,7 @@ namespace AIEngineGateway.Extensions
                     path: EngineConstants.EngineLogPath,
                     rollingInterval: RollingInterval.Day,
                     retainedFileCountLimit: 5,
-                    outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff}] [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+                  outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff}] [{Level:u3}] [{CorrelationId}] {Message:lj}{NewLine}{Exception}")
                 .CreateLogger();
         }
 

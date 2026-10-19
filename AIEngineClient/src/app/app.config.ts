@@ -7,6 +7,7 @@ import { AuthInterceptor } from './services/interceptors/auth-interceptor';
 import { RefreshTokenInterceptor } from './services/interceptors/refresh-token-interceptor';
 import { provideMarkdown } from 'ngx-markdown';
 import { EncryptionInterceptor } from './services/interceptors/encryption-interceptor';
+import { httpErrorInterceptor } from './services/interceptors/http-error-interceptor';
 
 export const appConfig: ApplicationConfig = {
     providers: [
@@ -30,10 +31,15 @@ export const appConfig: ApplicationConfig = {
             multi: true
         },
         {
-			provide: HTTP_INTERCEPTORS,
-			useClass: EncryptionInterceptor,
-			multi: true
-		},
+            provide: HTTP_INTERCEPTORS,
+            useClass: EncryptionInterceptor,
+            multi: true
+        },
+        {
+            provide: HTTP_INTERCEPTORS,
+            useClass: httpErrorInterceptor,
+            multi: true
+        },
         provideMarkdown()
     ]
 };

@@ -1,0 +1,66 @@
+<div class="ced-overlay" (click)="onCancel()">
+  <div class="ced-dialog" role="alertdialog" aria-modal="true" aria-labelledby="cedDialogTitle"
+    aria-describedby="cedDialogDesc" (click)="$event.stopPropagation()">
+
+    <!-- Dialog Header -->
+    <div class="ced-header">
+      <div class="ced-header-lead">
+        <div class="ced-icon-badge">
+          <app-svg-error width="22px" height="22px"></app-svg-error>
+        </div>
+        <div class="ced-title-group">
+          <h2 class="ced-title" id="cedDialogTitle">{{ data.title || 'System Exception' }}</h2>
+          <span class="ced-subtitle-tag">Encountered an unexpected issue</span>
+        </div>
+      </div>
+      <button type="button" class="ced-close-btn" (click)="onCancel()" aria-label="Close dialog">
+        <app-svg-close width="16px" height="16px"></app-svg-close>
+      </button>
+    </div>
+
+    <!-- Error Message Description -->
+    <div class="ced-body">
+      <p class="ced-message" id="cedDialogDesc">
+        {{ data.message || 'An unexpected error occurred while processing your request. Please try again or share the reference ID below with support.' }}
+      </p>
+
+      <!-- Sleek Correlation ID Card -->
+      @if (data.correlationId) {
+      <div class="ced-reference-card">
+        <div class="ced-reference-info">
+          <span class="ced-reference-label">TRACE ID</span>
+          <code class="ced-reference-code" [title]="data.correlationId">{{ data.correlationId }}</code>
+        </div>
+        <button type="button" class="ced-copy-btn" (click)="copyCorrelationId($event)" [class.copied]="copied"
+          [attr.aria-label]="copied ? 'Reference ID copied' : 'Copy reference ID'">
+          @if (copied) {
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>Copied</span>
+          } @else {
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+          <span>Copy ID</span>
+          }
+        </button>
+      </div>
+      }
+    </div>
+
+    <!-- Footer Actions -->
+    <div class="ced-footer">
+      <button type="button" class="ced-btn ced-btn--cancel" (click)="onCancel()">
+        {{ data.cancelText || 'Cancel' }}
+      </button>
+      <button type="button" class="ced-btn ced-btn--ok" (click)="onOk()">
+        {{ data.okText || 'OK' }}
+      </button>
+    </div>
+
+  </div>
+</div>

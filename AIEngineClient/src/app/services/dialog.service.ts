@@ -1,6 +1,12 @@
 import { Injectable, ApplicationRef, Injector, EnvironmentInjector, createComponent, Type } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
 import { DIALOG_DATA, DIALOG_REF } from '../Components/dialogs/confirmation-dialog/confirmation-dialog';
+import {
+	CriticalErrorDialog,
+	CriticalErrorDialogData,
+	CRITICAL_ERROR_DIALOG_DATA,
+	CRITICAL_ERROR_DIALOG_REF
+} from '../Components/dialogs/critical-error-dialog/critical-error-dialog';
 
 export class DialogRef {
 	private _afterClosed = new Subject<any>();
@@ -66,6 +72,25 @@ export class DialogService {
 		document.body.appendChild(componentRef.location.nativeElement);
 		this.appRef.attachView(componentRef.hostView);
 
+		return dialogRef;
+	}
+
+	openCriticalError(data: CriticalErrorDialogData): DialogRef {
+		const dialogRef = new DialogRef(this.appRef);
+		const customInjector = Injector.create({
+			providers: [
+				{ provide: CRITICAL_ERROR_DIALOG_DATA, useValue: data },
+				{ provide: CRITICAL_ERROR_DIALOG_REF, useValue: dialogRef }
+			],
+			parent: this.injector
+		});
+		const componentRef = createComponent(CriticalErrorDialog, {
+			environmentInjector: this.environmentInjector,
+			elementInjector: customInjector
+		});
+		dialogRef.setComponentRef(componentRef);
+		document.body.appendChild(componentRef.location.nativeElement);
+		this.appRef.attachView(componentRef.hostView);
 		return dialogRef;
 	}
 }

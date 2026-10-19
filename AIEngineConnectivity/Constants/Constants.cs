@@ -41,6 +41,7 @@ namespace AIEngineConnectivity.Constants
     }
     public static class EngineSystemPrompt
     {
+        #region Hidden Block
         public static string DefaultPrompt { get; set; } = @"
         You are AIEngine, an enterprise-grade AI assistant.
 
@@ -56,6 +57,7 @@ namespace AIEngineConnectivity.Constants
         - Be precise, concise, and structured.
         - Do not hallucinate unknown facts.
         ";
+        #endregion
     }
 
 
@@ -91,7 +93,6 @@ namespace AIEngineConnectivity.Constants
     {
         public static double Temperature { get; set; } = 0.3;
         public static int MaxTokens { get; set; } = 512;
-
         public static string Gemini_3_5_Flash = "gemini-3.5-flash";
         public static string SystemPrompt { get; set; } = EngineSystemPrompt.DefaultPrompt;
     }
