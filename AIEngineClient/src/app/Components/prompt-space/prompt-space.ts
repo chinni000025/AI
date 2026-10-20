@@ -64,6 +64,7 @@ export class PromptSpace implements AfterViewChecked {
     projectSubTab: 'chats' | 'sources' = 'chats';
     projectPromptText = '';
     isProjectsExpanded = true;
+    isRecentsExpanded = true;
     activeConversationId: string | null = null;
     editingConversationId: string | null = null;
     openMenuId: string | null = null;
@@ -931,6 +932,13 @@ export class PromptSpace implements AfterViewChecked {
     toggleProjectsSection(): void {
         if (this.projects.length > 0) {
             this.isProjectsExpanded = !this.isProjectsExpanded;
+            this.cdr.markForCheck();
+        }
+    }
+
+    toggleRecentsSection(): void {
+        if (this.conversations.length > 0) {
+            this.isRecentsExpanded = !this.isRecentsExpanded;
             this.cdr.markForCheck();
         }
     }
