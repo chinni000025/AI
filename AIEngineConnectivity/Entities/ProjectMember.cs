@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection.Metadata;
-using System.Text;
-
-namespace AIEngineConnectivity.Entities
+﻿namespace AIEngineConnectivity.Entities
 {
 #nullable disable
     public class ProjectMember
@@ -13,7 +8,7 @@ namespace AIEngineConnectivity.Entities
         public int Id { get; set; }
 
         //Foreign Key to the ProjectId.
-        public int ProjectId { get; set; }
+        public Guid ProjectId { get; set; }
 
         //Foreign key for the Users Table.
         public int UserId { get; set; }

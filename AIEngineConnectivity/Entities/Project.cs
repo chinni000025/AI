@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace AIEngineConnectivity.Entities
 {
@@ -14,7 +10,7 @@ namespace AIEngineConnectivity.Entities
     public class Project
     {
         // Primary id of the table.
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         // Foreign key  who created this project
         public int CreatedByUserId { get; set; }
@@ -40,7 +36,6 @@ namespace AIEngineConnectivity.Entities
         //Used for Identifying Achieved or not.
         public bool IsArchived { get; set; } = false;
 
-        public Guid ProjectId { get; set; }
 
         // navigations
 

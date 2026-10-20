@@ -40,8 +40,11 @@ import { ArchiveDialog } from '../dialogs/archive-dialog/archive-dialog';
 import { SettingsDialog } from '../dialogs/settings-dialog/settings-dialog';
 import { MarkdownModule } from 'ngx-markdown';
 import { PromptSpaceService } from '../../services/prompt-space.service';
-import { TokenService } from '../../services/token-service';
 import { EngineDrive } from '../engine-drive/engine-drive';
+import { CreateProjectDialog } from '../dialogs/create-project-dialog/create-project-dialog';
+import { ProjectService } from '../../services/project.service';
+import { AIProject } from '../../models/project';
+import { TokenService } from '../../services/token-service';
 
 @Component({
     selector: 'app-prompt-space',
@@ -49,7 +52,7 @@ import { EngineDrive } from '../engine-drive/engine-drive';
         ArchiveSvg, ShareSvg, TrashSvg, FavoriteSvg, ThunderSvg,
         ChatsSvg, BrandLogoSvg, UserSvg,
         MicSvg, AttachmentSvg, SendSvg, ExpandCollapseSvg,
-        PlusSvg, SettingsSvg, LogoutSvg, SunSvg, MoonSvg, KebabMenuSvg, DropdownSvg, EngineDriveSvg, ArchiveDialog, SettingsDialog, MarkdownModule, EngineDrive],
+        PlusSvg, SettingsSvg, LogoutSvg, SunSvg, MoonSvg, KebabMenuSvg, DropdownSvg, EngineDriveSvg, ArchiveDialog, SettingsDialog, MarkdownModule, EngineDrive, CreateProjectDialog],
     templateUrl: './prompt-space.html',
     styleUrl: './prompt-space.css',
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -57,8 +60,8 @@ import { EngineDrive } from '../engine-drive/engine-drive';
 export class PromptSpace implements AfterViewChecked {
     sidebarCollapsed = false;
 
-    /** Active tab in the sidebar: 'chats' | 'saved' */
-    activeTab: 'chats' | 'saved' = 'chats';
+    /** Active tab in the sidebar: 'chats' | 'saved' | 'projects' */
+    activeTab: 'chats' | 'saved' | 'projects' = 'chats';
     activeConversationId: string | null = null;
     editingConversationId: string | null = null;
     openMenuId: string | null = null;
@@ -115,6 +118,9 @@ export class PromptSpace implements AfterViewChecked {
     userName: string | null = null;
     private scrollTimeout?: any;
     isEngineDriveDialogOpen = false;
+    isCreateProjectDialogOpen = false;
+    projects: AIProject[] = [];
+    activeProject: AIProject | null = null;
 
     constructor(
         private dialogService: DialogService,
@@ -128,7 +134,8 @@ export class PromptSpace implements AfterViewChecked {
         private cdr: ChangeDetectorRef,
         private route: ActivatedRoute,
         private promptSpaceService: PromptSpaceService,
-        private tokenService: TokenService
+        private tokenService: TokenService,
+        public projectService: ProjectService
     ) { }
 
     ngOnInit() {
@@ -136,6 +143,16 @@ export class PromptSpace implements AfterViewChecked {
         this.getModels();
         this.userName = this.getUserName();
         this.loadConversations();
+
+        this.projectService.projects$.subscribe(projs => {
+            this.projects = projs;
+            this.cdr.markForCheck();
+        });
+
+        this.projectService.activeProject$.subscribe(active => {
+            this.activeProject = active;
+            this.cdr.markForCheck();
+        });
 
         const hugConfiguration: HubConfiguration = {
             hubName: HubEndpoints.NotificationHub,
@@ -209,9 +226,11 @@ export class PromptSpace implements AfterViewChecked {
         this.sidebarCollapsed = !this.sidebarCollapsed;
     }
 
-    setTab(tab: 'chats' | 'saved'): void {
+    setTab(tab: 'chats' | 'saved' | 'projects'): void {
         this.activeTab = tab;
-        this.loadConversations();
+        if (tab !== 'projects') {
+            this.loadConversations();
+        }
     }
 
     toggleMenu(event: MouseEvent, conv: Conversation): void {
@@ -951,5 +970,51 @@ export class PromptSpace implements AfterViewChecked {
     closeEngineDriveDialog(): void {
         this.isEngineDriveDialogOpen = false;
         this.cdr.markForCheck();
+    }
+
+    openCreateProjectDialog(): void {
+        this.isCreateProjectDialogOpen = true;
+        this.cdr.markForCheck();
+    }
+
+    closeCreateProjectDialog(): void {
+        this.isCreateProjectDialogOpen = false;
+        this.cdr.markForCheck();
+    }
+
+    onProjectCreated(project: AIProject): void {
+        this.snack.showSuccessMessage(`Project "${project.name}" created!`);
+        this.activeTab = 'projects';
+        this.cdr.markForCheck();
+    }
+
+    selectProject(project: AIProject): void {
+        this.projectService.setActiveProject(project);
+        this.snack.showInfoMessage(`Active project: ${project.name}`);
+        this.startNewChat();
+        this.cdr.markForCheck();
+    }
+
+    exitActiveProject(event?: Event): void {
+        event?.stopPropagation();
+        this.projectService.setActiveProject(null);
+        this.snack.showInfoMessage("Exited project space.");
+        this.cdr.markForCheck();
+    }
+
+    deleteProject(event: Event, project: AIProject): void {
+        event.stopPropagation();
+        this.dialogService.open(ConfirmationDialog, {
+            message: `Delete Project "${project.name}"?`,
+            subMessage: "This will remove the project and its attached instructions from your workspace.",
+            variant: 'danger',
+            buttons: [Buttons.Delete, Buttons.Cancel]
+        }).afterClosed().subscribe((res: any) => {
+            if (res) {
+                this.projectService.deleteProject(project.id);
+                this.snack.showInfoMessage(`Project "${project.name}" deleted.`);
+                this.cdr.markForCheck();
+            }
+        });
     }
 }

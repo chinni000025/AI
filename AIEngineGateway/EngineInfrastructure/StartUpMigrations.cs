@@ -35,8 +35,8 @@ namespace AIEngineGateway.EngineInfrastructure
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
-                throw new Exception(ex.Message);
+                _logger.LogError($"{ex}");
+                throw;
             }
         }
 

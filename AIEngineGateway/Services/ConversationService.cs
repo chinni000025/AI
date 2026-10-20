@@ -7,6 +7,7 @@ using AIEngineConnectivity.Repositories;
 using AIEngineConnectivity.Services;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using static AIEngineConnectivity.Models.EngineProjectDtos;
 
 namespace AIEngineGateway.Services
 {
@@ -83,7 +84,7 @@ namespace AIEngineGateway.Services
             return conversations;
         }
 
-        public async Task<object> SendMessage(Guid? conversationId, MessagePayload messagePayload, CancellationToken cancellationToken)
+        public async Task<object> SendMessage(Guid? conversationId, Guid? projectID, MessagePayload messagePayload, CancellationToken cancellationToken)
         {
             var currentUser = _UserService.GetCurrentUser;
             Conversation conversation;
@@ -98,6 +99,7 @@ namespace AIEngineGateway.Services
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,
                     ModelUsed = messagePayload.Model,
+                    ProjectId = projectID ?? null
                 };
 
                 await _Repository.GetEngineRepo<Conversation>().AddAsync(conversation, cancellationToken);
@@ -219,6 +221,33 @@ namespace AIEngineGateway.Services
             var userId = _UserService.GetCurrentUser;
             var result = await _Repository.ConversationRepository.GetUserArchiveConversation(userId.UserId, archiveChatRequest, cancellationToken);
             return result;
+        }
+
+        public async Task<Guid> CreateEmptyProjectAsync(CreateEmptyProject createEmptyProject, CancellationToken cancellation)
+        {
+            var userId = _UserService.GetCurrentUser.UserId;
+            if (!int.TryParse(userId, out int createdUserId))
+            {
+                throw new Exception("Unable to Get the UserId");
+            }
+            var dateTime = DateTime.UtcNow;
+            var entity = new Project
+            {
+                Name = createEmptyProject.Name,
+                Description = createEmptyProject.Description,
+                CreatedByUserId = createdUserId,
+                CreatedAt = dateTime,
+                UpdatedAt = dateTime,
+            };
+            await _Repository.GetEngineRepo<Project>().AddAsync(entity, cancellation);
+            await _Repository.SaveChangesAsync();
+            return entity.Id;
+
+        }
+
+        public Task<object> SendMessage(Guid? conversationId, MessagePayload messagePayload, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
         }
     }
 }

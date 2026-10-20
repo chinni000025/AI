@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace AIEngineConnectivity.Entities
 {
@@ -28,7 +24,7 @@ namespace AIEngineConnectivity.Entities
         public int UserId { get; set; }
 
         // Foreign Key to the Project Table  ( Accepts Null because if it uncategorized ).
-        public int? ProjectId { get; set; }
+        public Guid? ProjectId { get; set; }
 
         //Model Used by the user.
         [MaxLength(100)]

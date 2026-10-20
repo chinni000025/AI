@@ -55,8 +55,8 @@ namespace AIEngineGateway.Migrations.PostgreSql
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<int?>("ProjectId")
-                        .HasColumnType("integer");
+                    b.Property<Guid?>("ProjectId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Title")
                         .HasMaxLength(200)
@@ -711,11 +711,9 @@ namespace AIEngineGateway.Migrations.PostgreSql
 
             modelBuilder.Entity("AIEngineConnectivity.Entities.Project", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Color")
                         .HasMaxLength(7)
@@ -738,9 +736,6 @@ namespace AIEngineGateway.Migrations.PostgreSql
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<Guid>("ProjectId")
-                        .HasColumnType("uuid");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -760,8 +755,8 @@ namespace AIEngineGateway.Migrations.PostgreSql
                     b.Property<DateTime>("JoinedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("RoleId")
                         .HasColumnType("integer");

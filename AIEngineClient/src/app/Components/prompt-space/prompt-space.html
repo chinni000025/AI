@@ -26,12 +26,21 @@
             @if (!sidebarCollapsed) { <span>New Chat</span> }
         </button>
 
-        <!-- Chat / Saved Tabs -->
+        <!-- Chat / Projects / Saved Tabs -->
         @if (!sidebarCollapsed) {
         <div class="ps-tabs">
             <button class="ps-tab" [class.ps-tab--active]="activeTab === 'chats'" (click)="setTab('chats')">
                 <app-svg-chats></app-svg-chats>
                 Chats
+            </button>
+            <button class="ps-tab" [class.ps-tab--active]="activeTab === 'projects'" (click)="setTab('projects')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ps-tab__icon">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                </svg>
+                Projects
+                @if (projects.length > 0) {
+                <span class="ps-tab-badge">{{ projects.length }}</span>
+                }
             </button>
             <button class="ps-tab" [class.ps-tab--active]="activeTab === 'saved'" (click)="setTab('saved')">
                 <app-svg-favorite [fillColor]="'none'"></app-svg-favorite>
@@ -39,8 +48,66 @@
             </button>
         </div>
 
-        <!-- History List -->
+        <!-- History / Projects List -->
         <div class="ps-history">
+            @if (activeTab === 'projects') {
+            <!-- Create Project Action Button -->
+            <button class="ps-create-project-btn" (click)="openCreateProjectDialog()">
+                <app-svg-plus></app-svg-plus>
+                <span>New Project</span>
+            </button>
+
+            <!-- Projects List -->
+            @for (proj of projects; track proj.id) {
+            <div class="ps-project-item" [class.ps-project-item--active]="activeProject?.id === proj.id"
+                (click)="selectProject(proj)">
+                <div class="ps-project-item__row">
+                    <div class="ps-project-item__badge" [style.background]="proj.color + '22'"
+                        [style.border-color]="proj.color + '55'">
+                        <span class="ps-project-item__icon">{{ proj.icon }}</span>
+                    </div>
+
+                    <div class="ps-project-item__info">
+                        <div class="ps-project-item__name-row">
+                            <span class="ps-project-item__name" [title]="proj.name">{{ proj.name }}</span>
+                            @if (activeProject?.id === proj.id) {
+                            <span class="ps-project-item__active-dot" [style.background]="proj.color" title="Currently Active Workspace"></span>
+                            }
+                        </div>
+                        <span class="ps-project-item__meta">
+                            {{ proj.knowledgeFiles.length }} {{ proj.knowledgeFiles.length === 1 ? 'doc' : 'docs' }}
+                            @if (proj.description) { • {{ proj.description }} }
+                        </span>
+                    </div>
+
+                    <div class="ps-project-item__actions" (click)="$event.stopPropagation()">
+                        <button type="button" class="ps-project-delete-btn" (click)="deleteProject($event, proj)"
+                            title="Delete project">
+                            <app-svg-trash></app-svg-trash>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            }
+            @empty {
+            <div class="ps-history-empty">
+                <div class="ps-history-empty__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                </div>
+                <div class="ps-history-empty__content">
+                    <h3 class="ps-history-empty__title">No projects yet</h3>
+                    <p class="ps-history-empty__text">
+                        Create projects to isolate your custom instructions and reference documents.
+                    </p>
+                    <button type="button" class="ps-empty-create-btn" (click)="openCreateProjectDialog()">
+                        + Create First Project
+                    </button>
+                </div>
+            </div>
+            }
+            } @else {
             @for (conv of conversations; track conv.conversationId) {
             <div class="ps-history-item" [class.ps-history-item--active]="activeConversationId === conv.conversationId"
                 (click)="loadConversation(conv.conversationId)">
@@ -136,6 +203,7 @@
                 </div>
             </div>
             }
+            }
         </div>
         }
 
@@ -220,6 +288,41 @@
             </button>
         </header>
 
+        <!-- Active Project Workspace Banner -->
+        @if (activeProject) {
+        <div class="ps-active-project-bar" [style.border-color]="activeProject.color + '44'">
+            <div class="ps-active-project-bar__info">
+                <span class="ps-active-project-bar__badge" [style.background]="activeProject.color + '22'"
+                    [style.border-color]="activeProject.color + '66'">
+                    {{ activeProject.icon }}
+                </span>
+                <div class="ps-active-project-bar__text">
+                    <div class="ps-active-project-bar__title-row">
+                        <span class="ps-active-project-bar__name">{{ activeProject.name }}</span>
+                        <span class="ps-active-project-bar__tag" [style.color]="activeProject.color"
+                            [style.background]="activeProject.color + '15'" [style.border-color]="activeProject.color + '44'">
+                            Project Workspace Active
+                        </span>
+                    </div>
+                    @if (activeProject.description) {
+                    <span class="ps-active-project-bar__desc">{{ activeProject.description }}</span>
+                    }
+                </div>
+            </div>
+
+            <div class="ps-active-project-bar__actions">
+                <button type="button" class="ps-project-bar-btn" (click)="openCreateProjectDialog()" title="Create New Project">
+                    <app-svg-plus></app-svg-plus>
+                    <span>New Project</span>
+                </button>
+                <button type="button" class="ps-project-bar-btn ps-project-bar-btn--exit" (click)="exitActiveProject($event)" title="Exit Project Space">
+                    <span>Exit Workspace</span>
+                    ✕
+                </button>
+            </div>
+        </div>
+        }
+
         <!-- Aurora background — absolute, fills full chat window -->
         @if (messages.length === 0 && !isTyping) {
         <div class="ps-aurora" aria-hidden="true">
@@ -233,6 +336,19 @@
         <!-- ══ EMPTY STATE: greeting + chips only (input stays below via CSS centering) ══ -->
         @if (messages.length === 0 && !isTyping) {
         <div class="ps-empty-state">
+
+            @if (activeProject) {
+            <div class="ps-project-empty-tag" [style.border-color]="activeProject.color + '55'"
+                [style.background]="activeProject.color + '15'">
+                <span>{{ activeProject.icon }}</span>
+                <span [style.color]="activeProject.color">{{ activeProject.name }} Workspace</span>
+                @if (activeProject.knowledgeFiles.length > 0) {
+                <span class="ps-project-empty-tag__docs">
+                    • {{ activeProject.knowledgeFiles.length }} Knowledge {{ activeProject.knowledgeFiles.length === 1 ? 'Doc' : 'Docs' }}
+                </span>
+                }
+            </div>
+            }
 
             <!-- Greeting -->
             <div class="ps-greeting">
@@ -636,4 +752,7 @@
 }
 @if (isEngineDriveDialogOpen) {
 <app-engine-drive (closed)="closeEngineDriveDialog()"></app-engine-drive>
+}
+@if (isCreateProjectDialogOpen) {
+<app-create-project-dialog (closed)="closeCreateProjectDialog()" (created)="onProjectCreated($event)"></app-create-project-dialog>
 }

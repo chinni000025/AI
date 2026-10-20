@@ -55,8 +55,8 @@ namespace AIEngineGateway.Migrations.SqlServer
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int?>("ProjectId")
-                        .HasColumnType("int");
+                    b.Property<Guid?>("ProjectId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Title")
                         .HasMaxLength(200)
@@ -711,11 +711,9 @@ namespace AIEngineGateway.Migrations.SqlServer
 
             modelBuilder.Entity("AIEngineConnectivity.Entities.Project", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Color")
                         .HasMaxLength(7)
@@ -738,9 +736,6 @@ namespace AIEngineGateway.Migrations.SqlServer
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<Guid>("ProjectId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -760,8 +755,8 @@ namespace AIEngineGateway.Migrations.SqlServer
                     b.Property<DateTime>("JoinedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("RoleId")
                         .HasColumnType("int");

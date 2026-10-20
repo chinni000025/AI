@@ -51,8 +51,8 @@ namespace AIEngineGateway.EngineInfrastructure
             catch (Exception ex)
             {
                 _engineState.IsEngineReady = false;
-                _engineState.ErrorMessage = $"Engine setup failed. Please check your internet connectivity.{ex.Message}";
-                _logger.LogError($"Error Occured On EngineStartup Service  {ex.Message}");
+                _engineState.ErrorMessage = $"Engine setup failed. Please check your internet connectivity.{ex}";
+                _logger.LogError($"Error Occured On EngineStartup Service  {ex}");
                 throw new Exception(ex.Message);
             }
             finally
