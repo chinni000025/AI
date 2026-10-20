@@ -17,7 +17,7 @@ export class CreateProjectDialog {
 
   projectName = '';
   projectDescription = '';
-  selectedIcon = '🚀';
+  selectedIcon = '📁';
   selectedColor = '#00f0ff';
   customInstructions = '';
   selectedModel = 'gemini-3.5-flash';
@@ -26,7 +26,7 @@ export class CreateProjectDialog {
   selectedFiles: File[] = [];
   isDragOver = false;
 
-  readonly availableIcons = ['🚀', '⚡', '🧠', '🛠️', '📊', '💡', '🔬', '🛡️', '🌐', '🤖', '📚', '🎯'];
+  readonly availableIcons = ['📁', '🚀', '⚡', '🧠', '🛠️', '📊', '💡', '🔬', '🛡️', '🌐', '🤖', '📚'];
 
   readonly availableColors = [
     '#00f0ff', // Cyan

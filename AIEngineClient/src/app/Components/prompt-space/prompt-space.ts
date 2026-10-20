@@ -11,10 +11,8 @@ import { LoaderService } from '../../services/loader-service';
 import { SnackbarService } from '../../services/snackbar-service';
 import { IdentityService } from '../../services/identity-service';
 import { finalize, timestamp } from 'rxjs';
-import { PinSvg } from "../svgs/pin-svg/pin-svg";
 import { RenameSvg } from "../svgs/rename-svg/rename-svg";
 import { ArchiveSvg } from "../svgs/archive-svg/archive-svg";
-import { ShareSvg } from "../svgs/share-svg/share-svg";
 import { TrashSvg } from "../svgs/trash-svg/trash-svg";
 import { FavoriteSvg } from "../svgs/favorite-svg/favorite-svg";
 import { ChatsSvg } from "../svgs/chats-svg/chats-svg";
@@ -48,8 +46,8 @@ import { TokenService } from '../../services/token-service';
 
 @Component({
     selector: 'app-prompt-space',
-    imports: [FormsModule, PinSvg, RenameSvg,
-        ArchiveSvg, ShareSvg, TrashSvg, FavoriteSvg, ThunderSvg,
+    imports: [FormsModule, RenameSvg,
+        ArchiveSvg, TrashSvg, FavoriteSvg, ThunderSvg,
         ChatsSvg, BrandLogoSvg, UserSvg,
         MicSvg, AttachmentSvg, SendSvg, ExpandCollapseSvg,
         PlusSvg, SettingsSvg, LogoutSvg, SunSvg, MoonSvg, KebabMenuSvg, DropdownSvg, EngineDriveSvg, ArchiveDialog, SettingsDialog, MarkdownModule, EngineDrive, CreateProjectDialog],
@@ -61,7 +59,11 @@ export class PromptSpace implements AfterViewChecked {
     sidebarCollapsed = false;
 
     /** Active tab in the sidebar: 'chats' | 'saved' | 'projects' */
-    activeTab: 'chats' | 'saved' | 'projects' = 'chats';
+    activeTab: 'chats' | 'saved' = 'chats';
+    /** Active sub-tab inside Project Workspace: 'chats' | 'sources' */
+    projectSubTab: 'chats' | 'sources' = 'chats';
+    projectPromptText = '';
+    isProjectsExpanded = true;
     activeConversationId: string | null = null;
     editingConversationId: string | null = null;
     openMenuId: string | null = null;
@@ -226,11 +228,9 @@ export class PromptSpace implements AfterViewChecked {
         this.sidebarCollapsed = !this.sidebarCollapsed;
     }
 
-    setTab(tab: 'chats' | 'saved' | 'projects'): void {
+    setTab(tab: 'chats' | 'saved'): void {
         this.activeTab = tab;
-        if (tab !== 'projects') {
-            this.loadConversations();
-        }
+        this.loadConversations();
     }
 
     toggleMenu(event: MouseEvent, conv: Conversation): void {
@@ -373,6 +373,11 @@ export class PromptSpace implements AfterViewChecked {
                 this.chatService.deleteConversation(conv.conversationId).subscribe({
                     next: (res) => {
                         this.conversations = this.conversations.filter(c => c.conversationId !== conv.conversationId);
+                        this.projects.forEach(p => {
+                            if (p.conversationIds?.includes(conv.conversationId)) {
+                                this.projectService.removeConversationFromProject(p.id, conv.conversationId);
+                            }
+                        });
                         this.cdr.detectChanges();
                         this.snack.showInfoMessage("Conversation Is Moved To Recylce Bin");
                         if (this.activeConversationId === conv.conversationId) {
@@ -392,11 +397,21 @@ export class PromptSpace implements AfterViewChecked {
         this.activeConversationId = null;
         this.messages = [];
         this.promptText = '';
+        this.projectPromptText = '';
         this.shouldScrollToBottom = true;
+        this.cdr.markForCheck();
     }
 
-    loadConversation(conversationId: string): void {
+    loadConversation(conversationId: string, projectContext?: AIProject | null): void {
         this.activeConversationId = conversationId;
+        if (projectContext !== undefined) {
+            this.projectService.setActiveProject(projectContext);
+        } else {
+            const matchedProject = this.projectService.getProjectForConversation(conversationId);
+            if (matchedProject) {
+                this.projectService.setActiveProject(matchedProject);
+            }
+        }
         this.router.navigate([EngineRoutes.PromptSpace, this.activeConversationId]);
         this.chatService.getConversationsById(conversationId).subscribe({
             next: (data: any) => {
@@ -680,8 +695,12 @@ export class PromptSpace implements AfterViewChecked {
 
         this.shouldScrollToBottom = true;
         this.isTyping = true;
+        let promptToSend = text;
+        if (this.activeProject?.customInstructions && !this.activeConversationId) {
+            promptToSend = `[Project Context: ${this.activeProject.name}]\n[Instructions: ${this.activeProject.customInstructions}]\n\n${text}`;
+        }
         const payload = {
-            Prompt: text,
+            Prompt: promptToSend,
             Model: this.selectedModel,
             Provider: this.selectedProvider
         }
@@ -697,6 +716,9 @@ export class PromptSpace implements AfterViewChecked {
             next: (res: any) => {
                 if (res.response.isNewConversation) {
                     this.activeConversationId = res.response.conversationId;
+                    if (this.activeProject && res.response.conversationId) {
+                        this.projectService.addConversationToProject(this.activeProject.id, res.response.conversationId);
+                    }
                     this.loadConversations(); // load side bar.
                     this.router.navigate([EngineRoutes.PromptSpace, this.activeConversationId]);
                 }
@@ -972,7 +994,15 @@ export class PromptSpace implements AfterViewChecked {
         this.cdr.markForCheck();
     }
 
-    openCreateProjectDialog(): void {
+    toggleProjectsSection(): void {
+        if (this.projects.length > 0) {
+            this.isProjectsExpanded = !this.isProjectsExpanded;
+            this.cdr.markForCheck();
+        }
+    }
+
+    openCreateProjectDialog(event?: MouseEvent): void {
+        event?.stopPropagation();
         this.isCreateProjectDialogOpen = true;
         this.cdr.markForCheck();
     }
@@ -984,21 +1014,63 @@ export class PromptSpace implements AfterViewChecked {
 
     onProjectCreated(project: AIProject): void {
         this.snack.showSuccessMessage(`Project "${project.name}" created!`);
-        this.activeTab = 'projects';
+        this.openProjectWorkspace(project);
+    }
+
+    openProjectWorkspace(project: AIProject, event?: Event): void {
+        event?.stopPropagation();
+        this.projectService.setActiveProject(project);
+        this.activeConversationId = null;
+        this.messages = [];
+        this.projectSubTab = 'chats';
+        this.projectPromptText = '';
+        this.router.navigate([EngineRoutes.PromptSpace]);
         this.cdr.markForCheck();
     }
 
     selectProject(project: AIProject): void {
-        this.projectService.setActiveProject(project);
-        this.snack.showInfoMessage(`Active project: ${project.name}`);
-        this.startNewChat();
-        this.cdr.markForCheck();
+        this.openProjectWorkspace(project);
+    }
+
+    sendProjectMessage(): void {
+        const text = this.projectPromptText.trim();
+        if (!text) return;
+        this.promptText = text;
+        this.projectPromptText = '';
+        this.sendMessage();
+    }
+
+    onPvFilesSelected(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        if (input.files && input.files.length > 0 && this.activeProject) {
+            this.projectService.attachFilesToProject(this.activeProject.id, Array.from(input.files));
+            this.snack.showSuccessMessage("Knowledge files attached to project.");
+            input.value = '';
+            this.cdr.markForCheck();
+        }
+    }
+
+    removeKnowledgeFile(fileId: string): void {
+        if (this.activeProject) {
+            this.projectService.removeKnowledgeFile(this.activeProject.id, fileId);
+            this.snack.showInfoMessage("File removed from project.");
+            this.cdr.markForCheck();
+        }
+    }
+
+    shareProject(): void {
+        if (!this.activeProject) return;
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(`${window.location.origin}/prompt-space?project=${this.activeProject.id}`);
+            this.snack.showSuccessMessage(`Project "${this.activeProject.name}" link copied to clipboard!`);
+        }
     }
 
     exitActiveProject(event?: Event): void {
         event?.stopPropagation();
         this.projectService.setActiveProject(null);
         this.snack.showInfoMessage("Exited project space.");
+        this.startNewChat();
         this.cdr.markForCheck();
     }
 
@@ -1013,8 +1085,27 @@ export class PromptSpace implements AfterViewChecked {
             if (res) {
                 this.projectService.deleteProject(project.id);
                 this.snack.showInfoMessage(`Project "${project.name}" deleted.`);
+                if (this.activeProject?.id === project.id) {
+                    this.exitActiveProject();
+                }
                 this.cdr.markForCheck();
             }
         });
+    }
+
+    getProjectConversations(projectId: string): Conversation[] {
+        const project = this.projects.find(p => p.id === projectId);
+        if (!project || !project.conversationIds?.length) return [];
+        const idSet = new Set(project.conversationIds);
+        return this.conversations.filter(c => idSet.has(c.conversationId));
+    }
+
+    get recentConversations(): Conversation[] {
+        const projectConvIds = new Set(this.projects.flatMap(p => p.conversationIds || []));
+        return this.conversations.filter(c => !projectConvIds.has(c.conversationId));
+    }
+
+    get pinnedConversations(): Conversation[] {
+        return this.conversations.filter(c => c.isPinned);
     }
 }

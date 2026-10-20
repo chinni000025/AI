@@ -19,6 +19,7 @@ export interface AIProject {
   createdAt: string;
   updatedAt: string;
   conversationCount: number;
+  conversationIds?: string[];
 }
 
 export interface ProjectTemplate {

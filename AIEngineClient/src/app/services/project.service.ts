@@ -56,7 +56,12 @@ export class ProjectService {
     if (saved) {
       try {
         const parsed: AIProject[] = JSON.parse(saved);
-        this.projectsSubject.next(parsed);
+        // Ensure conversationIds array exists on all loaded projects
+        const normalized = parsed.map(p => ({
+          ...p,
+          conversationIds: p.conversationIds || []
+        }));
+        this.projectsSubject.next(normalized);
       } catch {
         this.seedDefaultProjects();
       }
@@ -76,39 +81,32 @@ export class ProjectService {
   private seedDefaultProjects(): void {
     const defaults: AIProject[] = [
       {
-        id: 'proj-architect-01',
-        name: 'Full-Stack System Architect',
-        icon: '🚀',
+        id: 'proj-hi-01',
+        name: 'HI',
+        icon: '📁',
         color: '#00f0ff',
-        description: 'Enterprise AI & Distributed Systems engineering, Clean Architecture, and high-performance APIs.',
-        customInstructions: 'You are an elite Principal Architect. Adhere to Clean Architecture, SOLID principles, and high-performance reactive paradigms.',
+        description: 'Primary workspace for development & design explorations.',
+        customInstructions: 'You are a helpful and intelligent AI engineering assistant. Provide direct, concise, and production-ready solutions.',
         defaultModel: 'gemini-3.5-flash',
-        knowledgeFiles: [
-          {
-            id: 'file-spec-1',
-            fileName: 'ai-engine-architecture-spec.md',
-            fileSize: 48 * 1024,
-            formattedSize: '48 KB',
-            extension: 'md',
-            uploadedAt: new Date(Date.now() - 86400000 * 2).toISOString()
-          }
-        ],
+        knowledgeFiles: [],
         createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
         updatedAt: new Date(Date.now() - 86400000).toISOString(),
-        conversationCount: 4
+        conversationCount: 0,
+        conversationIds: []
       },
       {
-        id: 'proj-research-02',
-        name: 'Enterprise Market Intelligence',
-        icon: '📊',
+        id: 'proj-explanations-02',
+        name: 'Explanations',
+        icon: '📁',
         color: '#8b5cf6',
-        description: 'Competitive benchmarking, AI vector embedding performance benchmarks and operational metrics.',
-        customInstructions: 'Act as a Senior Research Analyst. Deliver concise executive briefs with high data density and structured markdown summaries.',
+        description: 'Conceptual breakdowns, architecture explanations, and documentation.',
+        customInstructions: 'Act as a Senior Architect. Break down technical concepts step-by-step with clear analogies and Mermaid diagrams.',
         defaultModel: 'gemini-3.5-flash',
         knowledgeFiles: [],
         createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
         updatedAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-        conversationCount: 1
+        conversationCount: 0,
+        conversationIds: []
       }
     ];
 
@@ -162,13 +160,42 @@ export class ProjectService {
       knowledgeFiles,
       createdAt: now,
       updatedAt: now,
-      conversationCount: 0
+      conversationCount: 0,
+      conversationIds: []
     };
 
     const updated = [newProject, ...this.projects];
     this.saveProjects(updated);
     this.setActiveProject(newProject);
     return newProject;
+  }
+
+  addConversationToProject(projectId: string, conversationId: string): void {
+    const project = this.projects.find(p => p.id === projectId);
+    if (!project) return;
+    const currentIds = project.conversationIds || [];
+    if (!currentIds.includes(conversationId)) {
+      const updatedIds = [conversationId, ...currentIds];
+      this.updateProject(projectId, {
+        conversationIds: updatedIds,
+        conversationCount: updatedIds.length
+      });
+    }
+  }
+
+  removeConversationFromProject(projectId: string, conversationId: string): void {
+    const project = this.projects.find(p => p.id === projectId);
+    if (!project) return;
+    const currentIds = project.conversationIds || [];
+    const updatedIds = currentIds.filter(id => id !== conversationId);
+    this.updateProject(projectId, {
+      conversationIds: updatedIds,
+      conversationCount: updatedIds.length
+    });
+  }
+
+  getProjectForConversation(conversationId: string): AIProject | null {
+    return this.projects.find(p => p.conversationIds?.includes(conversationId)) || null;
   }
 
   updateProject(id: string, updates: Partial<AIProject>): AIProject | null {
