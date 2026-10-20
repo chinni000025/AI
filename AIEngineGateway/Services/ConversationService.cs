@@ -87,7 +87,7 @@ namespace AIEngineGateway.Services
         public async Task<object> SendMessage(Guid? conversationId, Guid? projectID, MessagePayload messagePayload, CancellationToken cancellationToken)
         {
             var currentUser = _UserService.GetCurrentUser;
-            Conversation conversation;
+            Conversation conversation = null;
 
             if (conversationId is null)
             {
@@ -107,8 +107,19 @@ namespace AIEngineGateway.Services
             }
             else
             {
-                conversation = await _Repository.ConversationRepository
-                    .GetConversation(conversationId.Value, currentUser.UserId, cancellationToken);
+                if (projectID is not null)
+                {
+                    conversation = await _Repository.GetEngineRepo<Conversation>()
+                        .FirstOrDefaultAsync(c => c.ConversationId == conversationId &&
+                                             c.ProjectId == projectID &&
+                                             c.UserId == int.Parse(currentUser.UserId), cancellationToken);
+                }
+                else
+                {
+                    conversation = await _Repository.ConversationRepository
+                        .GetConversation(conversationId.Value, currentUser.UserId, cancellationToken);
+                }
+
                 if (conversation is null)
                     throw new Exception("Conversation is empty");
             }
@@ -142,10 +153,12 @@ namespace AIEngineGateway.Services
                     MessageSentAt = DateTime.UtcNow
                 };
 
-                await _Repository.GetEngineRepo<Message>().AddAsync(assistantMessage, cancellationToken);
-                conversation.UpdatedAt = DateTime.UtcNow;
-                conversation.LastMessageAt = DateTime.UtcNow;
-                await _Repository.SaveChangesAsync(cancellationToken);
+                await _Repository.ExecuteInTransactionAsync(async () =>
+                {
+                    await _Repository.GetEngineRepo<Message>().AddAsync(assistantMessage, cancellationToken);
+                    conversation.UpdatedAt = DateTime.UtcNow;
+                    conversation.LastMessageAt = DateTime.UtcNow;
+                });
 
                 return new
                 {
@@ -242,12 +255,6 @@ namespace AIEngineGateway.Services
             await _Repository.GetEngineRepo<Project>().AddAsync(entity, cancellation);
             await _Repository.SaveChangesAsync();
             return entity.Id;
-
-        }
-
-        public Task<object> SendMessage(Guid? conversationId, MessagePayload messagePayload, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
         }
     }
 }

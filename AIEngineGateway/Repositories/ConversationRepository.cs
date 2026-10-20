@@ -4,6 +4,7 @@ using AIEngineConnectivity.Models;
 using AIEngineConnectivity.Repositories;
 using AIEngineGateway.EngineInfrastructure;
 using Microsoft.EntityFrameworkCore;
+using static AIEngineConnectivity.Models.EngineProjectDtos;
 
 namespace AIEngineGateway.Repositories
 {
@@ -164,6 +165,35 @@ namespace AIEngineGateway.Repositories
             await (from c in _EngineContext.Conversations
                    where c.ConversationId == Id
                    select c).ExecuteDeleteAsync(cancellationToken);
+        }
+
+        public async Task<List<CurrentUserProject>> GetCurrentUserProjectAsync(int userId, bool isArchieved, CancellationToken cancellation)
+        {
+            var query = await (from p in _EngineContext.Projects
+                               where p.CreatedByUserId == userId && isArchieved ? p.IsArchived : !p.IsArchived
+                               orderby p.UpdatedAt descending
+                               select new CurrentUserProject(p.Name,
+                               p.Description, p.IsArchived, p.CreatedAt, p.UpdatedAt)).ToListAsync(cancellation);
+            return query;
+        }
+
+        public async Task<List<ConversationDTO>> GetCurrentProjectConversationsAsync(int userId, Guid projectId, CancellationToken cancellation)
+        {
+            var query = await (from cp in _EngineContext.Conversations
+                               where cp.UserId == userId && cp.ProjectId == projectId
+                               && !cp.IsArchived && !cp.IsDeleted && !cp.IsFavorite
+                               orderby cp.LastMessageAt ?? cp.CreatedAt descending
+                               select new ConversationDTO
+                               {
+                                   ConversationId = cp.ConversationId,
+                                   ConversationTitle = cp.Title,
+                                   LastMessage = cp.LastMessageAt,
+                                   CreatedAt = cp.CreatedAt,
+                                   ModelUsed = cp.ModelUsed,
+                                   IsFavorite = cp.IsFavorite,
+                                   IsPinned = cp.IsPinned
+                               }).ToListAsync(cancellation);
+            return query;
         }
     }
 }

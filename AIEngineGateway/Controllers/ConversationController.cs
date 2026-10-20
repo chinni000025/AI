@@ -86,7 +86,7 @@ namespace AIEngineGateway.Controllers
                     Provider = aiRequest.Provider
                 };
 
-                var response = await _conversationService.SendMessage(conversationId, messagePayload, cancellationToken);
+                var response = await _conversationService.SendMessage(conversationId, null, messagePayload, cancellationToken);
                 return Ok(new { response });
             }
             catch (Exception ex)
@@ -109,7 +109,7 @@ namespace AIEngineGateway.Controllers
                     Provider = aiRequest.Provider
                 };
 
-                var response = await _conversationService.SendMessage(null, messagePayload, cancellationToken);
+                var response = await _conversationService.SendMessage(null, null, messagePayload, cancellationToken);
                 return Ok(new { response });
             }
             catch (Exception ex)
