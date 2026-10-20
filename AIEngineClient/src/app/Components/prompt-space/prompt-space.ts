@@ -42,6 +42,7 @@ import { EngineDrive } from '../engine-drive/engine-drive';
 import { CreateProjectDialog } from '../dialogs/create-project-dialog/create-project-dialog';
 import { AIProject } from '../../models/project';
 import { TokenService } from '../../services/token-service';
+import { ProjectService } from '../../services/project-service';
 
 @Component({
     selector: 'app-prompt-space',
@@ -136,6 +137,7 @@ export class PromptSpace implements AfterViewChecked {
         private route: ActivatedRoute,
         private promptSpaceService: PromptSpaceService,
         private tokenService: TokenService,
+        private projectService: ProjectService
     ) { }
 
     ngOnInit() {
@@ -584,44 +586,6 @@ export class PromptSpace implements AfterViewChecked {
         }
     }
 
-
-    /*   Futher Case.
-    // ── Text-to-Speech UI methods (UI-only – backend will wire real TTS) ──────
-    toggleSpeak(msg: ChatMessage, event: MouseEvent): void {
-        event.stopPropagation();
-    
-        // If already speaking this message, stop it
-        if (this.speakingMsgId === msg.id) {
-            this.stopSpeak();
-            return;
-        }
-    
-        // Cancel any in-progress speech first
-        clearTimeout(this.speakStopTimeout);
-    
-        // Set new speaking ID and NEW array reference so @for re-evaluates
-        // every item's bindings (required for OnPush + track-by-id loops)
-        this.speakingMsgId = msg.id;
-        this.messages = [...this.messages];
-        this.cdr.detectChanges();
-    
-        // Auto-stop after estimated read duration
-        const wordCount = (msg.content?.toString() ?? '').split(/\s+/).filter(Boolean).length;
-        const durationMs = Math.max(2500, Math.min(wordCount * 450, 30000));
-        this.speakStopTimeout = setTimeout(() => {
-            this.stopSpeak();
-        }, durationMs);
-    }
-    
-    stopSpeak(): void {
-        clearTimeout(this.speakStopTimeout);
-        if (this.speakingMsgId === null) return; // already stopped — no-op
-        this.speakingMsgId = null;
-        this.messages = [...this.messages]; // force @for re-evaluation
-        this.cdr.detectChanges();
-    }
-    */
-
     loadConversations() {
         if (this.activeTab === 'chats') {
             this.chatService.getAllConversations().subscribe(
@@ -672,9 +636,6 @@ export class PromptSpace implements AfterViewChecked {
         this.shouldScrollToBottom = true;
         this.isTyping = true;
         let promptToSend = text;
-        if (this.activeProject?.customInstructions && !this.activeConversationId) {
-            promptToSend = `[Project Context: ${this.activeProject.name}]\n[Instructions: ${this.activeProject.customInstructions}]\n\n${text}`;
-        }
         const payload = {
             Prompt: promptToSend,
             Model: this.selectedModel,
@@ -986,22 +947,14 @@ export class PromptSpace implements AfterViewChecked {
     }
 
     onProjectCreated(project: AIProject): void {
-        this.snack.showSuccessMessage(`Project "${project.name}" created!`);
-        this.openProjectWorkspace(project);
-    }
-
-    openProjectWorkspace(project: AIProject, event?: Event): void {
-        event?.stopPropagation();
-        this.activeConversationId = null;
-        this.messages = [];
-        this.projectSubTab = 'chats';
-        this.projectPromptText = '';
-        this.router.navigate([EngineRoutes.PromptSpace]);
-        this.cdr.markForCheck();
-    }
-
-    selectProject(project: AIProject): void {
-        this.openProjectWorkspace(project);
+        this.projectService.createProject(project).subscribe({
+            next: (res) => {
+                this.snack.showSuccessMessage("Project Created Successfully");
+                console.log(res);
+            }, error: (err) => {
+                this.snack.showErrorMessage(err);
+            }
+        })
     }
 
     sendProjectMessage(): void {
@@ -1010,26 +963,6 @@ export class PromptSpace implements AfterViewChecked {
         this.promptText = text;
         this.projectPromptText = '';
         this.sendMessage();
-    }
-
-    shareProject(): void {
-        if (!this.activeProject) return;
-        if (navigator.clipboard) {
-            navigator.clipboard.writeText(`${window.location.origin}/prompt-space?project=${this.activeProject.id}`);
-            this.snack.showSuccessMessage(`Project "${this.activeProject.name}" link copied to clipboard!`);
-        }
-    }
-
-    getProjectConversations(projectId: string): Conversation[] {
-        const project = this.projects.find(p => p.id === projectId);
-        if (!project || !project.conversationIds?.length) return [];
-        const idSet = new Set(project.conversationIds);
-        return this.conversations.filter(c => idSet.has(c.conversationId));
-    }
-
-    get recentConversations(): Conversation[] {
-        const projectConvIds = new Set(this.projects.flatMap(p => p.conversationIds || []));
-        return this.conversations.filter(c => !projectConvIds.has(c.conversationId));
     }
 
     get pinnedConversations(): Conversation[] {

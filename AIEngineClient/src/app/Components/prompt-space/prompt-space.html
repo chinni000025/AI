@@ -84,40 +84,6 @@
                         <app-svg-plus></app-svg-plus>
                     </button>
                 </div>
-
-                @if (isProjectsExpanded && projects.length > 0) {
-                <div class="ps-projects-tree">
-                    @for (proj of projects; track proj.id) {
-                    <div class="ps-proj-tree-item">
-                        <div class="ps-proj-tree-header"
-                            [class.ps-proj-tree-header--active]="activeProject?.id === proj.id && !activeConversationId"
-                            (click)="openProjectWorkspace(proj, $event)">
-                            <div class="ps-proj-tree-header__left">
-                                <span class="ps-proj-tree-icon">📁</span>
-                                <span class="ps-proj-tree-name" [title]="proj.name">{{ proj.name }}</span>
-                            </div>
-                        </div>
-
-                        <!-- Sub-chats list under project (Indented like Image 2) -->
-                        <div class="ps-proj-subchats">
-                            @for (conv of getProjectConversations(proj.id); track conv.conversationId) {
-                            <div class="ps-subchat-item"
-                                [class.ps-subchat-item--active]="activeConversationId === conv.conversationId"
-                                (click)="loadConversation(conv.conversationId, proj)">
-                                <span class="ps-subchat-item__title" [title]="conv.conversationTitle">
-                                    {{ conv.conversationTitle }}
-                                </span>
-                            </div>
-                            } @empty {
-                            <div class="ps-subchat-empty">
-                                No chats
-                            </div>
-                            }
-                        </div>
-                    </div>
-                    }
-                </div>
-                }
             </div>
 
             <!-- RECENTS SECTION (Image 2) -->
@@ -126,72 +92,7 @@
                     <span class="ps-section-header__title">Recents</span>
                 </div>
 
-                <div class="ps-section-list">
-                    @for (conv of recentConversations; track conv.conversationId) {
-                    <div class="ps-history-item"
-                        [class.ps-history-item--active]="activeConversationId === conv.conversationId"
-                        (click)="loadConversation(conv.conversationId, null)">
-                        <div class="ps-history-item__row">
-                            <div class="ps-history-item__info">
-                                @if (editingConversationId !== conv.conversationId) {
-                                <span class="ps-history-item__title" (dblclick)="enableTitleEdit(conv)">
-                                    {{ conv.conversationTitle }}</span>
-                                } @else {
-                                <input class="ps-history-item-title-edit" type="text"
-                                    [attr.data-conversation-id]="conv.conversationId" (keyup.escape)="cancelEdit()"
-                                    [(ngModel)]="tempConversationTitle" (blur)="onBlur(conv)"
-                                    (keyup.enter)="onEnter($event,conv)" #editInput>
-                                }
-                            </div>
 
-                            <!-- Kebab trigger + dropdown -->
-                            <div class="ps-history-item__menu-wrap">
-                                <div class="ps-history-item__menu"
-                                    [class.ps-history-item__menu--open]="openMenuId === conv.conversationId"
-                                    (click)="toggleMenu($event, conv)">
-                                    <app-svg-kebab-menu></app-svg-kebab-menu>
-                                </div>
-
-                                @if (openMenuId === conv.conversationId) {
-                                <div class="ps-conv-menu" [class.ps-conv-menu--up]="menuOpensUp"
-                                    (click)="$event.stopPropagation()">
-                                    <!-- Rename -->
-                                    <button class="ps-conv-menu__item" (click)="renameConversation($event, conv)">
-                                        <app-svg-rename></app-svg-rename>
-                                        Rename
-                                    </button>
-                                    <!-- Archive -->
-                                    <button class="ps-conv-menu__item" (click)="archiveConversation($event, conv)">
-                                        <app-svg-archive></app-svg-archive>
-                                        Archive
-                                    </button>
-
-                                    <div class="ps-conv-menu__divider"></div>
-
-                                    <!-- Favourite -->
-                                    <button class="ps-conv-menu__item"
-                                        [class.ps-conv-menu__item--active]="conv.isFavorite"
-                                        (click)="toggleFavourite($event, conv)">
-                                        <app-svg-favorite
-                                            [fillColor]="conv.isFavorite ? 'currentColor' : 'none'"></app-svg-favorite>
-                                        {{ conv.isFavorite ? 'Unfavourite' : 'Favourite' }}
-                                    </button>
-                                    <div class="ps-conv-menu__divider"></div>
-                                    <!-- Delete -->
-                                    <button class="ps-conv-menu__item ps-conv-menu__item--danger"
-                                        (click)="deleteConversation($event, conv)">
-                                        <app-svg-trash></app-svg-trash>
-                                        Delete
-                                    </button>
-                                </div>
-                                }
-                            </div>
-                        </div>
-                    </div>
-                    } @empty {
-                    <div class="ps-subchat-empty ps-subchat-empty--pad">No recent chats</div>
-                    }
-                </div>
             </div>
 
             } @else {
@@ -308,23 +209,6 @@
             </button>
         </header>
 
-        <!-- ACTIVE PROJECT TOP BAR (When actively chatting inside a project conversation) -->
-        @if (activeProject && activeConversationId) {
-        <div class="ps-chat-project-header">
-            <button type="button" class="ps-chat-project-back-btn" (click)="openProjectWorkspace(activeProject, $event)"
-                title="Back to Project Dashboard">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ps-chat-back-arrow">
-                    <polyline points="15 18 9 12 15 6"></polyline>
-                </svg>
-                <span class="ps-chat-project-icon">📁</span>
-                <span class="ps-chat-project-name">{{ activeProject.name }}</span>
-            </button>
-            <div class="ps-chat-project-actions">
-                <span class="ps-chat-project-tag">Project Active</span>
-            </div>
-        </div>
-        }
-
         <!-- PROJECT WORKSPACE VIEW (Image 3: when activeProject is selected and activeConversationId === null) -->
         @if (activeProject && !activeConversationId) {
         <div class="ps-project-view">
@@ -338,18 +222,6 @@
                         </svg>
                     </div>
                     <h1 class="ps-pv-title">{{ activeProject.name }}</h1>
-                </div>
-
-                <div class="ps-pv-header__right">
-                    <button type="button" class="ps-pv-action-btn" (click)="shareProject()" title="Share project link">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            class="ps-pv-action-icon">
-                            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
-                            <polyline points="16 6 12 2 8 6"></polyline>
-                            <line x1="12" y1="2" x2="12" y2="15"></line>
-                        </svg>
-                        <span>Share</span>
-                    </button>
                 </div>
             </div>
 
@@ -386,85 +258,9 @@
                     (click)="projectSubTab = 'chats'">
                     Chats
                 </button>
-                <button type="button" class="ps-pv-tab" [class.ps-pv-tab--active]="projectSubTab === 'sources'"
-                    (click)="projectSubTab = 'sources'">
-                    Sources
-                    @if (activeProject.knowledgeFiles.length > 0) {
-                    <span class="ps-pv-tab-badge">{{ activeProject.knowledgeFiles.length }}</span>
-                    }
-                </button>
             </div>
 
             <!-- Tab Content -->
-            <div class="ps-pv-body">
-                @if (projectSubTab === 'chats') {
-                @if (getProjectConversations(activeProject.id).length === 0) {
-                <!-- Empty State (matching Image 3) -->
-                <div class="ps-pv-empty">
-                    <h2 class="ps-pv-empty__title">No chats yet</h2>
-                    <p class="ps-pv-empty__subtitle">Chats in {{ activeProject.name }} will live here</p>
-                </div>
-                } @else {
-                <!-- Project Conversations Grid -->
-                <div class="ps-pv-chats-grid">
-                    @for (conv of getProjectConversations(activeProject.id); track conv.conversationId) {
-                    <div class="ps-pv-chat-card" (click)="loadConversation(conv.conversationId, activeProject)">
-                        <div class="ps-pv-chat-card__main">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                class="ps-pv-chat-card__icon">
-                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                            </svg>
-                            <span class="ps-pv-chat-card__title">{{ conv.conversationTitle }}</span>
-                        </div>
-                        <div class="ps-pv-chat-card__footer">
-                            <span class="ps-pv-chat-card__date">{{ conv.createdAt ? formatTimestamp(conv.createdAt) :
-                                'Recent' }}</span>
-                            <span class="ps-pv-chat-card__arrow">Open →</span>
-                        </div>
-                    </div>
-                    }
-                </div>
-                }
-                } @else {
-                <!-- Sources Tab -->
-                <div class="ps-pv-sources">
-                    <div class="ps-pv-sources-header">
-                        <div>
-                            <h3 class="ps-pv-section-title">Knowledge Files</h3>
-                            <p class="ps-pv-section-desc">Files attached to this project workspace for AI context.</p>
-                        </div>
-                    </div>
-
-                    @if (activeProject.knowledgeFiles.length > 0) {
-                    <div class="ps-pv-files-list">
-                        @for (file of activeProject.knowledgeFiles; track file.id) {
-                        <div class="ps-pv-file-row">
-                            <div class="ps-pv-file-row__info">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    class="ps-pv-file-icon">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                    <polyline points="14 2 14 8 20 8"></polyline>
-                                </svg>
-                                <div class="ps-pv-file-row__text">
-                                    <span class="ps-pv-file-name" [title]="file.fileName">{{ file.fileName }}</span>
-                                    <span class="ps-pv-file-size">{{ file.formattedSize }}</span>
-                                </div>
-                            </div>
-                        </div>
-                        }
-                    </div>
-                    }
-                    @if (activeProject.customInstructions) {
-                    <div class="ps-pv-instructions-section">
-                        <h3 class="ps-pv-section-title">Custom Instructions</h3>
-                        <div class="ps-pv-instructions-content">
-                            {{ activeProject.customInstructions }}
-                        </div>
-                    </div>
-                    }
-                </div>
-                }
-            </div>
         </div>
         }
 

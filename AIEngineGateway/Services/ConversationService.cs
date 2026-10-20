@@ -236,7 +236,7 @@ namespace AIEngineGateway.Services
             return result;
         }
 
-        public async Task<Guid> CreateEmptyProjectAsync(CreateEmptyProject createEmptyProject, CancellationToken cancellation)
+        public async Task<Guid> CreateProjectAsync(CreateEmptyProject createEmptyProject, CancellationToken cancellation)
         {
             var userId = _UserService.GetCurrentUser.UserId;
             if (!int.TryParse(userId, out int createdUserId))

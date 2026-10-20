@@ -5,6 +5,7 @@ using AIEngineConnectivity.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using static AIEngineConnectivity.Models.EngineProjectDtos;
 
 namespace AIEngineGateway.Controllers
 {
@@ -222,6 +223,19 @@ namespace AIEngineGateway.Controllers
             CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
+        }
+
+        [HttpPost("createProject")]
+        public async Task<IActionResult> CreateProject(CreateEmptyProject createEmptyProject, CancellationToken cancellationToken)
+        {
+            try
+            {
+                return Ok(await _conversationService.CreateProjectAsync(createEmptyProject, cancellationToken));
+            }
+            catch
+            {
+                throw;
+            }
         }
     }
 }
