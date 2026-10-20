@@ -256,5 +256,22 @@ namespace AIEngineGateway.Services
             await _Repository.SaveChangesAsync();
             return entity.Id;
         }
+
+        public async Task<List<CurrentUserProject>> GetCurrentUserProjectAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var userId = _UserService.GetCurrentUser.UserId;
+                if (!int.TryParse(userId, out int createdUserId))
+                {
+                    throw new Exception("Unable to Get the UserId");
+                }
+                return await _Repository.ConversationRepository.GetCurrentUserProjectAsync(createdUserId, false, cancellationToken);
+            }
+            catch
+            {
+                throw;
+            }
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using AIEngineConnectivity.DTOs;
 using AIEngineConnectivity.Entities;
 using AIEngineConnectivity.Models;
+using static AIEngineConnectivity.Models.EngineProjectDtos;
 
 namespace AIEngineConnectivity.Repositories
 {
@@ -24,5 +25,6 @@ namespace AIEngineConnectivity.Repositories
         public Task<PagedResponse<ArchiveChatItem>> GetUserArchiveConversation(String userId, ArchiveChatRequest archiveChatRequest,
             CancellationToken cancellationToken);
         public Task DeleteConversationAsync(Guid Id, CancellationToken cancellationToken);
+        public Task<List<CurrentUserProject>> GetCurrentUserProjectAsync(int userId, bool isArchieved, CancellationToken cancellation);
     }
 }

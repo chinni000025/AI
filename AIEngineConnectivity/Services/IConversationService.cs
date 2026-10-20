@@ -18,5 +18,6 @@ namespace AIEngineConnectivity.Services
         public Task<object> UpdateConversation(Guid conversationId, JsonPatchDocument<ConversationPathDTO> jsonPatchDocument, CancellationToken cancellationToken);
         public Task<Object> GetArchiveChatsAsync(ArchiveChatRequest archiveChatRequest, CancellationToken cancellationToken);
         public Task<Guid> CreateProjectAsync(CreateEmptyProject createEmptyProject, CancellationToken cancellation);
+        public Task<List<CurrentUserProject>> GetCurrentUserProjectAsync(CancellationToken cancellationToken);
     }
 }

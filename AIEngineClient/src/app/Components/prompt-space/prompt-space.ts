@@ -40,9 +40,10 @@ import { MarkdownModule } from 'ngx-markdown';
 import { PromptSpaceService } from '../../services/prompt-space.service';
 import { EngineDrive } from '../engine-drive/engine-drive';
 import { CreateProjectDialog } from '../dialogs/create-project-dialog/create-project-dialog';
-import { AIProject } from '../../models/project';
+import { AIProject, AIProjectInfo } from '../../models/project';
 import { TokenService } from '../../services/token-service';
 import { ProjectService } from '../../services/project-service';
+import { ProjectSvg } from '../svgs/project-svg/project-svg';
 
 @Component({
     selector: 'app-prompt-space',
@@ -50,7 +51,7 @@ import { ProjectService } from '../../services/project-service';
         ArchiveSvg, TrashSvg, FavoriteSvg, ThunderSvg,
         ChatsSvg, BrandLogoSvg, UserSvg,
         MicSvg, AttachmentSvg, SendSvg, ExpandCollapseSvg,
-        PlusSvg, SettingsSvg, LogoutSvg, SunSvg, MoonSvg, KebabMenuSvg, DropdownSvg, EngineDriveSvg, ArchiveDialog, SettingsDialog, MarkdownModule, EngineDrive, CreateProjectDialog],
+        PlusSvg, SettingsSvg, LogoutSvg, SunSvg, MoonSvg, KebabMenuSvg, DropdownSvg, EngineDriveSvg, ArchiveDialog, SettingsDialog, MarkdownModule, EngineDrive, CreateProjectDialog, ProjectSvg],
     templateUrl: './prompt-space.html',
     styleUrl: './prompt-space.css',
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -63,8 +64,8 @@ export class PromptSpace implements AfterViewChecked {
     /** Active sub-tab inside Project Workspace: 'chats' | 'sources' */
     projectSubTab: 'chats' | 'sources' = 'chats';
     projectPromptText = '';
-    isProjectsExpanded = true;
-    isRecentsExpanded = true;
+    isProjectsExpanded = false;
+    isRecentsExpanded = false;
     activeConversationId: string | null = null;
     editingConversationId: string | null = null;
     openMenuId: string | null = null;
@@ -124,6 +125,7 @@ export class PromptSpace implements AfterViewChecked {
     isCreateProjectDialogOpen = false;
     projects: AIProject[] = [];
     activeProject: AIProject | null = null;
+    projectInfo: AIProjectInfo[] = [];
 
     constructor(
         private dialogService: DialogService,
@@ -142,6 +144,7 @@ export class PromptSpace implements AfterViewChecked {
     ) { }
 
     ngOnInit() {
+        this.getProjects();
         this.sidebarCollapsed = window.innerWidth < 768;
         this.getModels();
         this.userName = this.getUserName();
@@ -930,7 +933,7 @@ export class PromptSpace implements AfterViewChecked {
     }
 
     toggleProjectsSection(): void {
-        if (this.projects.length > 0) {
+        if (this.projectInfo.length > 0 || this.projects.length > 0) {
             this.isProjectsExpanded = !this.isProjectsExpanded;
             this.cdr.markForCheck();
         }
@@ -958,11 +961,22 @@ export class PromptSpace implements AfterViewChecked {
         this.projectService.createProject(project).subscribe({
             next: (res) => {
                 this.snack.showSuccessMessage("Project Created Successfully");
-                console.log(res);
+                this.getProjects();
             }, error: (err) => {
                 this.snack.showErrorMessage(err);
             }
-        })
+        });
+    }
+
+    getProjects(): void {
+        this.projectService.getProjects().subscribe({
+            next: (res: any) => {
+                this.projectInfo = res as AIProjectInfo[];
+                this.cdr.markForCheck();
+            }, error: (err) => {
+                console.error("Failed to load projects:", err);
+            }
+        });
     }
 
     sendProjectMessage(): void {

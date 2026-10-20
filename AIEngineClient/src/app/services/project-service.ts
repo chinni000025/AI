@@ -15,4 +15,8 @@ export class ProjectService {
   createProject(aiProject: AIProject) {
     return this.http.post(`${EngineControllers.ConversationController}/createProject`, aiProject);
   }
+
+  getProjects() {
+    return this.http.get(`${EngineControllers.ConversationController}/getUserProjects`);
+  }
 }

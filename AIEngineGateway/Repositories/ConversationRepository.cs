@@ -172,7 +172,7 @@ namespace AIEngineGateway.Repositories
             var query = await (from p in _EngineContext.Projects
                                where p.CreatedByUserId == userId && isArchieved ? p.IsArchived : !p.IsArchived
                                orderby p.UpdatedAt descending
-                               select new CurrentUserProject(p.Name,
+                               select new CurrentUserProject(p.Id, p.Name,
                                p.Description, p.IsArchived, p.CreatedAt, p.UpdatedAt)).ToListAsync(cancellation);
             return query;
         }

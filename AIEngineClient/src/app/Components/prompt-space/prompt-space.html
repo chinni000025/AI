@@ -67,11 +67,11 @@
 
             <!-- PROJECTS SECTION (Image 2) -->
             <div class="ps-sidebar-section">
-                <div class="ps-section-header" [class.ps-section-header--clickable]="projects.length > 0"
+                <div class="ps-section-header" [class.ps-section-header--clickable]="projectInfo.length > 0"
                     (click)="toggleProjectsSection()">
                     <div class="ps-section-header__left">
                         <span class="ps-section-header__title">Projects</span>
-                        @if (projects.length > 0) {
+                        @if (projectInfo.length > 0) {
                         <svg class="ps-section-chevron" [class.ps-section-chevron--collapsed]="!isProjectsExpanded"
                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
                             stroke-linecap="round" stroke-linejoin="round">
@@ -84,6 +84,21 @@
                         <app-svg-plus></app-svg-plus>
                     </button>
                 </div>
+
+                @if (isProjectsExpanded && projectInfo.length > 0) {
+                <div class="ps-projects-tree">
+                    @for (proj of projectInfo; track proj.name) {
+                    <div class="ps-proj-tree-item">
+                        <div class="ps-proj-tree-header">
+                            <div class="ps-proj-tree-header__left">
+                                <app-svg-project [width]="'15px'" [height]="'15px'"></app-svg-project>
+                                <span class="ps-proj-tree-name" [title]="proj.name">{{ proj.name }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    }
+                </div>
+                }
             </div>
 
             <!-- CONVERSATIONS SECTION -->
@@ -146,7 +161,8 @@
                                     <div class="ps-conv-menu__divider"></div>
 
                                     <!-- Favourite -->
-                                    <button class="ps-conv-menu__item" [class.ps-conv-menu__item--active]="conv.isFavorite"
+                                    <button class="ps-conv-menu__item"
+                                        [class.ps-conv-menu__item--active]="conv.isFavorite"
                                         (click)="toggleFavourite($event, conv)">
                                         <app-svg-favorite
                                             [fillColor]="conv.isFavorite ? 'currentColor' : 'none'"></app-svg-favorite>

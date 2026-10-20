@@ -237,5 +237,19 @@ namespace AIEngineGateway.Controllers
                 throw;
             }
         }
+
+        [HttpGet("getUserProjects")]
+        public async Task<IActionResult> GetUserCurrentUserProject(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var projects = await _conversationService.GetCurrentUserProjectAsync(cancellationToken);
+                return Ok(projects);
+            }
+            catch
+            {
+                throw;
+            }
+        }
     }
 }
