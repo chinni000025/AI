@@ -67,17 +67,20 @@
 
             <!-- PROJECTS SECTION (Image 2) -->
             <div class="ps-sidebar-section">
-                <div class="ps-section-header" [class.ps-section-header--clickable]="projects.length > 0" (click)="toggleProjectsSection()">
+                <div class="ps-section-header" [class.ps-section-header--clickable]="projects.length > 0"
+                    (click)="toggleProjectsSection()">
                     <div class="ps-section-header__left">
                         <span class="ps-section-header__title">Projects</span>
                         @if (projects.length > 0) {
                         <svg class="ps-section-chevron" [class.ps-section-chevron--collapsed]="!isProjectsExpanded"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+                            stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="6 9 12 15 18 9"></polyline>
                         </svg>
                         }
                     </div>
-                    <button type="button" class="ps-section-add-btn" (click)="openCreateProjectDialog($event)" title="New Project">
+                    <button type="button" class="ps-section-add-btn" (click)="openCreateProjectDialog($event)"
+                        title="New Project">
                         <app-svg-plus></app-svg-plus>
                     </button>
                 </div>
@@ -92,13 +95,6 @@
                             <div class="ps-proj-tree-header__left">
                                 <span class="ps-proj-tree-icon">📁</span>
                                 <span class="ps-proj-tree-name" [title]="proj.name">{{ proj.name }}</span>
-                            </div>
-
-                            <div class="ps-proj-tree-header__actions" (click)="$event.stopPropagation()">
-                                <button type="button" class="ps-proj-tree-del-btn" (click)="deleteProject($event, proj)"
-                                    title="Delete project">
-                                    <app-svg-trash></app-svg-trash>
-                                </button>
                             </div>
                         </div>
 
@@ -173,7 +169,8 @@
                                     <div class="ps-conv-menu__divider"></div>
 
                                     <!-- Favourite -->
-                                    <button class="ps-conv-menu__item" [class.ps-conv-menu__item--active]="conv.isFavorite"
+                                    <button class="ps-conv-menu__item"
+                                        [class.ps-conv-menu__item--active]="conv.isFavorite"
                                         (click)="toggleFavourite($event, conv)">
                                         <app-svg-favorite
                                             [fillColor]="conv.isFavorite ? 'currentColor' : 'none'"></app-svg-favorite>
@@ -314,7 +311,8 @@
         <!-- ACTIVE PROJECT TOP BAR (When actively chatting inside a project conversation) -->
         @if (activeProject && activeConversationId) {
         <div class="ps-chat-project-header">
-            <button type="button" class="ps-chat-project-back-btn" (click)="openProjectWorkspace(activeProject, $event)" title="Back to Project Dashboard">
+            <button type="button" class="ps-chat-project-back-btn" (click)="openProjectWorkspace(activeProject, $event)"
+                title="Back to Project Dashboard">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ps-chat-back-arrow">
                     <polyline points="15 18 9 12 15 6"></polyline>
                 </svg>
@@ -323,9 +321,6 @@
             </button>
             <div class="ps-chat-project-actions">
                 <span class="ps-chat-project-tag">Project Active</span>
-                <button type="button" class="ps-chat-project-exit-btn" (click)="exitActiveProject($event)" title="Exit Project Space">
-                    Exit ✕
-                </button>
             </div>
         </div>
         }
@@ -338,7 +333,8 @@
                 <div class="ps-pv-header__left">
                     <div class="ps-pv-folder-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z">
+                            </path>
                         </svg>
                     </div>
                     <h1 class="ps-pv-title">{{ activeProject.name }}</h1>
@@ -346,19 +342,13 @@
 
                 <div class="ps-pv-header__right">
                     <button type="button" class="ps-pv-action-btn" (click)="shareProject()" title="Share project link">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ps-pv-action-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            class="ps-pv-action-icon">
                             <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
                             <polyline points="16 6 12 2 8 6"></polyline>
                             <line x1="12" y1="2" x2="12" y2="15"></line>
                         </svg>
                         <span>Share</span>
-                    </button>
-                    <button type="button" class="ps-pv-action-btn ps-pv-action-btn--danger" (click)="deleteProject($event, activeProject)" title="Delete project">
-                        <app-svg-trash></app-svg-trash>
-                    </button>
-                    <button type="button" class="ps-pv-action-btn ps-pv-action-btn--exit" (click)="exitActiveProject($event)" title="Exit Project Space">
-                        <span>Exit</span>
-                        ✕
                     </button>
                 </div>
             </div>
@@ -367,16 +357,13 @@
             <div class="ps-pv-prompt-wrap">
                 <div class="ps-pv-input-box">
                     <span class="ps-pv-input-plus">+</span>
-                    <input type="text"
-                        class="ps-pv-input"
-                        [placeholder]="'New chat in ' + activeProject.name"
-                        [(ngModel)]="projectPromptText"
-                        (keydown.enter)="sendProjectMessage()"
-                        autofocus />
+                    <input type="text" class="ps-pv-input" [placeholder]="'New chat in ' + activeProject.name"
+                        [(ngModel)]="projectPromptText" (keydown.enter)="sendProjectMessage()" autofocus />
 
                     <div class="ps-pv-input-actions">
                         <button type="button" class="ps-pv-pill-btn" title="Reasoning & Thinking Mode">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ps-pv-think-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                class="ps-pv-think-icon">
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <path d="M12 6v6l4 2"></path>
                             </svg>
@@ -411,84 +398,71 @@
             <!-- Tab Content -->
             <div class="ps-pv-body">
                 @if (projectSubTab === 'chats') {
-                    @if (getProjectConversations(activeProject.id).length === 0) {
-                    <!-- Empty State (matching Image 3) -->
-                    <div class="ps-pv-empty">
-                        <h2 class="ps-pv-empty__title">No chats yet</h2>
-                        <p class="ps-pv-empty__subtitle">Chats in {{ activeProject.name }} will live here</p>
+                @if (getProjectConversations(activeProject.id).length === 0) {
+                <!-- Empty State (matching Image 3) -->
+                <div class="ps-pv-empty">
+                    <h2 class="ps-pv-empty__title">No chats yet</h2>
+                    <p class="ps-pv-empty__subtitle">Chats in {{ activeProject.name }} will live here</p>
+                </div>
+                } @else {
+                <!-- Project Conversations Grid -->
+                <div class="ps-pv-chats-grid">
+                    @for (conv of getProjectConversations(activeProject.id); track conv.conversationId) {
+                    <div class="ps-pv-chat-card" (click)="loadConversation(conv.conversationId, activeProject)">
+                        <div class="ps-pv-chat-card__main">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                class="ps-pv-chat-card__icon">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                            </svg>
+                            <span class="ps-pv-chat-card__title">{{ conv.conversationTitle }}</span>
+                        </div>
+                        <div class="ps-pv-chat-card__footer">
+                            <span class="ps-pv-chat-card__date">{{ conv.createdAt ? formatTimestamp(conv.createdAt) :
+                                'Recent' }}</span>
+                            <span class="ps-pv-chat-card__arrow">Open →</span>
+                        </div>
                     </div>
-                    } @else {
-                    <!-- Project Conversations Grid -->
-                    <div class="ps-pv-chats-grid">
-                        @for (conv of getProjectConversations(activeProject.id); track conv.conversationId) {
-                        <div class="ps-pv-chat-card" (click)="loadConversation(conv.conversationId, activeProject)">
-                            <div class="ps-pv-chat-card__main">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ps-pv-chat-card__icon">
-                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    }
+                </div>
+                }
+                } @else {
+                <!-- Sources Tab -->
+                <div class="ps-pv-sources">
+                    <div class="ps-pv-sources-header">
+                        <div>
+                            <h3 class="ps-pv-section-title">Knowledge Files</h3>
+                            <p class="ps-pv-section-desc">Files attached to this project workspace for AI context.</p>
+                        </div>
+                    </div>
+
+                    @if (activeProject.knowledgeFiles.length > 0) {
+                    <div class="ps-pv-files-list">
+                        @for (file of activeProject.knowledgeFiles; track file.id) {
+                        <div class="ps-pv-file-row">
+                            <div class="ps-pv-file-row__info">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    class="ps-pv-file-icon">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
                                 </svg>
-                                <span class="ps-pv-chat-card__title">{{ conv.conversationTitle }}</span>
-                            </div>
-                            <div class="ps-pv-chat-card__footer">
-                                <span class="ps-pv-chat-card__date">{{ conv.createdAt ? formatTimestamp(conv.createdAt) : 'Recent' }}</span>
-                                <span class="ps-pv-chat-card__arrow">Open →</span>
+                                <div class="ps-pv-file-row__text">
+                                    <span class="ps-pv-file-name" [title]="file.fileName">{{ file.fileName }}</span>
+                                    <span class="ps-pv-file-size">{{ file.formattedSize }}</span>
+                                </div>
                             </div>
                         </div>
                         }
                     </div>
                     }
-                } @else {
-                    <!-- Sources Tab -->
-                    <div class="ps-pv-sources">
-                        <div class="ps-pv-sources-header">
-                            <div>
-                                <h3 class="ps-pv-section-title">Knowledge Files</h3>
-                                <p class="ps-pv-section-desc">Files attached to this project workspace for AI context.</p>
-                            </div>
-                            <button type="button" class="ps-pv-upload-btn" (click)="pvFileInput.click()">
-                                <input #pvFileInput type="file" multiple (change)="onPvFilesSelected($event)" style="display: none;" />
-                                + Add files
-                            </button>
+                    @if (activeProject.customInstructions) {
+                    <div class="ps-pv-instructions-section">
+                        <h3 class="ps-pv-section-title">Custom Instructions</h3>
+                        <div class="ps-pv-instructions-content">
+                            {{ activeProject.customInstructions }}
                         </div>
-
-                        @if (activeProject.knowledgeFiles.length > 0) {
-                        <div class="ps-pv-files-list">
-                            @for (file of activeProject.knowledgeFiles; track file.id) {
-                            <div class="ps-pv-file-row">
-                                <div class="ps-pv-file-row__info">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ps-pv-file-icon">
-                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                        <polyline points="14 2 14 8 20 8"></polyline>
-                                    </svg>
-                                    <div class="ps-pv-file-row__text">
-                                        <span class="ps-pv-file-name" [title]="file.fileName">{{ file.fileName }}</span>
-                                        <span class="ps-pv-file-size">{{ file.formattedSize }}</span>
-                                    </div>
-                                </div>
-                                <button type="button" class="ps-pv-file-del-btn" (click)="removeKnowledgeFile(file.id)" title="Remove file">✕</button>
-                            </div>
-                            }
-                        </div>
-                        } @else {
-                        <div class="ps-pv-sources-dropzone" (click)="pvFileInput.click()">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ps-pv-dropzone-icon">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                <polyline points="17 8 12 3 7 8"></polyline>
-                                <line x1="12" y1="2" x2="12" y2="15"></line>
-                            </svg>
-                            <span class="ps-pv-dropzone-text">No knowledge files attached yet</span>
-                            <span class="ps-pv-dropzone-sub">Click to attach PDF, docs, markdown, or code files</span>
-                        </div>
-                        }
-
-                        @if (activeProject.customInstructions) {
-                        <div class="ps-pv-instructions-section">
-                            <h3 class="ps-pv-section-title">Custom Instructions</h3>
-                            <div class="ps-pv-instructions-content">
-                                {{ activeProject.customInstructions }}
-                            </div>
-                        </div>
-                        }
                     </div>
+                    }
+                </div>
                 }
             </div>
         </div>
@@ -905,5 +879,6 @@
 <app-engine-drive (closed)="closeEngineDriveDialog()"></app-engine-drive>
 }
 @if (isCreateProjectDialogOpen) {
-<app-create-project-dialog (closed)="closeCreateProjectDialog()" (created)="onProjectCreated($event)"></app-create-project-dialog>
+<app-create-project-dialog (closed)="closeCreateProjectDialog()"
+    (created)="onProjectCreated($event)"></app-create-project-dialog>
 }

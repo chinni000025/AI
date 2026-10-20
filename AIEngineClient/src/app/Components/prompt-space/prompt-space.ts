@@ -40,7 +40,6 @@ import { MarkdownModule } from 'ngx-markdown';
 import { PromptSpaceService } from '../../services/prompt-space.service';
 import { EngineDrive } from '../engine-drive/engine-drive';
 import { CreateProjectDialog } from '../dialogs/create-project-dialog/create-project-dialog';
-import { ProjectService } from '../../services/project.service';
 import { AIProject } from '../../models/project';
 import { TokenService } from '../../services/token-service';
 
@@ -137,7 +136,6 @@ export class PromptSpace implements AfterViewChecked {
         private route: ActivatedRoute,
         private promptSpaceService: PromptSpaceService,
         private tokenService: TokenService,
-        public projectService: ProjectService
     ) { }
 
     ngOnInit() {
@@ -145,17 +143,6 @@ export class PromptSpace implements AfterViewChecked {
         this.getModels();
         this.userName = this.getUserName();
         this.loadConversations();
-
-        this.projectService.projects$.subscribe(projs => {
-            this.projects = projs;
-            this.cdr.markForCheck();
-        });
-
-        this.projectService.activeProject$.subscribe(active => {
-            this.activeProject = active;
-            this.cdr.markForCheck();
-        });
-
         const hugConfiguration: HubConfiguration = {
             hubName: HubEndpoints.NotificationHub,
             requireAuthentication: true,
@@ -374,9 +361,6 @@ export class PromptSpace implements AfterViewChecked {
                     next: (res) => {
                         this.conversations = this.conversations.filter(c => c.conversationId !== conv.conversationId);
                         this.projects.forEach(p => {
-                            if (p.conversationIds?.includes(conv.conversationId)) {
-                                this.projectService.removeConversationFromProject(p.id, conv.conversationId);
-                            }
                         });
                         this.cdr.detectChanges();
                         this.snack.showInfoMessage("Conversation Is Moved To Recylce Bin");
@@ -404,14 +388,6 @@ export class PromptSpace implements AfterViewChecked {
 
     loadConversation(conversationId: string, projectContext?: AIProject | null): void {
         this.activeConversationId = conversationId;
-        if (projectContext !== undefined) {
-            this.projectService.setActiveProject(projectContext);
-        } else {
-            const matchedProject = this.projectService.getProjectForConversation(conversationId);
-            if (matchedProject) {
-                this.projectService.setActiveProject(matchedProject);
-            }
-        }
         this.router.navigate([EngineRoutes.PromptSpace, this.activeConversationId]);
         this.chatService.getConversationsById(conversationId).subscribe({
             next: (data: any) => {
@@ -716,9 +692,6 @@ export class PromptSpace implements AfterViewChecked {
             next: (res: any) => {
                 if (res.response.isNewConversation) {
                     this.activeConversationId = res.response.conversationId;
-                    if (this.activeProject && res.response.conversationId) {
-                        this.projectService.addConversationToProject(this.activeProject.id, res.response.conversationId);
-                    }
                     this.loadConversations(); // load side bar.
                     this.router.navigate([EngineRoutes.PromptSpace, this.activeConversationId]);
                 }
@@ -1019,7 +992,6 @@ export class PromptSpace implements AfterViewChecked {
 
     openProjectWorkspace(project: AIProject, event?: Event): void {
         event?.stopPropagation();
-        this.projectService.setActiveProject(project);
         this.activeConversationId = null;
         this.messages = [];
         this.projectSubTab = 'chats';
@@ -1040,57 +1012,12 @@ export class PromptSpace implements AfterViewChecked {
         this.sendMessage();
     }
 
-    onPvFilesSelected(event: Event): void {
-        const input = event.target as HTMLInputElement;
-        if (input.files && input.files.length > 0 && this.activeProject) {
-            this.projectService.attachFilesToProject(this.activeProject.id, Array.from(input.files));
-            this.snack.showSuccessMessage("Knowledge files attached to project.");
-            input.value = '';
-            this.cdr.markForCheck();
-        }
-    }
-
-    removeKnowledgeFile(fileId: string): void {
-        if (this.activeProject) {
-            this.projectService.removeKnowledgeFile(this.activeProject.id, fileId);
-            this.snack.showInfoMessage("File removed from project.");
-            this.cdr.markForCheck();
-        }
-    }
-
     shareProject(): void {
         if (!this.activeProject) return;
         if (navigator.clipboard) {
             navigator.clipboard.writeText(`${window.location.origin}/prompt-space?project=${this.activeProject.id}`);
             this.snack.showSuccessMessage(`Project "${this.activeProject.name}" link copied to clipboard!`);
         }
-    }
-
-    exitActiveProject(event?: Event): void {
-        event?.stopPropagation();
-        this.projectService.setActiveProject(null);
-        this.snack.showInfoMessage("Exited project space.");
-        this.startNewChat();
-        this.cdr.markForCheck();
-    }
-
-    deleteProject(event: Event, project: AIProject): void {
-        event.stopPropagation();
-        this.dialogService.open(ConfirmationDialog, {
-            message: `Delete Project "${project.name}"?`,
-            subMessage: "This will remove the project and its attached instructions from your workspace.",
-            variant: 'danger',
-            buttons: [Buttons.Delete, Buttons.Cancel]
-        }).afterClosed().subscribe((res: any) => {
-            if (res) {
-                this.projectService.deleteProject(project.id);
-                this.snack.showInfoMessage(`Project "${project.name}" deleted.`);
-                if (this.activeProject?.id === project.id) {
-                    this.exitActiveProject();
-                }
-                this.cdr.markForCheck();
-            }
-        });
     }
 
     getProjectConversations(projectId: string): Conversation[] {

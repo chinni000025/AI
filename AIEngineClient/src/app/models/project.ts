@@ -11,7 +11,6 @@ export interface AIProject {
   id: string;
   name: string;
   description: string;
-  icon: string;
   color: string;
   customInstructions: string;
   defaultModel: string;
@@ -24,7 +23,6 @@ export interface AIProject {
 
 export interface ProjectTemplate {
   name: string;
-  icon: string;
   color: string;
   description: string;
   customInstructions: string;

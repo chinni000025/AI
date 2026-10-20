@@ -2,26 +2,12 @@
   <section class="cpd-panel" role="dialog" aria-modal="true" aria-labelledby="createProjectTitle"
     (click)="$event.stopPropagation()">
 
-    <!-- Ambient glow orbs -->
-    <div class="cpd-ambient-glow" aria-hidden="true">
-      <span class="cpd-ambient-glow__orb cpd-ambient-glow__orb--accent" [style.background]="selectedColor"></span>
-      <span class="cpd-ambient-glow__orb cpd-ambient-glow__orb--cyan"></span>
-    </div>
-
     <!-- Header -->
     <header class="cpd-header">
       <div class="cpd-header__main">
-        <div class="cpd-header__icon-badge" [style.background]="selectedColor + '22'"
-          [style.border-color]="selectedColor + '55'" [style.box-shadow]="'0 0 20px ' + selectedColor + '33'">
-          <span class="cpd-header__emoji">{{ selectedIcon }}</span>
-        </div>
         <div class="cpd-header__text">
           <div class="cpd-header__title-row">
             <h2 class="cpd-header__title" id="createProjectTitle">Create New Project</h2>
-            <span class="cpd-badge" [style.color]="selectedColor" [style.border-color]="selectedColor + '44'"
-              [style.background]="selectedColor + '15'">
-              AI Workspace
-            </span>
           </div>
           <p class="cpd-header__subtitle">
             Group conversations, set custom persona instructions, and attach reference knowledge files.
@@ -40,34 +26,15 @@
 
     <!-- Dialog Body (Scrollable form) -->
     <div class="cpd-body">
-
-      <!-- Preset Template Pills -->
-      <div class="cpd-section">
-        <div class="cpd-section__header">
-          <span class="cpd-section__label">Start with a template (optional)</span>
-        </div>
-        <div class="cpd-templates-grid">
-          @for (tmpl of templates; track tmpl.name) {
-          <button type="button" class="cpd-template-card" (click)="applyTemplate(tmpl)"
-            [class.cpd-template-card--selected]="projectName === tmpl.name">
-            <span class="cpd-template-card__icon">{{ tmpl.icon }}</span>
-            <div class="cpd-template-card__info">
-              <span class="cpd-template-card__name">{{ tmpl.name }}</span>
-              <span class="cpd-template-card__desc">{{ tmpl.description }}</span>
-            </div>
-          </button>
-          }
-        </div>
-      </div>
-
       <!-- Identity: Name & Description -->
       <div class="cpd-section">
         <div class="cpd-form-group">
           <label class="cpd-label" for="projName">
             Project Name <span class="cpd-required">*</span>
           </label>
-          <input id="projName" type="text" class="cpd-input" placeholder="e.g. Enterprise RAG Pipeline, Marketing Copywriter..."
-            [(ngModel)]="projectName" maxlength="80" autofocus />
+          <input id="projName" type="text" class="cpd-input"
+            placeholder="e.g. Enterprise RAG Pipeline, Marketing Copywriter..." [(ngModel)]="projectName" maxlength="80"
+            autofocus />
           @if (nameError) {
           <span class="cpd-field-error">{{ nameError }}</span>
           }
@@ -78,131 +45,25 @@
             Description <span class="cpd-optional">(optional)</span>
           </label>
           <textarea id="projDesc" class="cpd-textarea cpd-textarea--short"
-            placeholder="Briefly describe what this project workspace is focused on..."
-            [(ngModel)]="projectDescription" maxlength="300" rows="2"></textarea>
+            placeholder="Briefly describe what this project workspace is focused on..." [(ngModel)]="projectDescription"
+            maxlength="300" rows="2"></textarea>
         </div>
       </div>
-
-      <!-- Customization: Icon & Color Palette -->
-      <div class="cpd-section cpd-section--flex-row">
-        <!-- Icon Selector -->
-        <div class="cpd-form-group cpd-form-group--half">
-          <label class="cpd-label">Workspace Icon</label>
-          <div class="cpd-icons-palette">
-            @for (icon of availableIcons; track icon) {
-            <button type="button" class="cpd-icon-choice" [class.cpd-icon-choice--active]="selectedIcon === icon"
-              (click)="selectedIcon = icon">
-              {{ icon }}
-            </button>
-            }
-          </div>
-        </div>
-
-        <!-- Color Accent Swatches -->
-        <div class="cpd-form-group cpd-form-group--half">
-          <label class="cpd-label">Accent Theme Color</label>
-          <div class="cpd-colors-palette">
-            @for (color of availableColors; track color) {
-            <button type="button" class="cpd-color-swatch" [style.background]="color"
-              [class.cpd-color-swatch--active]="selectedColor === color" (click)="selectedColor = color"
-              [title]="color">
-              @if (selectedColor === color) {
-              <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-              }
-            </button>
-            }
-          </div>
-        </div>
-      </div>
-
-      <!-- AI Behavior: Custom Instructions (System Prompt) -->
-      <div class="cpd-section">
-        <div class="cpd-section__header">
-          <label class="cpd-label" for="projInstructions">
-            Custom Instructions / System Prompt
-          </label>
-          <span class="cpd-hint">Injected into all conversations inside this project</span>
-        </div>
-        <textarea id="projInstructions" class="cpd-textarea"
-          placeholder="How should the AI behave in this project? (e.g., You are a Senior Architect. Always provide clean TypeScript code and follow domain-driven design...)"
-          [(ngModel)]="customInstructions" rows="4"></textarea>
-      </div>
-
-      <!-- Knowledge Base: File Uploads -->
-      <div class="cpd-section">
-        <div class="cpd-section__header">
-          <label class="cpd-label">
-            Project Knowledge Files
-          </label>
-          <span class="cpd-hint">Reference documents, code snippets, or guidelines</span>
-        </div>
-
-        <!-- Dropzone -->
-        <div class="cpd-dropzone" [class.cpd-dropzone--dragover]="isDragOver" (dragover)="onDragOver($event)"
-          (dragleave)="onDragLeave($event)" (drop)="onDrop($event)" (click)="fileInput.click()">
-          <input #fileInput type="file" multiple (change)="onFileSelected($event)" style="display: none" />
-          <div class="cpd-dropzone__icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="17 8 12 3 7 8"></polyline>
-              <line x1="12" y1="3" x2="12" y2="15"></line>
-            </svg>
-          </div>
-          <span class="cpd-dropzone__text">
-            <strong>Click to upload</strong> or drag and drop files here
-          </span>
-          <span class="cpd-dropzone__sub">PDF, TXT, Markdown, CSV, JSON, Code (Up to 50MB each)</span>
-        </div>
-
-        <!-- Attached Files List -->
-        @if (selectedFiles.length > 0) {
-        <div class="cpd-files-list">
-          @for (file of selectedFiles; track file.name; let idx = $index) {
-          <div class="cpd-file-chip">
-            <svg class="cpd-file-chip__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-              <polyline points="14 2 14 8 20 8"></polyline>
-            </svg>
-            <div class="cpd-file-chip__details">
-              <span class="cpd-file-chip__name" [title]="file.name">{{ file.name }}</span>
-              <span class="cpd-file-chip__size">{{ formatBytes(file.size) }}</span>
-            </div>
-            <button type="button" class="cpd-file-chip__remove" (click)="removeSelectedFile(idx)" title="Remove file">
-              ✕
-            </button>
-          </div>
-          }
-        </div>
-        }
-      </div>
-
     </div>
 
     <!-- Footer Actions -->
     <footer class="cpd-footer">
-      <div class="cpd-footer__status">
-        @if (selectedFiles.length > 0) {
-        <span class="cpd-file-summary">
-          {{ selectedFiles.length }} {{ selectedFiles.length === 1 ? 'file' : 'files' }} ready to attach
-        </span>
-        }
-      </div>
 
       <div class="cpd-footer__actions">
         <button type="button" class="cpd-btn cpd-btn--ghost" (click)="closeDialog()">
           Cancel
         </button>
-
         <button type="button" class="cpd-btn cpd-btn--primary" [disabled]="!projectName.trim()"
           (click)="submitCreateProject()">
-          <span class="cpd-btn__icon">✨</span>
+          <span class="cpd-btn__icon"></span>
           <span>Create Project</span>
         </button>
       </div>
     </footer>
-
   </section>
 </div>
