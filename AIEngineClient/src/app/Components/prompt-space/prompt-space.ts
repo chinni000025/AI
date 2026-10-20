@@ -144,11 +144,9 @@ export class PromptSpace implements AfterViewChecked {
     ) { }
 
     ngOnInit() {
-        this.getProjects();
         this.sidebarCollapsed = window.innerWidth < 768;
         this.getModels();
         this.userName = this.getUserName();
-        this.loadConversations();
         const hugConfiguration: HubConfiguration = {
             hubName: HubEndpoints.NotificationHub,
             requireAuthentication: true,
