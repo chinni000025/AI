@@ -221,7 +221,9 @@ export class PromptSpace implements AfterViewChecked {
 
     setTab(tab: 'chats' | 'saved'): void {
         this.activeTab = tab;
-        this.loadConversations();
+        if (this.isRecentsExpanded) {
+            this.loadConversations();
+        }
     }
 
     toggleMenu(event: MouseEvent, conv: Conversation): void {
@@ -931,17 +933,19 @@ export class PromptSpace implements AfterViewChecked {
     }
 
     toggleProjectsSection(): void {
-        if (this.projectInfo.length > 0 || this.projects.length > 0) {
-            this.isProjectsExpanded = !this.isProjectsExpanded;
-            this.cdr.markForCheck();
+        this.isProjectsExpanded = !this.isProjectsExpanded;
+        if (this.isProjectsExpanded) {
+            this.getProjects();
         }
+        this.cdr.markForCheck();
     }
 
     toggleRecentsSection(): void {
-        if (this.conversations.length > 0) {
-            this.isRecentsExpanded = !this.isRecentsExpanded;
-            this.cdr.markForCheck();
+        this.isRecentsExpanded = !this.isRecentsExpanded;
+        if (this.isRecentsExpanded) {
+            this.loadConversations();
         }
+        this.cdr.markForCheck();
     }
 
     openCreateProjectDialog(event?: MouseEvent): void {

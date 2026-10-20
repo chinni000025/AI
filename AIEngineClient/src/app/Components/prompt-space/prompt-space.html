@@ -67,17 +67,15 @@
 
             <!-- PROJECTS SECTION (Image 2) -->
             <div class="ps-sidebar-section">
-                <div class="ps-section-header" [class.ps-section-header--clickable]="projectInfo.length > 0"
+                <div class="ps-section-header ps-section-header--clickable"
                     (click)="toggleProjectsSection()">
                     <div class="ps-section-header__left">
                         <span class="ps-section-header__title">Projects</span>
-                        @if (projectInfo.length > 0) {
                         <svg class="ps-section-chevron" [class.ps-section-chevron--collapsed]="!isProjectsExpanded"
                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
                             stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="6 9 12 15 18 9"></polyline>
                         </svg>
-                        }
                     </div>
                     <button type="button" class="ps-section-add-btn" (click)="openCreateProjectDialog($event)"
                         title="New Project">
@@ -103,17 +101,15 @@
 
             <!-- CONVERSATIONS SECTION -->
             <div class="ps-sidebar-section">
-                <div class="ps-section-header" [class.ps-section-header--clickable]="conversations.length > 0"
+                <div class="ps-section-header ps-section-header--clickable"
                     (click)="toggleRecentsSection()">
                     <div class="ps-section-header__left">
                         <span class="ps-section-header__title">Conversations</span>
-                        @if (conversations.length > 0) {
                         <svg class="ps-section-chevron" [class.ps-section-chevron--collapsed]="!isRecentsExpanded"
                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
                             stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="6 9 12 15 18 9"></polyline>
                         </svg>
-                        }
                     </div>
                 </div>
 
