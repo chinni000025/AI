@@ -624,7 +624,7 @@ export class PromptSpace implements AfterViewChecked {
         }
     }
 
-    sendMessage(projectId: string): void {
+    sendMessage(projectId?: string): void {
         const text = this.promptText.trim();
         if (!text) {
             return;
