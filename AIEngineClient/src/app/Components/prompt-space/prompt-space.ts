@@ -40,7 +40,7 @@ import { MarkdownModule } from 'ngx-markdown';
 import { PromptSpaceService } from '../../services/prompt-space.service';
 import { EngineDrive } from '../engine-drive/engine-drive';
 import { CreateProjectDialog } from '../dialogs/create-project-dialog/create-project-dialog';
-import { AIProject, AIProjectInfo } from '../../models/project';
+import { AIProject, AIProjectInfo, ProjectConversationInfo } from '../../models/project';
 import { TokenService } from '../../services/token-service';
 import { ProjectService } from '../../services/project-service';
 import { ProjectSvg } from '../svgs/project-svg/project-svg';
@@ -126,6 +126,10 @@ export class PromptSpace implements AfterViewChecked {
     projects: AIProject[] = [];
     activeProject: AIProjectInfo | null = null;
     projectInfo: AIProjectInfo[] = [];
+    projectConversation: ProjectConversationInfo[] = [];
+    projectConversationMap: Record<string, ProjectConversationInfo[]> = {};
+    expandedSidebarProjectId: string | null = null;
+    manuallyCollapsedProjectIds = new Set<string>();
     isThinkMode = false;
     isProjectExiting = false;
 
@@ -174,7 +178,7 @@ export class PromptSpace implements AfterViewChecked {
 
         this.route.paramMap.subscribe(params => {
             const conversationId = params.get(EngineConstants.ConversationId);
-            if (conversationId) {
+            if (conversationId && conversationId !== this.activeConversationId) {
                 this.loadConversation(conversationId);
             }
         });
@@ -399,6 +403,15 @@ export class PromptSpace implements AfterViewChecked {
         this.activeConversationId = conversationId;
         if (projectContext !== undefined) {
             this.activeProject = projectContext;
+        }
+        // Keep the sidebar project expanded and highlighted when opening a project conversation
+        if (projectContext) {
+            this.expandedSidebarProjectId = projectContext.id;
+            this.isProjectsExpanded = true;
+            // Load conversations for this project into map if not already loaded
+            if (!this.projectConversationMap[projectContext.id]) {
+                this.getProjectConversation(projectContext.id);
+            }
         }
         this.router.navigate([EngineRoutes.PromptSpace, this.activeConversationId]);
         this.chatService.getConversationsById(conversationId).subscribe({
@@ -665,6 +678,9 @@ export class PromptSpace implements AfterViewChecked {
                 if (res.response.isNewConversation) {
                     this.activeConversationId = res.response.conversationId;
                     this.loadConversations(); // load side bar.
+                    if (projectId || this.activeProject?.id) {
+                        this.getProjectConversation(projectId ?? this.activeProject?.id);
+                    }
                     this.router.navigate([EngineRoutes.PromptSpace, this.activeConversationId]);
                 }
                 const aiMsg: ChatMessage = {
@@ -988,34 +1004,43 @@ export class PromptSpace implements AfterViewChecked {
         });
     }
 
+        isProjectExpanded(proj: AIProjectInfo): boolean {
+        if (!proj) return false;
+        if (this.manuallyCollapsedProjectIds.has(proj.id)) {
+            return false;
+        }
+        return this.expandedSidebarProjectId === proj.id || this.activeProject?.id === proj.id;
+    }
+
+    toggleProjectChevron(proj: AIProjectInfo, event: Event): void {
+        event.stopPropagation();
+        if (this.isProjectExpanded(proj)) {
+            this.manuallyCollapsedProjectIds.add(proj.id);
+            if (this.expandedSidebarProjectId === proj.id) {
+                this.expandedSidebarProjectId = null;
+            }
+        } else {
+            this.manuallyCollapsedProjectIds.delete(proj.id);
+            this.expandedSidebarProjectId = proj.id;
+            if (!this.projectConversationMap[proj.id]) {
+                this.getProjectConversation(proj.id);
+            }
+        }
+        this.cdr.markForCheck();
+    }
+
     openProjectWorkspace(project: AIProjectInfo, event?: Event): void {
         event?.stopPropagation();
+        // Toggle sidebar sub-list for this project
+        this.expandedSidebarProjectId = this.expandedSidebarProjectId === project.id ? null : project.id;
         this.isProjectExiting = false;
         this.activeProject = project;
         this.activeConversationId = null;
         this.messages = [];
         this.projectSubTab = 'chats';
         this.projectPromptText = '';
+        this.getProjectConversation(project.id);
         this.router.navigate([EngineRoutes.PromptSpace]);
-        this.cdr.markForCheck();
-    }
-
-    shareProject(): void {
-        if (!this.activeProject) return;
-        if (navigator.clipboard) {
-            navigator.clipboard.writeText(`${window.location.origin}/prompt-space?project=${encodeURIComponent(this.activeProject.name)}`);
-            this.snack.showSuccessMessage(`Project "${this.activeProject.name}" link copied to clipboard!`);
-        }
-    }
-
-    openProjectOptions(event?: MouseEvent): void {
-        event?.stopPropagation();
-        if (!this.activeProject) return;
-        this.snack.showInfoMessage(`Project: ${this.activeProject.name}`);
-    }
-
-    toggleThinkMode(): void {
-        this.isThinkMode = !this.isThinkMode;
         this.cdr.markForCheck();
     }
 
@@ -1032,6 +1057,24 @@ export class PromptSpace implements AfterViewChecked {
             this.sendMessage();
             this.cdr.markForCheck();
         }, 160);
+    }
+
+
+    getProjectConversation(projectId?: string) {
+        if (!projectId) {
+            return;
+        }
+        this.projectService.getProjectConversation(projectId).subscribe({
+            next: (res) => {
+                const convs = res as ProjectConversationInfo[];
+                this.projectConversation = convs;
+                this.projectConversationMap = { ...this.projectConversationMap, [projectId]: convs };
+                this.cdr.markForCheck();
+            }, error: (err) => {
+                console.log(err);
+                this.snack.showErrorMessage(err.error);
+            }
+        });
     }
 
     get pinnedConversations(): Conversation[] {

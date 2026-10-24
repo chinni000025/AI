@@ -3753,6 +3753,19 @@
 	font-weight: 600;
 }
 
+.ps-proj-tree-header--selected {
+	color: var(--prompt-chat-header-title, #ffffff);
+}
+
+.ps-proj-tree-header--selected .ps-proj-tree-name {
+	color: #ffffff;
+	font-weight: 600;
+}
+
+.ps-proj-tree-header--selected app-svg-project {
+	color: var(--color-primary, #00f0ff);
+}
+
 .ps-proj-tree-header__left {
 	display: flex;
 	align-items: center;
@@ -3780,6 +3793,38 @@
 	display: flex;
 	align-items: center;
 	transition: opacity 0.18s;
+}
+
+/* Sidebar project chevron */
+.ps-proj-tree-chevron-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: transparent;
+	border: none;
+	padding: 4px;
+	margin: -4px 0 -4px auto;
+	border-radius: 4px;
+	cursor: pointer;
+	color: var(--sidetab-title, #64748b);
+	transition: background 0.15s, color 0.15s;
+}
+
+.ps-proj-tree-chevron-btn:hover {
+	color: #ffffff;
+	background: rgba(255, 255, 255, 0.08);
+}
+
+.ps-proj-tree-chevron {
+	width: 14px;
+	height: 14px;
+	flex-shrink: 0;
+	color: inherit;
+	transition: transform 0.2s ease;
+}
+
+.ps-proj-tree-chevron--open {
+	transform: rotate(180deg);
 }
 
 .ps-proj-tree-header:hover .ps-proj-tree-header__actions {
@@ -3824,33 +3869,51 @@
 .ps-subchat-item {
 	display: flex;
 	align-items: center;
-	padding: 6px 10px;
+	padding: 7px 12px;
 	border-radius: 6px;
 	cursor: pointer;
 	background: transparent;
 	transition: background 0.16s, color 0.16s;
+	position: relative;
+	user-select: none;
 }
 
 .ps-subchat-item:hover {
-	background: var(--model-menu-item-hover, rgba(255, 255, 255, 0.04));
+	background: rgba(255, 255, 255, 0.05);
 }
 
 .ps-subchat-item--active {
-	background: var(--input-bg, rgba(255, 255, 255, 0.08));
-	color: var(--color-primary);
+	background: rgba(255, 255, 255, 0.1) !important;
+	color: #ffffff !important;
+}
+
+.ps-subchat-item--active::before {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 5px;
+	bottom: 5px;
+	width: 3px;
+	border-radius: 2px;
+	background: var(--color-primary, #00f0ff);
 }
 
 .ps-subchat-item__title {
-	font-size: 12.5px;
+	font-size: 13px;
 	color: var(--sidetab-title, #94a3b8);
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	transition: color 0.15s;
+}
+
+.ps-subchat-item:hover .ps-subchat-item__title {
+	color: #f1f5f9;
 }
 
 .ps-subchat-item--active .ps-subchat-item__title {
-	color: var(--color-primary, #00f0ff);
-	font-weight: 500;
+	color: #ffffff !important;
+	font-weight: 600;
 }
 
 .ps-subchat-empty {
@@ -4300,7 +4363,60 @@
 	margin: 0;
 }
 
-/* Chats Grid */
+/* ── Project Conversation List (reference-image style) ── */
+.ps-pv-conv-list {
+	display: flex;
+	flex-direction: column;
+	overflow-y: auto;
+	flex: 1;
+}
+
+.ps-pv-conv-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 14px 4px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+	cursor: pointer;
+	transition: background 0.18s;
+	border-radius: 6px;
+}
+
+.ps-pv-conv-item:last-child {
+	border-bottom: none;
+}
+
+.ps-pv-conv-item:hover {
+	background: rgba(255, 255, 255, 0.05);
+	padding-left: 8px;
+}
+
+.ps-pv-conv-item__info {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 0;
+	flex: 1;
+}
+
+.ps-pv-conv-item__title {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--prompt-chat-header-title, #f1f5f9);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.ps-pv-conv-item__date {
+	font-size: 12px;
+	color: var(--sidetab-title, #64748b);
+	white-space: nowrap;
+	flex-shrink: 0;
+}
+
+/* Chats Grid (kept for legacy) */
 .ps-pv-chats-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));

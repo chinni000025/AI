@@ -53,7 +53,7 @@
                     @for (conv of pinnedConversations; track conv.conversationId) {
                     <div class="ps-history-item"
                         [class.ps-history-item--active]="activeConversationId === conv.conversationId"
-                        (click)="loadConversation(conv.conversationId)">
+                        (click)="loadConversation(conv.conversationId, null)">
                         <div class="ps-history-item__row">
                             <div class="ps-history-item__info">
                                 <span class="ps-history-item__title">{{ conv.conversationTitle }}</span>
@@ -86,14 +86,44 @@
                 <div class="ps-projects-tree">
                     @for (proj of projectInfo; track proj.name) {
                     <div class="ps-proj-tree-item">
+                        <!-- Project row -->
                         <div class="ps-proj-tree-header"
-                            [class.ps-proj-tree-header--active]="activeProject?.name === proj.name && messages.length === 0 && !isTyping"
+                            [class.ps-proj-tree-header--active]="activeProject?.id === proj.id && !activeConversationId"
+                            [class.ps-proj-tree-header--selected]="activeProject?.id === proj.id"
                             (click)="openProjectWorkspace(proj, $event)">
                             <div class="ps-proj-tree-header__left">
                                 <app-svg-project [width]="'15px'" [height]="'15px'"></app-svg-project>
                                 <span class="ps-proj-tree-name" [title]="proj.name">{{ proj.name }}</span>
                             </div>
+                            <!-- Chevron: rotates when expanded -->
+                            <button type="button" class="ps-proj-tree-chevron-btn"
+                                (click)="toggleProjectChevron(proj, $event)"
+                                [title]="isProjectExpanded(proj) ? 'Collapse' : 'Expand'">
+                                <svg class="ps-proj-tree-chevron"
+                                    [class.ps-proj-tree-chevron--open]="isProjectExpanded(proj)"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
                         </div>
+
+                        <!-- Sub-conversation list (only when expanded) -->
+                        @if (isProjectExpanded(proj)) {
+                        <div class="ps-proj-subchats">
+                            @if ((projectConversationMap[proj.id] ?? []).length === 0) {
+                            <span class="ps-subchat-empty">No chats yet</span>
+                            } @else {
+                            @for (conv of projectConversationMap[proj.id]; track conv.conversationId) {
+                            <div class="ps-subchat-item"
+                                [class.ps-subchat-item--active]="activeConversationId === conv.conversationId"
+                                (click)="$event.stopPropagation(); loadConversation(conv.conversationId, proj)">
+                                <span class="ps-subchat-item__title" [title]="conv.title">{{ conv.title }}</span>
+                            </div>
+                            }
+                            }
+                        </div>
+                        }
                     </div>
                     }
                 </div>
@@ -118,7 +148,7 @@
                     @for (conv of conversations; track conv.conversationId) {
                     <div class="ps-history-item"
                         [class.ps-history-item--active]="activeConversationId === conv.conversationId"
-                        (click)="loadConversation(conv.conversationId)">
+                        (click)="loadConversation(conv.conversationId, null)">
                         <div class="ps-history-item__row">
                             <div class="ps-history-item__info">
                                 @if (editingConversationId !== conv.conversationId) {
@@ -188,7 +218,7 @@
             @for (conv of conversations; track conv.conversationId) {
             @if (conv.isFavorite) {
             <div class="ps-history-item" [class.ps-history-item--active]="activeConversationId === conv.conversationId"
-                (click)="loadConversation(conv.conversationId)">
+                (click)="loadConversation(conv.conversationId, null)">
                 <div class="ps-history-item__row">
                     <div class="ps-history-item__info">
                         <span class="ps-history-item__title">{{ conv.conversationTitle }}</span>
@@ -300,7 +330,8 @@
         <!-- PROJECT WORKSPACE VIEW (Matching Image Reference: when activeProject is selected and no messages yet) -->
         @if (activeProject && messages.length === 0 && !isTyping) {
         <div class="ps-project-view" [class.ps-project-view--exiting]="isProjectExiting">
-            <!-- Header (Project Icon + Title + Share / Kebab) -->
+
+            <!-- Header: Project Icon + Name + Kebab -->
             <div class="ps-pv-header">
                 <div class="ps-pv-header__left">
                     <div class="ps-pv-folder-icon">
@@ -308,16 +339,8 @@
                     </div>
                     <h1 class="ps-pv-title">{{ activeProject.name }}</h1>
                 </div>
-
-                <div class="ps-pv-header__right">
-                    <button type="button" class="ps-pv-action-btn ps-pv-action-btn--icon"
-                        (click)="openProjectOptions($event)" title="Project options">
-                        <app-svg-kebab-menu></app-svg-kebab-menu>
-                    </button>
-                </div>
             </div>
 
-            <!-- Prominent New Chat Bar ("+ New chat in [ProjectName]" with Think, Mic, Waveform/Send) -->
             <div class="ps-pv-prompt-wrap">
                 <div class="ps-pv-input-box">
                     <span class="ps-pv-input-plus">+</span>
@@ -423,6 +446,37 @@
                         </button>
                     </div>
                 </div>
+            </div>
+            <!-- Tab body -->
+            <div class="ps-pv-body">
+                @if (projectSubTab === 'chats') {
+                @if (projectConversation.length === 0) {
+                <!-- Empty state -->
+                <div class="ps-pv-empty">
+                    <p class="ps-pv-empty__title">No chats yet</p>
+                    <p class="ps-pv-empty__subtitle">Chats in {{ activeProject.name }} will live here</p>
+                </div>
+                } @else {
+                <!-- Conversation list (matching reference image style) -->
+                <div class="ps-pv-conv-list">
+                    @for (conv of projectConversation; track conv.conversationId) {
+                    <div class="ps-pv-conv-item" (click)="loadConversation(conv.conversationId, activeProject)">
+                        <div class="ps-pv-conv-item__info">
+                            <span class="ps-pv-conv-item__title">{{ conv.title }}</span>
+                        </div>
+                        <span class="ps-pv-conv-item__date">{{ formatTimestamp(conv.updatedAt.toString()) }}</span>
+                    </div>
+                    }
+                </div>
+                }
+                } @else {
+                <!-- Sources placeholder -->
+                <div class="ps-pv-empty">
+                    <p class="ps-pv-empty__title">No sources yet</p>
+                    <p class="ps-pv-empty__subtitle">Add files or links to use as context in {{ activeProject.name }}
+                    </p>
+                </div>
+                }
             </div>
         </div>
         }
