@@ -195,5 +195,14 @@ namespace AIEngineGateway.Repositories
                                }).ToListAsync(cancellation);
             return query;
         }
+
+        public async Task<List<ProjectConversations>> GetProjectConversations(int UserId, Guid ProjectId, CancellationToken cancellationToken)
+        {
+            var query = await (from c in _EngineContext.Conversations
+                               where c.ProjectId == ProjectId && c.UserId == UserId && !c.IsDeleted
+                               orderby (c.LastMessageAt ?? c.CreatedAt) descending
+                               select new ProjectConversations(c.ConversationId, c.Title, c.UpdatedAt, c.CreatedAt)).ToListAsync(cancellationToken);
+            return query;
+        }
     }
 }

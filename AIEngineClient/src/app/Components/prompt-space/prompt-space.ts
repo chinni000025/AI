@@ -124,8 +124,10 @@ export class PromptSpace implements AfterViewChecked {
     isEngineDriveDialogOpen = false;
     isCreateProjectDialogOpen = false;
     projects: AIProject[] = [];
-    activeProject: AIProject | null = null;
+    activeProject: AIProjectInfo | null = null;
     projectInfo: AIProjectInfo[] = [];
+    isThinkMode = false;
+    isProjectExiting = false;
 
     constructor(
         private dialogService: DialogService,
@@ -385,6 +387,7 @@ export class PromptSpace implements AfterViewChecked {
     startNewChat(): void {
         this.router.navigate([EngineRoutes.PromptSpace]);
         this.activeConversationId = null;
+        this.activeProject = null;
         this.messages = [];
         this.promptText = '';
         this.projectPromptText = '';
@@ -392,8 +395,11 @@ export class PromptSpace implements AfterViewChecked {
         this.cdr.markForCheck();
     }
 
-    loadConversation(conversationId: string, projectContext?: AIProject | null): void {
+    loadConversation(conversationId: string, projectContext?: AIProjectInfo | null): void {
         this.activeConversationId = conversationId;
+        if (projectContext !== undefined) {
+            this.activeProject = projectContext;
+        }
         this.router.navigate([EngineRoutes.PromptSpace, this.activeConversationId]);
         this.chatService.getConversationsById(conversationId).subscribe({
             next: (data: any) => {
@@ -618,7 +624,7 @@ export class PromptSpace implements AfterViewChecked {
         }
     }
 
-    sendMessage(): void {
+    sendMessage(projectId: string): void {
         const text = this.promptText.trim();
         if (!text) {
             return;
@@ -643,7 +649,8 @@ export class PromptSpace implements AfterViewChecked {
         const payload = {
             Prompt: promptToSend,
             Model: this.selectedModel,
-            Provider: this.selectedProvider
+            Provider: this.selectedProvider,
+            ProjectId: projectId || this.activeProject?.id
         }
 
         const Request$ = this.activeConversationId ? this.chatService.sendMessage(this.activeConversationId, payload) :
@@ -981,12 +988,50 @@ export class PromptSpace implements AfterViewChecked {
         });
     }
 
+    openProjectWorkspace(project: AIProjectInfo, event?: Event): void {
+        event?.stopPropagation();
+        this.isProjectExiting = false;
+        this.activeProject = project;
+        this.activeConversationId = null;
+        this.messages = [];
+        this.projectSubTab = 'chats';
+        this.projectPromptText = '';
+        this.router.navigate([EngineRoutes.PromptSpace]);
+        this.cdr.markForCheck();
+    }
+
+    shareProject(): void {
+        if (!this.activeProject) return;
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(`${window.location.origin}/prompt-space?project=${encodeURIComponent(this.activeProject.name)}`);
+            this.snack.showSuccessMessage(`Project "${this.activeProject.name}" link copied to clipboard!`);
+        }
+    }
+
+    openProjectOptions(event?: MouseEvent): void {
+        event?.stopPropagation();
+        if (!this.activeProject) return;
+        this.snack.showInfoMessage(`Project: ${this.activeProject.name}`);
+    }
+
+    toggleThinkMode(): void {
+        this.isThinkMode = !this.isThinkMode;
+        this.cdr.markForCheck();
+    }
+
     sendProjectMessage(): void {
         const text = this.projectPromptText.trim();
         if (!text) return;
-        this.promptText = text;
-        this.projectPromptText = '';
-        this.sendMessage();
+        this.isProjectExiting = true;
+        this.cdr.markForCheck();
+
+        setTimeout(() => {
+            this.promptText = text;
+            this.projectPromptText = '';
+            this.isProjectExiting = false;
+            this.sendMessage();
+            this.cdr.markForCheck();
+        }, 160);
     }
 
     get pinnedConversations(): Conversation[] {

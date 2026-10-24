@@ -273,5 +273,23 @@ namespace AIEngineGateway.Services
                 throw;
             }
         }
+
+        public async Task<List<ProjectConversations>> GetProjectConversationsAsync(Guid ProjectId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var userId = _UserService.GetCurrentUser.UserId;
+                if (!int.TryParse(userId, out int createdUserId))
+                {
+                    throw new Exception("Unable to Get the UserId");
+                }
+                return await _Repository.ConversationRepository.GetProjectConversations(createdUserId, ProjectId, cancellationToken);
+            }
+            catch
+            {
+                throw;
+            }
+
+        }
     }
 }

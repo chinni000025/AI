@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace AIEngineConnectivity.DTOs
+﻿namespace AIEngineConnectivity.DTOs
 {
 #nullable disable
     public class AIRequest
@@ -12,6 +8,7 @@ namespace AIEngineConnectivity.DTOs
         public string Model { get; set; }
 
         public string Provider { get; set; }
+        public Guid? ProjectId { get; set; }
 
         public List<ChatContext> ConversationHistory { get; set; } = new List<ChatContext>();
     }

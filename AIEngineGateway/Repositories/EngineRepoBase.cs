@@ -35,6 +35,11 @@ namespace AIEngineGateway.Repositories
             return await _dbSet.FirstOrDefaultAsync(predicate, cancellationToken);
         }
 
+        public async Task<List<TEntity>?> FindByConditionAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
+        {
+            return await _dbSet.Where(predicate).ToListAsync(cancellationToken);
+        }
+
         public Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();

@@ -26,5 +26,6 @@ namespace AIEngineConnectivity.Repositories
             CancellationToken cancellationToken);
         public Task DeleteConversationAsync(Guid Id, CancellationToken cancellationToken);
         public Task<List<CurrentUserProject>> GetCurrentUserProjectAsync(int userId, bool isArchieved, CancellationToken cancellation);
+        public Task<List<ProjectConversations>> GetProjectConversations(int UserId, Guid ProjectId, CancellationToken cancellationToken);
     }
 }

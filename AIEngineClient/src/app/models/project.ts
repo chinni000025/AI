@@ -11,3 +11,10 @@ export interface AIProjectInfo {
   isArchieved: boolean;
   updatedAt: Date;
 }
+
+export interface ProjectConversationInfo {
+  conversationId: string;
+  title: string;
+  updatedAt: Date;
+  createdAt: Date;
+}

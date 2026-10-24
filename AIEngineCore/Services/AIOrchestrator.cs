@@ -12,10 +12,10 @@ namespace AIEngineCore.Services
     {
         private ILogger<AIOrchestrator> _logger;
         private readonly IReadOnlyDictionary<string, IAIEngineRouter> _Router;
-
-        public AIOrchestrator(ILogger<AIOrchestrator> logger)
+        public AIOrchestrator(ILogger<AIOrchestrator> logger, IEnumerable<IAIEngineRouter> routers)
         {
             _logger = logger;
+            _Router = routers.ToDictionary(r => r.AIProviderType, StringComparer.OrdinalIgnoreCase);
         }
 
         public async Task<AIResponse?> ChatAsync(AIRequest aiRequest)

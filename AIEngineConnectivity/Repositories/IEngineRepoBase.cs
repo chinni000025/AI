@@ -10,6 +10,7 @@ namespace AIEngineConnectivity.Repositories
         Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken = default);
         Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken
                 cancellationToken = default);
+        Task<List<TEntity>?> FindByConditionAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default);
         IQueryable<TEntity> Query(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken
                 = default);
         Task<List<TEntity>?> GetByIdsAsync<Tkey>(IEnumerable<Tkey> keys, string propertyName,

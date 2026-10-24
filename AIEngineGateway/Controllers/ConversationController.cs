@@ -87,7 +87,7 @@ namespace AIEngineGateway.Controllers
                     Provider = aiRequest.Provider
                 };
 
-                var response = await _conversationService.SendMessage(conversationId, null, messagePayload, cancellationToken);
+                var response = await _conversationService.SendMessage(conversationId, aiRequest.ProjectId, messagePayload, cancellationToken);
                 return Ok(new { response });
             }
             catch (Exception ex)
@@ -110,7 +110,7 @@ namespace AIEngineGateway.Controllers
                     Provider = aiRequest.Provider
                 };
 
-                var response = await _conversationService.SendMessage(null, null, messagePayload, cancellationToken);
+                var response = await _conversationService.SendMessage(null, aiRequest.ProjectId, messagePayload, cancellationToken);
                 return Ok(new { response });
             }
             catch (Exception ex)
@@ -245,6 +245,20 @@ namespace AIEngineGateway.Controllers
             {
                 var projects = await _conversationService.GetCurrentUserProjectAsync(cancellationToken);
                 return Ok(projects);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        [HttpGet("getConversationProject/{ProjectId:guid}")]
+        public async Task<IActionResult> GetProjectConversationsAsync(Guid ProjectId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var project = await _conversationService.GetProjectConversationsAsync(ProjectId, cancellationToken);
+                return Ok(project);
             }
             catch
             {

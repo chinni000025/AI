@@ -19,4 +19,8 @@ export class ProjectService {
   getProjects() {
     return this.http.get(`${EngineControllers.ConversationController}/getUserProjects`);
   }
+
+  getProjectConversation(projectId: string) {
+    return this.http.get(`${EngineControllers.ConversationController}/getConversationProject/${projectId}`,);
+  }
 }

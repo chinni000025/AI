@@ -19,5 +19,6 @@ namespace AIEngineConnectivity.Services
         public Task<Object> GetArchiveChatsAsync(ArchiveChatRequest archiveChatRequest, CancellationToken cancellationToken);
         public Task<Guid> CreateProjectAsync(CreateEmptyProject createEmptyProject, CancellationToken cancellation);
         public Task<List<CurrentUserProject>> GetCurrentUserProjectAsync(CancellationToken cancellationToken);
+        public Task<List<ProjectConversations>> GetProjectConversationsAsync(Guid ProjectId, CancellationToken cancellationToken);
     }
 }

@@ -1280,6 +1280,18 @@
 	scrollbar-width: thin;
 	scrollbar-color: rgba(255, 255, 255, 0.08) transparent;
 	scroll-behavior: smooth;
+	animation: ps-message-list-in 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes ps-message-list-in {
+	from {
+		opacity: 0;
+		transform: translateY(12px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
 
 .ps-message-list--hidden {
@@ -1398,6 +1410,18 @@
 .ps-msg--user {
 	align-self: flex-end;
 	max-width: 820px;
+	animation: ps-user-msg-in 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes ps-user-msg-in {
+	from {
+		opacity: 0;
+		transform: translateY(14px) scale(0.98);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
 }
 
 /* Avatar */
@@ -1722,6 +1746,18 @@
 	display: flex;
 	flex-direction: column;
 	gap: 10px;
+	animation: ps-input-area-in 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes ps-input-area-in {
+	from {
+		opacity: 0;
+		transform: translateY(16px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
 
 .ps-input-wrap {
@@ -3927,23 +3963,32 @@
 	width: 100%;
 	max-width: 860px;
 	margin: 0 auto;
-	padding: 40px 24px 80px 24px;
+	padding: 32px 24px 60px 24px;
 	display: flex;
 	flex-direction: column;
+	flex: 1;
+	min-height: 0;
 	gap: 20px;
-	animation: ps-project-view-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+	animation: ps-project-view-in 0.32s cubic-bezier(0.16, 1, 0.3, 1);
 	overflow-y: auto;
 	scrollbar-width: thin;
+	transition: opacity 0.16s ease-out, transform 0.16s ease-out;
+}
+
+.ps-project-view--exiting {
+	opacity: 0;
+	transform: translateY(-14px) scale(0.985);
+	pointer-events: none;
 }
 
 @keyframes ps-project-view-in {
 	from {
 		opacity: 0;
-		transform: translateY(10px);
+		transform: translateY(14px) scale(0.99);
 	}
 	to {
 		opacity: 1;
-		transform: translateY(0);
+		transform: translateY(0) scale(1);
 	}
 }
 
@@ -4064,6 +4109,12 @@
 	box-shadow: 0 8px 32px color-mix(in srgb, var(--color-primary) 20%, transparent);
 }
 
+.ps-pv-input-box .ps-model-menu {
+	bottom: auto;
+	top: calc(100% + 10px);
+	z-index: 250;
+}
+
 .ps-pv-input-plus {
 	font-size: 20px;
 	color: var(--sidetab-title, #94a3b8);
@@ -4110,6 +4161,12 @@
 .ps-pv-pill-btn:hover {
 	background: rgba(255, 255, 255, 0.1);
 	color: #fff;
+}
+
+.ps-pv-pill-btn--active {
+	background: rgba(0, 240, 255, 0.15);
+	border-color: var(--color-primary, #00f0ff);
+	color: var(--color-primary, #00f0ff);
 }
 
 .ps-pv-think-icon {
@@ -4214,6 +4271,10 @@
 /* Body / Empty State (Image 3) */
 .ps-pv-body {
 	margin-top: 10px;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
 }
 
 .ps-pv-empty {
@@ -4221,8 +4282,9 @@
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	padding: 90px 20px;
+	padding: 60px 20px;
 	text-align: center;
+	flex: 1;
 }
 
 .ps-pv-empty__title {

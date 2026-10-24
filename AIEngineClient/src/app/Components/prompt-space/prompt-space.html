@@ -67,8 +67,7 @@
 
             <!-- PROJECTS SECTION (Image 2) -->
             <div class="ps-sidebar-section">
-                <div class="ps-section-header ps-section-header--clickable"
-                    (click)="toggleProjectsSection()">
+                <div class="ps-section-header ps-section-header--clickable" (click)="toggleProjectsSection()">
                     <div class="ps-section-header__left">
                         <span class="ps-section-header__title">Projects</span>
                         <svg class="ps-section-chevron" [class.ps-section-chevron--collapsed]="!isProjectsExpanded"
@@ -87,7 +86,9 @@
                 <div class="ps-projects-tree">
                     @for (proj of projectInfo; track proj.name) {
                     <div class="ps-proj-tree-item">
-                        <div class="ps-proj-tree-header">
+                        <div class="ps-proj-tree-header"
+                            [class.ps-proj-tree-header--active]="activeProject?.name === proj.name && messages.length === 0 && !isTyping"
+                            (click)="openProjectWorkspace(proj, $event)">
                             <div class="ps-proj-tree-header__left">
                                 <app-svg-project [width]="'15px'" [height]="'15px'"></app-svg-project>
                                 <span class="ps-proj-tree-name" [title]="proj.name">{{ proj.name }}</span>
@@ -101,8 +102,7 @@
 
             <!-- CONVERSATIONS SECTION -->
             <div class="ps-sidebar-section">
-                <div class="ps-section-header ps-section-header--clickable"
-                    (click)="toggleRecentsSection()">
+                <div class="ps-section-header ps-section-header--clickable" (click)="toggleRecentsSection()">
                     <div class="ps-section-header__left">
                         <span class="ps-section-header__title">Conversations</span>
                         <svg class="ps-section-chevron" [class.ps-section-chevron--collapsed]="!isRecentsExpanded"
@@ -280,7 +280,7 @@
     </button>
 
     <!-- CHAT WINDOW -->
-    <main class="ps-chat-window" [class.ps-chat-window--empty]="messages.length === 0 && !isTyping">
+    <main class="ps-chat-window" [class.ps-chat-window--empty]="!activeProject && messages.length === 0 && !isTyping">
         <!-- Mobile Top Header Bar -->
         <header class="ps-mobile-header">
             <button class="ps-mobile-menu-btn" (click)="toggleSidebar()" title="Toggle Sidebar">
@@ -297,23 +297,27 @@
             </button>
         </header>
 
-        <!-- PROJECT WORKSPACE VIEW (Image 3: when activeProject is selected and activeConversationId === null) -->
-        @if (activeProject && !activeConversationId) {
-        <div class="ps-project-view">
-            <!-- Header (matching Image 3) -->
+        <!-- PROJECT WORKSPACE VIEW (Matching Image Reference: when activeProject is selected and no messages yet) -->
+        @if (activeProject && messages.length === 0 && !isTyping) {
+        <div class="ps-project-view" [class.ps-project-view--exiting]="isProjectExiting">
+            <!-- Header (Project Icon + Title + Share / Kebab) -->
             <div class="ps-pv-header">
                 <div class="ps-pv-header__left">
                     <div class="ps-pv-folder-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z">
-                            </path>
-                        </svg>
+                        <app-svg-project [width]="'20px'" [height]="'20px'"></app-svg-project>
                     </div>
                     <h1 class="ps-pv-title">{{ activeProject.name }}</h1>
                 </div>
+
+                <div class="ps-pv-header__right">
+                    <button type="button" class="ps-pv-action-btn ps-pv-action-btn--icon"
+                        (click)="openProjectOptions($event)" title="Project options">
+                        <app-svg-kebab-menu></app-svg-kebab-menu>
+                    </button>
+                </div>
             </div>
 
-            <!-- Prominent New Chat Bar (matching Image 3: "+ New chat in [ProjectName]") -->
+            <!-- Prominent New Chat Bar ("+ New chat in [ProjectName]" with Think, Mic, Waveform/Send) -->
             <div class="ps-pv-prompt-wrap">
                 <div class="ps-pv-input-box">
                     <span class="ps-pv-input-plus">+</span>
@@ -321,34 +325,105 @@
                         [(ngModel)]="projectPromptText" (keydown.enter)="sendProjectMessage()" autofocus />
 
                     <div class="ps-pv-input-actions">
-                        <button type="button" class="ps-pv-pill-btn" title="Reasoning & Thinking Mode">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                class="ps-pv-think-icon">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <path d="M12 6v6l4 2"></path>
-                            </svg>
-                            <span>Think</span>
-                        </button>
+                        <!-- Model Selection Dropdown (Matching Conversation View) -->
+                        <div class="ps-model-dropdown" (click)="$event.stopPropagation()">
+                            <button type="button" class="ps-input-model-trigger"
+                                [class.ps-input-model-trigger--open]="showModelMenu" (click)="toggleModelMenu($event)">
+                                <div class="ps-trigger-content">
+                                    <div class="ps-provider-icon ps-provider-icon--sm">{{ selectedProvider.charAt(0) ||
+                                        '?' }}
+                                    </div>
+                                    <span class="ps-input-model-trigger__label">{{ selectedModelDisplayName.length > 10
+                                        ?
+                                        selectedModelDisplayName.substring(0, 10) + "..." : selectedModelDisplayName
+                                        }}</span>
+                                </div>
+                                <app-svg-dropdown class="ps-input-model-trigger__icon"></app-svg-dropdown>
+                            </button>
+
+                            @if (showModelMenu) {
+                            <div class="ps-model-menu">
+                                <div class="ps-model-menu__container">
+                                    @if (isProviderView) {
+                                    <!-- Step 1: Provider List -->
+                                    <div class="ps-model-menu__view">
+                                        <div class="ps-model-menu__section-label">AI Providers</div>
+                                        <div class="ps-model-menu__list">
+                                            @for(provider of modelCatalog; track provider.name) {
+                                            <button type="button" class="ps-provider-item"
+                                                [class.active]="selectedProvider.toLowerCase() === provider.name.toLowerCase()"
+                                                (click)="setActiveProvider(provider.name, $event)">
+                                                <div class="ps-provider-item__content">
+                                                    <div class="ps-provider-icon">{{ provider.name.charAt(0) }}</div>
+                                                    <span class="ps-provider-item__name">{{ provider.name }}</span>
+                                                </div>
+                                                <app-svg-dropdown class="ps-provider-item__chevron"
+                                                    style="transform: rotate(-90deg)"></app-svg-dropdown>
+                                            </button>
+                                            }
+                                        </div>
+                                    </div>
+                                    } @else {
+                                    <!-- Step 2: Model List -->
+                                    <div class="ps-model-menu__view">
+                                        <div class="ps-model-menu__header">
+                                            <button type="button" class="ps-back-btn"
+                                                (click)="goBackToProviders($event)">
+                                                <app-svg-dropdown style="transform: rotate(90deg)"></app-svg-dropdown>
+                                                Back
+                                            </button>
+                                            <div class="ps-active-provider-badge">{{ activeProviderTab }}</div>
+                                        </div>
+
+                                        <div class="ps-model-menu__list">
+                                            @for(model of getModelsForProvider(activeProviderTab); track model.value) {
+                                            <button type="button" class="ps-model-item"
+                                                [class.ps-model-item--selected]="selectedModel.toLowerCase() === model.value.toLowerCase() && selectedProvider.toLowerCase() === activeProviderTab.toLowerCase()"
+                                                (click)="selectModel(activeProviderTab, model.value)">
+                                                <div class="ps-model-item__info">
+                                                    <div class="ps-model-item__row">
+                                                        <span class="ps-model-item__name">{{ model.displayName }}</span>
+                                                    </div>
+                                                </div>
+                                                @if(selectedModel.toLowerCase() === model.value.toLowerCase() &&
+                                                selectedProvider.toLowerCase() === activeProviderTab.toLowerCase()) {
+                                                <div class="ps-model-item__check">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="3">
+                                                        <polyline points="20 6 9 17 4 12" />
+                                                    </svg>
+                                                </div>
+                                                }
+                                            </button>
+                                            }
+                                        </div>
+                                    </div>
+                                    }
+                                </div>
+                            </div>
+                            }
+                        </div>
+
                         <button type="button" class="ps-pv-icon-btn" (click)="openVoiceModal()" title="Voice input">
                             <app-svg-mic></app-svg-mic>
                         </button>
-                        <button type="button" class="ps-pv-send-btn" [disabled]="!projectPromptText.trim()"
-                            (click)="sendProjectMessage()" title="Send">
+                        <button type="button" class="ps-pv-send-btn ps-pv-send-btn--active"
+                            (click)="projectPromptText.trim() ? sendProjectMessage() : openVoiceModal()"
+                            [title]="projectPromptText.trim() ? 'Send' : 'Voice'">
+                            @if (projectPromptText.trim()) {
                             <app-svg-send></app-svg-send>
+                            } @else {
+                            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                                <rect x="3" y="9" width="2.5" height="6" rx="1.25"></rect>
+                                <rect x="8.5" y="5" width="2.5" height="14" rx="1.25"></rect>
+                                <rect x="14" y="3" width="2.5" height="18" rx="1.25"></rect>
+                                <rect x="19.5" y="8" width="2.5" height="8" rx="1.25"></rect>
+                            </svg>
+                            }
                         </button>
                     </div>
                 </div>
             </div>
-
-            <!-- Sub Navigation Tabs (Image 3: [ Chats ]  [ Sources ]) -->
-            <div class="ps-pv-tabs">
-                <button type="button" class="ps-pv-tab" [class.ps-pv-tab--active]="projectSubTab === 'chats'"
-                    (click)="projectSubTab = 'chats'">
-                    Chats
-                </button>
-            </div>
-
-            <!-- Tab Content -->
         </div>
         }
 
@@ -513,7 +588,7 @@
 
         <!-- Suggestion Chips (only shown when there are messages) -->
         <!-- PROMPT INPUT AREA (Displayed during regular chat or active project chat) -->
-        @if (!activeProject || activeConversationId) {
+        @if (!activeProject || messages.length > 0 || isTyping) {
         <div class="ps-input-area">
             <div class="ps-input-wrap">
                 <!-- Plus menu -->
@@ -534,8 +609,10 @@
                     }
                 </div>
 
-                <textarea class="ps-input" placeholder="Ask me anything..." [(ngModel)]="promptText"
-                    (keydown.enter)="onEnterKey($event)" (input)="onInputChange()" rows="1" #promptInput></textarea>
+                <textarea class="ps-input"
+                    [placeholder]="activeProject ? 'Message ' + activeProject.name + '...' : 'Ask me anything...'"
+                    [(ngModel)]="promptText" (keydown.enter)="onEnterKey($event)" (input)="onInputChange()" rows="1"
+                    #promptInput></textarea>
 
                 <div class="ps-model-dropdown" (click)="$event.stopPropagation()">
                     <button type="button" class="ps-input-model-trigger"
