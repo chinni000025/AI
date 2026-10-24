@@ -7,6 +7,7 @@ namespace AIEngineConnectivity.Constants
         public static readonly string EngineLogDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "AIEngine/AIEngineLogs");
         public static readonly string EngineLogPath = Path.Combine(EngineLogDirectory, "Log-.txt");
         public static readonly string EngineStateChanged = "EngineStateChange";
+        public const string UploadChunk = "upload-chunk";
 
         public enum DataBaseProvider
         {

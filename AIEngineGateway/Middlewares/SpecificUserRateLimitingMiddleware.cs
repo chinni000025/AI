@@ -1,4 +1,4 @@
-﻿using AIEngineConnectivity.Models;
+﻿using AIEngineConnectivity.Helpers;
 using AIEngineGateway.EngineInfrastructure.UserRateLimiter;
 using System.Security.Claims;
 
@@ -21,6 +21,11 @@ namespace AIEngineGateway.Middlewares
         public async Task InvokeAsync(HttpContext context)
         {
 
+            if (context.GetEndpoint()?.Metadata.GetMetadata<SkipLeakyBucketAttribute>() != null)
+            {
+                await _next(context);
+                return;
+            }
             if (context.User.Identity?.IsAuthenticated is true)
             {
                 var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

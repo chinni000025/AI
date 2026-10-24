@@ -1,6 +1,5 @@
-﻿using AIEngineGateway.EngineInfrastructure.RateLimiter;
-using AIEngineGateway.PostMigrations;
-using AIEngineGateway.Services;
+﻿using AIEngineConnectivity.Helpers;
+using AIEngineGateway.EngineInfrastructure.RateLimiter;
 
 namespace AIEngineGateway.Middlewares
 {
@@ -21,6 +20,11 @@ namespace AIEngineGateway.Middlewares
 
         public async Task InvokeAsync(HttpContext context)
         {
+            if (context.GetEndpoint()?.Metadata.GetMetadata<SkipLeakyBucketAttribute>() != null)
+            {
+                await _next(context);
+                return;
+            }
             var clientId = context.Connection.RemoteIpAddress.ToString();
 
             var allowed = _serverRateLimiter.AllowRequest();

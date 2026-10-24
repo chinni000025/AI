@@ -1,7 +1,10 @@
-﻿using AIEngineConnectivity.DTOs;
+﻿using AIEngineConnectivity.Constants;
+using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.Helpers;
 using AIEngineConnectivity.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace AIEngineGateway.Controllers
 {
@@ -24,6 +27,8 @@ namespace AIEngineGateway.Controllers
             return Ok(new { uploadSessionId });
         }
 
+        [SkipLeakyBucket]
+        [EnableRateLimiting(EngineConstants.UploadChunk)]
         [HttpPost("uploadChunks")]
         public async Task<ActionResult> UploadChunks([FromForm] IFormFile chunk, [FromForm] long chunkIndex, [FromForm] Guid sessionId, CancellationToken cancellationToken)
         {
@@ -110,6 +115,8 @@ namespace AIEngineGateway.Controllers
             }
         }
 
+        [SkipLeakyBucket]
+        [EnableRateLimiting(EngineConstants.UploadChunk)]
         [HttpGet("file/{fileId:guid}/download")]
         public async Task<IActionResult> DownloadFile(Guid fileId, CancellationToken cancellationToken)
         {

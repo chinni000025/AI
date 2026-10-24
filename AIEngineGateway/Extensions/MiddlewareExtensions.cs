@@ -11,10 +11,11 @@ namespace AIEngineGateway.Extensions
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseCors("AllowAngular");
-            //app.UseMiddleware<ServerRateLimitingMiddleware>();
+            app.UseMiddleware<ServerRateLimitingMiddleware>();
             app.UseAuthentication();
-            //app.UseMiddleware<SpecificUserRateLimitingMiddleware>();
+            app.UseMiddleware<SpecificUserRateLimitingMiddleware>();
             app.UseMiddleware<CurrentUserContextMiddleWare>();
+            app.UseRateLimiter();
             app.UseAuthorization();
             app.UseMiddleware<EncryptionMiddleware>();
         }

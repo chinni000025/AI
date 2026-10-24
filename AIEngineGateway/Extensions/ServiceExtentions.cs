@@ -19,6 +19,8 @@ using AIEngineGateway.Services;
 using AIEngineSpeechRecognition.Services;
 using Quartz;
 using Serilog;
+using System.Security.Claims;
+using System.Threading.RateLimiting;
 using static AIEngineConnectivity.Constants.EngineConstants;
 
 namespace AIEngineGateway.Extensions
@@ -38,6 +40,7 @@ namespace AIEngineGateway.Extensions
             CorsOrigin(services);
             Logger();
             AddEngineQuartzServices(services);
+            EngineDriveRateLimiters(services);
         }
 
         public static void EngineDataBaseServices(IServiceCollection services)
@@ -237,5 +240,53 @@ namespace AIEngineGateway.Extensions
                 options.WaitForJobsToComplete = true;
             });
         }
+
+        public static void EngineDriveRateLimiters(IServiceCollection services)
+        {
+            services.AddRateLimiter(o =>
+            {
+                o.RejectionStatusCode = 429; //To Many Requests.
+
+
+                o.AddPolicy(UploadChunk, ctx =>
+                {
+                    var userId = ctx.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                    return userId is null ? RateLimitPartition.GetNoLimiter("unauthenticated")
+                    : RateLimitPartition.GetConcurrencyLimiter(userId,
+                    _ => new ConcurrencyLimiterOptions
+                    {
+                        PermitLimit = 6,
+                        QueueLimit = 8,
+                        QueueProcessingOrder = QueueProcessingOrder.NewestFirst
+                    });
+
+                });
+
+                o.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(ctx =>
+                {
+                    if (IsChunk(ctx))
+                    {
+                        return RateLimitPartition.GetConcurrencyLimiter(
+                            "upload-global",
+                            _ => new ConcurrencyLimiterOptions
+                            {
+                                PermitLimit = 100,
+                                QueueLimit = 100,
+                                QueueProcessingOrder = QueueProcessingOrder.OldestFirst
+                            });
+                    }
+                    return RateLimitPartition.GetNoLimiter("other");
+                });
+
+                o.OnRejected = (ctx, ct) =>
+                {
+                    ctx.HttpContext.Response.Headers.RetryAfter = "3";
+                    return ValueTask.CompletedTask;
+                };
+            });
+        }
+
+        public static bool IsChunk(HttpContext ctx) =>
+        ctx.GetEndpoint()?.Metadata.GetMetadata<SkipLeakyBucketAttribute>() != null;
     }
 }
