@@ -12,12 +12,14 @@ namespace AIEngineGateway.Controllers
         private readonly EngineConfig _engineConfig;
         private readonly ILogger<EngineController> _logger;
         private readonly IEngineDataBaseService _engineDataBaseService;
+        private readonly EngineRecoveryKeyService _engineRecoveryKeyService;
         public EngineController(EngineConfig engineConfig, IEngineDataBaseService engineDataBaseService,
-            ILogger<EngineController> logger)
+            ILogger<EngineController> logger, EngineRecoveryKeyService engineRecoveryKeyService)
         {
             _engineDataBaseService = engineDataBaseService;
             _engineConfig = engineConfig;
             _logger = logger;
+            _engineRecoveryKeyService = engineRecoveryKeyService;
         }
 
         [HttpGet("engine-status")]
@@ -65,6 +67,12 @@ namespace AIEngineGateway.Controllers
                 _logger.LogWarning(ex.Message);
                 return BadRequest("Failed to Connect");
             }
+        }
+
+        [HttpGet("getEngineKey")]
+        public IActionResult GetEngineKey()
+        {
+            return Ok(new { key = _engineRecoveryKeyService.GenerateDisplayKey() });
         }
     }
 }

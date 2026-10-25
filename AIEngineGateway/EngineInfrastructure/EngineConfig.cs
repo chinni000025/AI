@@ -1,5 +1,4 @@
 ﻿using AIEngineGateway.Extensions;
-using Microsoft.Data.SqlClient;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;

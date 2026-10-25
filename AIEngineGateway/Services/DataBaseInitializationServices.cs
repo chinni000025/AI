@@ -1,7 +1,5 @@
-﻿using AIEngineGateway.EngineInfrastructure;
-using AIEngineGateway.Extensions;
+﻿using AIEngineGateway.Extensions;
 using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using static AIEngineConnectivity.Constants.EngineConstants;
 
@@ -59,6 +57,38 @@ namespace AIEngineGateway.Services
 
                 createCommand.CommandText = $"CREATE DATABASE \"{databaseName}\"";
                 await createCommand.ExecuteNonQueryAsync();
+            }
+        }
+
+        public async Task<bool> DataBaseExistsAsync(string connectionstring, string databaseName, DataBaseProvider dataBaseProvider)
+        {
+            switch (dataBaseProvider)
+            {
+                case DataBaseProvider.PostgreSql:
+                    var builder = new NpgsqlConnectionStringBuilder(connectionstring);
+                    if (string.IsNullOrWhiteSpace(builder.Database))
+                    {
+                        builder.Database = "postgres";
+                    }
+                    await using (var connection = new NpgsqlConnection(builder.ConnectionString))
+                    {
+                        await connection.OpenAsync();
+                        await using var checkCommand = connection.CreateCommand();
+                        checkCommand.CommandText = "SELECT 1 FROM pg_database WHERE datname = @name";
+                        checkCommand.Parameters.AddWithValue("@name", databaseName);
+                        var exists = await checkCommand.ExecuteScalarAsync();
+                        return exists != null;
+                    }
+                default:
+                    await using (var connection = new SqlConnection(connectionstring))
+                    {
+                        await connection.OpenAsync();
+                        await using var cmd = connection.CreateCommand();
+                        cmd.CommandText = "SELECT 1 FROM sys.databases WHERE name = @name";
+                        cmd.Parameters.AddWithValue("@name", databaseName);
+                        var exists = await cmd.ExecuteScalarAsync();
+                        return exists != null;
+                    }
             }
         }
     }

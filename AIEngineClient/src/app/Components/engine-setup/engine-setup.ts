@@ -40,6 +40,7 @@ export class EngineSetup {
     engineSetupForm: FormGroup;
     connectionStatus: 'idle' | 'success' | 'error' = 'idle';
     selectedProvider: 'mssql' | 'postgres' = 'mssql';
+    isKeyCopied = false;
 
     constructor(
         private fb: FormBuilder,
@@ -55,7 +56,8 @@ export class EngineSetup {
             Port: [1433, [Validators.required, Validators.min(1000)]],
             DataBaseName: ['', [Validators.required]],
             UserName: ['', [Validators.required]],
-            Password: ['', [Validators.required]]
+            Password: ['', [Validators.required]],
+            RecoveryKey: ['', [Validators.required]]
         });
 
         console.trace("Chinni");
@@ -135,5 +137,34 @@ export class EngineSetup {
             DataBaseType: this.selectedProvider == "mssql" ? DataBaseProvider.SqlServer
                 : DataBaseProvider.PostgreSql
         };
+    }
+
+    generateEngineKey() {
+        this.engineService.getEngineKey().subscribe({
+            next: (res) => {
+                this.engineSetupForm.patchValue({ RecoveryKey: res.key });
+                this.snackbar.showSuccessMessage('New Engine Key generated! Please preserve this key.');
+                this.cdr.detectChanges();
+            },
+            error: (err) => {
+                this.snackbar.showErrorMessage(err?.error || 'Failed to generate Engine Key');
+            }
+        });
+    }
+
+    copyEngineKey(): void {
+        const key = this.engineSetupForm.get('RecoveryKey')?.value;
+        if (!key) return;
+        navigator.clipboard.writeText(key).then(() => {
+            this.isKeyCopied = true;
+            this.snackbar.showSuccessMessage('Engine Key copied to clipboard!');
+            this.cdr.detectChanges();
+            setTimeout(() => {
+                this.isKeyCopied = false;
+                this.cdr.detectChanges();
+            }, 2000);
+        }).catch(() => {
+            this.snackbar.showErrorMessage('Failed to copy Engine Key.');
+        });
     }
 }

@@ -22,6 +22,10 @@ export class EngineService {
         return this.http.post(`${EngineControllers.EngineStatusController}/test-engine`, payload);
     }
 
+    getEngineKey() {
+        return this.http.get<{ key: string }>(`${EngineControllers.EngineStatusController}/getEngineKey`);
+    }
+
     getEngineState() {
         return this.http.get<{
             isEngineRunning: boolean;

@@ -148,6 +148,8 @@ export const ExcludeEncryptionEndPoints: string[] = [
     'Engine/configure-database',
     'Engine/test-engine',
     'Engine/engine-status',
+    'Engine/getEngineKey',
+    'Engine/getEngineKey'
 ];
 
 export interface ChunkUpload {

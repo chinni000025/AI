@@ -299,6 +299,24 @@ namespace AIEngineGateway.Migrations.SqlServer
                     b.ToTable("EngineFileUploadingSessions");
                 });
 
+            modelBuilder.Entity("AIEngineConnectivity.Entities.EngineIdentity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("ConfigureOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("KeyVerifier")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EngineIdentity");
+                });
+
             modelBuilder.Entity("AIEngineConnectivity.Entities.EngineNotification", b =>
                 {
                     b.Property<Guid>("Id")

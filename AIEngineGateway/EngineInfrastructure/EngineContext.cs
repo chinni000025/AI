@@ -63,6 +63,7 @@ namespace AIEngineGateway.EngineInfrastructure
         public DbSet<EngineDriveMetering> EngineDriveMeterings { get; set; }
 
         public DbSet<RecycleBin> RecycleBin { get; set; }
+        public DbSet<EngineIdentity> EngineIdentity { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

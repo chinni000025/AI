@@ -95,6 +95,7 @@ namespace AIEngineGateway.Extensions
             services.AddScoped<SqlServerProvider>();
             services.AddScoped<EngineDbConfigurator>();
             services.AddScoped<IEngineDataBaseService, EngineConfigureService>();
+            services.AddSingleton<EngineRecoveryKeyService>();
         }
 
         public static void EngineRepositories(IServiceCollection services)

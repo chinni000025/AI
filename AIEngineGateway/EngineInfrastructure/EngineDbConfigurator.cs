@@ -1,6 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Migrations;
 using static AIEngineConnectivity.Constants.EngineConstants;
 
 namespace AIEngineGateway.EngineInfrastructure

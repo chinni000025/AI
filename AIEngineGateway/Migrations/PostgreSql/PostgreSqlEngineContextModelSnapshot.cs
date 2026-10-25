@@ -299,6 +299,24 @@ namespace AIEngineGateway.Migrations.PostgreSql
                     b.ToTable("EngineFileUploadingSessions");
                 });
 
+            modelBuilder.Entity("AIEngineConnectivity.Entities.EngineIdentity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("ConfigureOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("KeyVerifier")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EngineIdentity");
+                });
+
             modelBuilder.Entity("AIEngineConnectivity.Entities.EngineNotification", b =>
                 {
                     b.Property<Guid>("Id")

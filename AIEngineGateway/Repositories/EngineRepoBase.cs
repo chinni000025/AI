@@ -80,5 +80,10 @@ namespace AIEngineGateway.Repositories
         {
             return await _dbSet.AsNoTracking().FirstOrDefaultAsync(expression, cancellationToken);
         }
+
+        public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken)
+        {
+            return await _dbSet.AnyAsync(cancellationToken);
+        }
     }
 }
