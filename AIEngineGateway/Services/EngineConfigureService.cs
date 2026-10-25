@@ -82,7 +82,6 @@ namespace AIEngineGateway.Services
                     }
                 }
 
-
                 _engineConfig.SaveEncryptedConnectionString(appConfiguration, dataBaseConfiguration.DataBaseType);
                 _engineState.IsEngineReady = false;
                 _engineState.ErrorMessage = null;

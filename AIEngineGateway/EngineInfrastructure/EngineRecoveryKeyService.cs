@@ -53,7 +53,6 @@ namespace AIEngineGateway.EngineInfrastructure
             }
         }
 
-
         public string ComputeVerifier(byte[] raw, Guid id)
             => Convert.ToBase64String(HMACSHA256.HashData(raw, id.ToByteArray()));
 
