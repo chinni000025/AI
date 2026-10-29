@@ -1,6 +1,7 @@
 ﻿using AIEngineConnectivity.Entities;
 using AIEngineConnectivity.Helpers;
 using AIEngineConnectivity.Models;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;

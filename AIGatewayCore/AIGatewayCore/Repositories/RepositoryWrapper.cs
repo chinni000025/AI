@@ -1,6 +1,7 @@
 ﻿using AIEngineConnectivity.Repositories;
 using AIEngineGateway.EngineInfrastructure;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AIEngineGateway.Repositories
 {

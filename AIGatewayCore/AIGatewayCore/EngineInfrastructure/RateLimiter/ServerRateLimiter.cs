@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using AIEngineConnectivity.Models;
+using Microsoft.Extensions.Options;
 
 namespace AIEngineGateway.EngineInfrastructure.RateLimiter
 {

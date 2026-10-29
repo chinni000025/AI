@@ -6,6 +6,7 @@ using AIEngineConnectivity.Helpers;
 using AIEngineConnectivity.Models;
 using AIEngineConnectivity.Repositories;
 using AIEngineConnectivity.Services;
+using AIEngineCore.EngineCore;
 using AIEngineCore.EngineNotifications;
 using AIEngineGateway.Hub;
 using Microsoft.AspNetCore.Antiforgery;

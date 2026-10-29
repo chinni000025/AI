@@ -35,6 +35,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\AIEngineConnectivity\AIEngineConnectivity.csproj" />
+    <ProjectReference Include="..\..\AIEngineCore\AIEngineCore.csproj" />
+    <ProjectReference Include="..\..\AIEngineGateway\AIEngineGateway.csproj" />
   </ItemGroup>
 
 </Project>

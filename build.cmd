@@ -33,16 +33,16 @@ call :build_connectivity
 if !errorlevel! neq 0 exit /b !errorlevel!
 call :build_core
 if !errorlevel! neq 0 exit /b !errorlevel!
-if exist "%GATEWAY_CORE_SLN%" (
-    call :build_gateway_core
-    if !errorlevel! neq 0 exit /b !errorlevel!
-)
 call :build_speech
 if !errorlevel! neq 0 exit /b !errorlevel!
 call :build_client
 if !errorlevel! neq 0 exit /b !errorlevel!
 call :build_gateway
 if !errorlevel! neq 0 exit /b !errorlevel!
+if exist "%GATEWAY_CORE_SLN%" (
+    call :build_gateway_core
+    if !errorlevel! neq 0 exit /b !errorlevel!
+)
 call :build_installer
 if !errorlevel! neq 0 exit /b !errorlevel!
 echo Build completed successfully for target: all
@@ -72,8 +72,10 @@ if !errorlevel! neq 0 exit /b !errorlevel!
 echo Updating AIEngineCore references in dependent solutions...
 if not exist "AIEngineGateway\libs" mkdir "AIEngineGateway\libs"
 if not exist "AIEngineInstaller\libs" mkdir "AIEngineInstaller\libs"
+if not exist "AIGatewayCore\AIGatewayCore\libs" mkdir "AIGatewayCore\AIGatewayCore\libs"
 copy /Y "AIEngineCore\bin\%CONFIG%\net10.0\AIEngineCore.*" "AIEngineGateway\libs\"
 copy /Y "AIEngineCore\bin\%CONFIG%\net10.0\AIEngineCore.*" "AIEngineInstaller\libs\"
+copy /Y "AIEngineCore\bin\%CONFIG%\net10.0\AIEngineCore.*" "AIGatewayCore\AIGatewayCore\libs\"
 goto :eof
 
 :build_gateway_core
@@ -82,6 +84,8 @@ echo Building AIGatewayCore (%CONFIG%)...
 dotnet build "%GATEWAY_CORE_SLN%" -c "%CONFIG%"
 if !errorlevel! neq 0 exit /b !errorlevel!
 goto :eof
+
+:build_speech
 echo.
 echo Building AIEngineSpeechRecognition (%CONFIG%)...
 dotnet build "%SPEECH_SLN%" -c "%CONFIG%"
@@ -105,6 +109,9 @@ echo.
 echo Building AIEngineGateway (%CONFIG%)...
 dotnet build "%GATEWAY_SLN%" -c "%CONFIG%"
 if !errorlevel! neq 0 exit /b !errorlevel!
+echo Updating AIEngineGateway references in dependent solutions...
+if not exist "AIGatewayCore\AIGatewayCore\libs" mkdir "AIGatewayCore\AIGatewayCore\libs"
+copy /Y "AIEngineGateway\bin\%CONFIG%\net10.0\AIEngineGateway.*" "AIGatewayCore\AIGatewayCore\libs\"
 goto :eof
 
 :build_installer

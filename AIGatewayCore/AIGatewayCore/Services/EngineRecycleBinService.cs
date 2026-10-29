@@ -1,6 +1,7 @@
 ﻿using AIEngineConnectivity.Constants;
 using AIEngineConnectivity.Repositories;
 using AIEngineConnectivity.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AIEngineGateway.Services
 {
