@@ -10,7 +10,6 @@ namespace AIEngineGateway.EngineInfrastructure
 #nullable disable
     public class EngineConfig
     {
-        // Engine Config File (present in program Data).
         public bool IsEngineConfig()
         {
             return File.Exists(GetFilePath());

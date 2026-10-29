@@ -1,0 +1,639 @@
+﻿using AIEngineConnectivity.Constants;
+using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.Entities;
+using AIEngineConnectivity.Models;
+using AIEngineConnectivity.Repositories;
+using AIEngineConnectivity.Services;
+using AIEngineGateway.EngineInfrastructure;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Npgsql;
+using System.Data;
+
+namespace AIEngineGateway.Repositories
+{
+    public class EngineDriveRepository : IEngineDriveRepository
+    {
+        private readonly EngineContext _engineContext;
+        private readonly ILogger<EngineDriveRepository> _logger;
+        private readonly TimeSpan _engineUploadFileTTL;
+        public EngineDriveRepository(EngineContext engineContext, ILogger<EngineDriveRepository> logger,
+            IOptions<EngineUploadFileTTL> options)
+        {
+            _engineContext = engineContext;
+            _logger = logger;
+            _engineUploadFileTTL = TimeSpan.FromMinutes(options.Value.Expires);
+        }
+
+        public async Task<List<FileChunks>?> GetFileChunksAsync(Guid sesssionId, CancellationToken cancellationToken)
+        {
+            var query = await (from f in _engineContext.FileChunks
+                               where f.SessionId == sesssionId
+                               orderby f.ChunkIndex ascending
+                               select f).ToListAsync(cancellationToken);
+            return query;
+        }
+
+        public async Task StoreChunkAtomicAsync(Guid sessionId, long chunkIndex,
+            Stream chunkStream, long chunkSize, CancellationToken cancellationToken)
+        {
+
+            var uploadingSession = await (from us in _engineContext.EngineFileUploadingSessions
+                                          where us.Id == sessionId
+                                          select us).FirstOrDefaultAsync(cancellationToken);
+
+            if (uploadingSession is null)
+            {
+                _logger.LogError($"Uploading session Not found for session Id {sessionId}");
+                throw new Exception($"Uploading session Id is not fount {sessionId}");
+            }
+
+            if (uploadingSession.UploadStatus != UploadStatus.Initiated
+            && uploadingSession.UploadStatus != UploadStatus.Uploading)
+            {
+                throw new Exception($"Upload session {sessionId} is not accepting chunks. Current status: {uploadingSession.UploadStatus}");
+            }
+
+            if (uploadingSession.ExpiresAt <= DateTime.UtcNow)
+            {
+                _logger.LogError($"Uploading session Id is Expired for Session Id {sessionId}");
+                throw new Exception("uploading session is expired");
+            }
+            var existingChunk = await _engineContext.FileChunks.AsNoTracking()
+                                 .FirstOrDefaultAsync(f => f.SessionId == sessionId
+                                 && f.ChunkIndex == chunkIndex, cancellationToken);
+
+            if (existingChunk is null)
+            {
+                //Needs to validate the size instead of blindly proceed.
+                if (uploadingSession.UploadedBytes + chunkSize > uploadingSession.FileSize)
+                {
+                    throw new Exception("Chunk exceeds the remaining file size ");
+                }
+
+                if (_engineContext.Database.IsNpgsql())
+                {
+                    await PostgresOidStream(sessionId, chunkIndex, chunkStream, cancellationToken);
+                }
+                else if (_engineContext.Database.IsSqlServer())
+                {
+                    await SqlServerStream(sessionId, chunkIndex, chunkStream, cancellationToken);
+                }
+
+                var effectedRows = await _engineContext.EngineFileUploadingSessions
+                    .Where(u => u.Id == sessionId)
+                    .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(x => x.UploadStatus, UploadStatus.Uploading)
+                    .SetProperty(x => x.UpdatedAt, DateTime.UtcNow)
+                    .SetProperty(x => x.ExpiresAt, DateTime.UtcNow + _engineUploadFileTTL)
+                    .SetProperty(x => x.UploadedBytes, x => x.UploadedBytes + chunkSize));
+
+                if (effectedRows != 1)
+                {
+                    throw new Exception("Upload session could not be updated.");
+                }
+
+                await _engineContext.SaveChangesAsync(cancellationToken);
+            }
+        }
+
+        private async Task PostgresOidStream(Guid sessionId, long chunkIndex, Stream chunkStream, CancellationToken cancellationToken)
+        {
+            var connection = (NpgsqlConnection)_engineContext.Database.GetDbConnection();
+            if (connection.State != ConnectionState.Open)
+            {
+                await connection.OpenAsync(cancellationToken);
+            }
+            var manager = new NpgsqlLargeObjectManager(connection);
+            uint oid = await manager.CreateAsync(0, cancellationToken);
+            await using (var loStream = await manager.OpenReadWriteAsync(oid, cancellationToken))
+            {
+                await chunkStream.CopyToAsync(loStream, cancellationToken);
+            }
+
+            FileChunks fileChunks = new FileChunks
+            {
+                SessionId = sessionId,
+                ChunkIndex = chunkIndex,
+                ChunkOid = oid,
+                ChunkData = null
+            };
+            await _engineContext.FileChunks.AddAsync(fileChunks, cancellationToken);
+            await _engineContext.SaveChangesAsync(cancellationToken);
+        }
+
+        private async Task SqlServerStream(Guid sessionId, long chunkIndex, Stream chunkStream, CancellationToken cancellationToken)
+        {
+            var connection = (SqlConnection)_engineContext.Database.GetDbConnection();
+
+            if (connection.State != ConnectionState.Open)
+            {
+                await connection.OpenAsync(cancellationToken);
+            }
+
+            var dbTransaction = _engineContext.Database.CurrentTransaction?.GetDbTransaction() as SqlTransaction;
+
+            if (dbTransaction is null)
+            {
+                throw new InvalidOperationException("No active SQL Server transaction was found.");
+            }
+
+            var chunkId = Guid.NewGuid();
+
+            const string sql = @"INSERT INTO [FileChunks]
+                    ([Id], [SessionId], [ChunkIndex], [ChunkOid], [ChunkData])
+                VALUES
+                    (@Id, @SessionId, @ChunkIndex, NULL, @ChunkData);";
+
+            await using var cmd = new SqlCommand(sql, connection, dbTransaction);
+            cmd.Parameters.Add(new SqlParameter("@Id", SqlDbType.UniqueIdentifier)
+            {
+                Value = chunkId
+            });
+
+            cmd.Parameters.Add(new SqlParameter("@SessionId", SqlDbType.UniqueIdentifier)
+            {
+                Value = sessionId
+            });
+
+            cmd.Parameters.Add(new SqlParameter("@ChunkIndex", SqlDbType.BigInt)
+            {
+                Value = chunkIndex
+            });
+
+            var dataParam = new SqlParameter("@ChunkData", SqlDbType.VarBinary, -1)
+            {
+                Value = chunkStream
+            };
+
+            cmd.Parameters.Add(dataParam);
+            await cmd.ExecuteNonQueryAsync(cancellationToken);
+        }
+
+        public async Task FinalizeUploadAtomicAsync(Guid sessionId, IUserService userService, CancellationToken cancellationToken)
+        {
+
+            var uploadingSession = await (from us in _engineContext.EngineFileUploadingSessions
+                                          where us.Id == sessionId
+                                          select us).FirstOrDefaultAsync(cancellationToken);
+
+            if (uploadingSession is null)
+            {
+                _logger.LogError($"Upload session {sessionId} not found");
+                throw new Exception($"Upload session {sessionId} not found");
+            }
+
+            if (uploadingSession.UploadStatus != UploadStatus.Initiated && uploadingSession.UploadStatus != UploadStatus.Uploading)
+            {
+                _logger.LogError($"Session is in an invalid state for finalizing: {uploadingSession.UploadStatus}");
+                throw new Exception($"Session is in an invalid state for finalizing: {uploadingSession.UploadStatus}");
+            }
+            if (uploadingSession.ExpiresAt <= DateTime.UtcNow)
+            {
+                _logger.LogError($"Uploading session is Expired with Session Id {sessionId}");
+                throw new Exception($"Uploading session is Expired with Session Id {sessionId}");
+            }
+
+            if (uploadingSession.FileSize != uploadingSession.UploadedBytes)
+            {
+                _logger.LogError($"All the Chunks are not getting properly with session Id{sessionId}");
+                throw new Exception($"All the Chunks are not uploaded successfully ");
+            }
+            var chunks = await (from f in _engineContext.FileChunks
+                                where f.SessionId == sessionId
+                                orderby f.ChunkIndex ascending
+                                select f).ToListAsync(cancellationToken);
+
+            var fileContentId = Guid.NewGuid();
+            if (_engineContext.Database.IsNpgsql())
+            {
+                await PostgresFinalizeOidAsync(fileContentId, chunks, cancellationToken);
+            }
+            else if (_engineContext.Database.IsSqlServer())
+            {
+                await SqlServerFinalizeStreamAsync(fileContentId, sessionId, cancellationToken);
+            }
+            else
+            {
+                throw new Exception("Internal Server Error");
+            }
+            var userId = int.Parse(userService?.GetCurrentUser.UserId);
+            var now = DateTime.UtcNow;
+
+            EngineFile engineFile = new EngineFile
+            {
+
+                ContentId = fileContentId,
+                FileName = uploadingSession.FileName,
+                ContentType = uploadingSession.ContentType,
+                ParentId = null, // Will change later.
+                Location = null, // Will enhance later.
+                FileSize = uploadingSession.FileSize,
+                IsRecyled = false,
+                ItemType = EngineFileType.File,// Further modification needed.
+                CreatedBy = userId,
+                CreatedAt = now,
+                ModifiedBy = now
+            };
+
+            FileAccessors fileAccessors = new FileAccessors
+            {
+                EngineFile = engineFile,
+                UserId = userId,
+            };
+            await _engineContext.EngineFiles.AddAsync(engineFile, cancellationToken);
+            await _engineContext.FileAccessors.AddAsync(fileAccessors, cancellationToken);
+            await _engineContext.FileChunks.Where(c => c.SessionId == sessionId).ExecuteDeleteAsync(cancellationToken);
+            uploadingSession.UploadStatus = UploadStatus.Completed;
+            uploadingSession.UpdatedAt = now;
+            await _engineContext.SaveChangesAsync(cancellationToken);
+        }
+
+        private async Task PostgresFinalizeOidAsync(Guid fileContentId, List<FileChunks> chunks, CancellationToken cancellationToken)
+        {
+            var connection = (NpgsqlConnection)_engineContext.Database.GetDbConnection();
+            if (connection.State != ConnectionState.Open)
+            {
+                await connection.OpenAsync(cancellationToken);
+            }
+
+            var manager = new NpgsqlLargeObjectManager(connection);
+            uint finalOid = await manager.CreateAsync(0, cancellationToken);
+            await using (var finalStream = await manager.OpenReadWriteAsync(finalOid, cancellationToken))
+            {
+                foreach (var chunk in chunks)
+                {
+                    if (chunk.ChunkOid is null)
+                    {
+                        throw new InvalidOperationException($"Chunk index {chunk.ChunkIndex} is missing OID.");
+                    }
+                    await using (var chunkStream = await manager.OpenReadAsync(chunk.ChunkOid.Value, cancellationToken))
+                    {
+                        await chunkStream.CopyToAsync(finalStream, cancellationToken);
+                    }
+
+                    // CRITICAL: Unlink (delete) temporary chunk OID from pg_largeobject to prevent orphan bloat!
+                    await manager.UnlinkAsync(chunk.ChunkOid.Value, cancellationToken);
+                }
+            }
+
+            var fileContent = new FileContent
+            {
+                Id = fileContentId,
+                ContentOid = finalOid,
+                ContentData = null
+            };
+            await _engineContext.FileContents.AddAsync(fileContent, cancellationToken);
+            await _engineContext.SaveChangesAsync(cancellationToken);
+        }
+
+        private async Task SqlServerFinalizeStreamAsync(Guid fileContentId, Guid sessionId, CancellationToken cancellationToken)
+        {
+            var connection = (SqlConnection)_engineContext.Database.GetDbConnection();
+
+            if (connection.State != ConnectionState.Open)
+            {
+                await connection.OpenAsync(cancellationToken);
+            }
+
+            var dbTransaction = _engineContext.Database.CurrentTransaction?.GetDbTransaction() as SqlTransaction;
+
+            if (dbTransaction is null)
+            {
+                throw new InvalidOperationException(
+                    "No active SQL Server transaction was found.");
+            }
+
+            const string sql = @"
+                    INSERT INTO [FileContents] ([Id], [ContentOid], [ContentData])
+                    VALUES (@ContentId, NULL, 0x);
+
+                    DECLARE @chunk VARBINARY(MAX);
+
+                    DECLARE chunk_cursor CURSOR LOCAL FAST_FORWARD FOR
+                        SELECT [ChunkData]
+                        FROM [FileChunks]
+                        WHERE [SessionId] = @SessionId
+                        ORDER BY [ChunkIndex] ASC;
+
+                    OPEN chunk_cursor;
+
+                    FETCH NEXT FROM chunk_cursor INTO @chunk;
+
+                    WHILE @@FETCH_STATUS = 0
+                    BEGIN
+                        UPDATE [FileContents]
+                        SET [ContentData].WRITE(@chunk, NULL, 0)
+                        WHERE [Id] = @ContentId;
+
+                        FETCH NEXT FROM chunk_cursor INTO @chunk;
+                    END;
+
+                    CLOSE chunk_cursor;
+                    DEALLOCATE chunk_cursor;";
+            await using var cmd = new SqlCommand(sql, connection, dbTransaction);
+            cmd.Parameters.Add(new SqlParameter("@ContentId", SqlDbType.UniqueIdentifier)
+            {
+                Value = fileContentId
+            });
+
+            cmd.Parameters.Add(new SqlParameter("@SessionId", SqlDbType.UniqueIdentifier)
+            {
+                Value = sessionId
+            });
+
+            cmd.CommandTimeout = 300;
+            await cmd.ExecuteNonQueryAsync(cancellationToken);
+        }
+
+        public async Task<List<EngineFileResponse>> GetEngineFilesAsync(int userId, bool IsIncludeTrash, CancellationToken cancellationToken)
+        {
+            var query = await (from f in _engineContext.EngineFiles
+                               where f.CreatedBy == userId && (IsIncludeTrash ? f.IsRecyled : !f.IsRecyled)
+                               select new EngineFileResponse(
+                                   f.Id,
+                                   f.FileName,
+                                   f.FileSize,
+                                   f.ItemType,
+                                   f.ContentType,
+                                   f.CreatedAt,
+                                   f.ModifiedBy,
+                                   f.Location,
+                                   f.ParentId
+                               )).ToListAsync(cancellationToken);
+            return query;
+        }
+
+        public async Task StaleEngineUploadingSessionsAndChunks(CancellationToken cancellationToken)
+        {
+            var expiredSessions = await _engineContext.EngineFileUploadingSessions
+                                           .Where(s => s.ExpiresAt < DateTime.UtcNow)
+                                           .Select(f => f.Id)
+                                           .ToListAsync(cancellationToken);
+            if (expiredSessions.Count == 0)
+                return;
+
+            if (_engineContext.Database.IsNpgsql())
+            {
+                var oids = await _engineContext.FileChunks
+                .Where(f => expiredSessions
+                .Contains(f.SessionId)).Select(f => f.ChunkOid!.Value)
+                .ToListAsync(cancellationToken);
+                if (oids.Count > 0)
+                    await removeOidForPostgres(oids, cancellationToken);
+            }
+
+            await _engineContext.FileChunks
+                .Where(f => expiredSessions.Contains(f.SessionId))
+                .ExecuteDeleteAsync(cancellationToken);
+
+            await _engineContext.EngineFileUploadingSessions.Where(s => expiredSessions.Contains(s.Id))
+                .ExecuteDeleteAsync(cancellationToken);
+        }
+
+        private async Task removeOidForPostgres(List<uint> Oids, CancellationToken cancellationToken)
+        {
+            var connection = (NpgsqlConnection)_engineContext.Database.GetDbConnection();
+            var transcation = _engineContext.Database.CurrentTransaction?.GetDbTransaction();
+            foreach (var oid in Oids)
+            {
+                await using var command = new NpgsqlCommand(
+                    "SELECT lo_unlink(@oid);",
+                    connection);
+
+                command.Transaction = (NpgsqlTransaction?)transcation;
+                command.Parameters.AddWithValue("oid", oid);
+
+                await command.ExecuteNonQueryAsync(cancellationToken);
+            }
+        }
+
+
+        //Needs to optimize using indexing.
+        public async Task<EngineFileStorageInfo> GetEngineStorageInfo(int userId, CancellationToken cancellationToken)
+        {
+            var engineFiles = await (from f in _engineContext.EngineFiles
+                                     where f.CreatedBy == userId
+                                     select new
+                                     {
+                                         f.FileSize,
+                                         f.IsRecyled
+                                     }).ToListAsync(cancellationToken);
+
+            return new EngineFileStorageInfo(engineFiles.Where(f => !f.IsRecyled).Sum(f => f.FileSize),
+                            engineFiles.Where(f => f.IsRecyled).Sum(f => f.FileSize));
+        }
+
+        public async Task DeleteEngineFileAsync(Guid Id, CancellationToken cancellationToken)
+        {
+            var engineFile = await _engineContext.EngineFiles
+                .FirstOrDefaultAsync(id => id.Id == Id, cancellationToken);
+            if (engineFile is null)
+            {
+                return;
+            }
+            var fileContent = await _engineContext.FileContents
+                .FirstOrDefaultAsync(c => c.Id == engineFile.ContentId, cancellationToken);
+            if (fileContent is not null)
+            {
+                if (_engineContext.Database.IsNpgsql() && fileContent.ContentOid.HasValue)
+                {
+                    var connection = (NpgsqlConnection)_engineContext.Database.GetDbConnection();
+                    if (connection.State != ConnectionState.Open)
+                    {
+                        await connection.OpenAsync(cancellationToken);
+                    }
+                    var transaction = _engineContext.Database.CurrentTransaction?.GetDbTransaction() as NpgsqlTransaction;
+
+                    await using var command = new NpgsqlCommand(
+                        "SELECT lo_unlink(@oid);",
+                        connection,
+                        transaction);
+
+                    command.Parameters.AddWithValue("oid", fileContent.ContentOid.Value);
+                    await command.ExecuteNonQueryAsync(cancellationToken);
+                }
+                _engineContext.FileContents.Remove(fileContent);
+            }
+            _engineContext.EngineFiles.Remove(engineFile);
+        }
+
+        public async Task<DownloadFileResult?> GetDownloadStreamAsync(Guid FileId,
+            long offset, long? RequestLength, EngineFile fileMetaData, CancellationToken cancellationToken)
+        {
+            var fileContent = await (from c in _engineContext.FileContents
+                                     where c.Id == fileMetaData.ContentId
+                                     select new
+                                     {
+                                         c.ContentOid,
+                                         c.Id
+                                     }).AsNoTracking()
+                                     .FirstOrDefaultAsync(cancellationToken); // don' load Entire File content server will crush if you forget to select only Id or ContentId.
+
+            if (fileContent is null)
+            {
+                _logger.LogError($"File Content  is not exists with Content Id {fileMetaData.ContentId}");
+                throw new Exception($"File Content  is not exists with Content Id {fileMetaData.ContentId}");
+            }
+            long fileSize = fileMetaData.FileSize;
+
+            if (fileSize < 0 || offset < 0 || offset > fileSize && (fileSize > 0 && offset == fileSize))
+                throw new ArgumentOutOfRangeException(nameof(offset));
+
+            var bytesToSend = RequestLength ?? (fileSize - offset);
+            if (bytesToSend < 0)
+                throw new ArgumentOutOfRangeException(nameof(bytesToSend));
+
+            bytesToSend = Math.Min(bytesToSend, fileSize - offset);
+            if (fileSize > 0 && bytesToSend == 0)
+                throw new ArgumentOutOfRangeException(nameof(RequestLength));
+
+            (Stream stream, Func<Task> cleanup) opened;
+
+            if (_engineContext.Database.IsNpgsql())
+            {
+                if (fileContent.ContentOid != null)
+                {
+                    opened = await GetPostgresServerStreamAsync(fileContent.ContentOid.Value, offset,
+                        bytesToSend, cancellationToken);
+                }
+                else
+                {
+                    _logger.LogError($"File Content OId is missing  for File {FileId}");
+                    throw new Exception($"File Content OId is missing  for File {FileId}");
+                }
+            }
+            else if (_engineContext.Database.IsSqlServer())
+            {
+                opened = await GetSqlServerStreamAsync(fileContent.Id, offset,
+                        bytesToSend, cancellationToken);
+            }
+            else
+            {
+                throw new NotSupportedException("The configured database provider does not support file downloads.");
+            }
+
+            return new DownloadFileResult
+            {
+                Stream = opened.stream,
+                FileName = fileMetaData.FileName,
+                FileSize = fileMetaData.FileSize,
+                ContentType = fileMetaData.ContentType ?? "application/octet-stream",
+                CleanUpAsync = opened.cleanup,
+                RangeStart = offset,
+                BytesToSend = bytesToSend
+            };
+        }
+
+        private async Task<(Stream stream, Func<Task> cleanup)> GetPostgresServerStreamAsync(uint Oid, long offset,
+            long bytesToSend, CancellationToken cancellationToken)
+        {
+            var connection = new NpgsqlConnection(_engineContext.Database.GetConnectionString());
+            NpgsqlTransaction? transaction = null;
+            Stream? innerStream = null;
+            try
+            {
+                await connection.OpenAsync(cancellationToken);
+                transaction = await connection.BeginTransactionAsync(cancellationToken);
+                var manger = new NpgsqlLargeObjectManager(connection);
+                innerStream = await manger.OpenReadAsync(Oid, cancellationToken);
+                if (offset > 0)
+                    innerStream.Seek(offset, SeekOrigin.Begin);
+                return (innerStream, async () =>
+                {
+                    try
+                    {
+                        await transaction.DisposeAsync();
+                    }
+                    finally
+                    {
+                        await connection.DisposeAsync();
+                    }
+                }
+                );
+
+            }
+            catch
+            {
+                if (innerStream is not null)
+                    await innerStream.DisposeAsync();
+
+                if (transaction is not null)
+                    await transaction.DisposeAsync();
+
+                await connection.DisposeAsync();
+                throw;
+            }
+        }
+
+        private async Task<(Stream stream, Func<Task> cleanup)> GetSqlServerStreamAsync(Guid ContentId,
+            long offset, long? bytesToSend, CancellationToken cancellationToken)
+        {
+            var connection = new SqlConnection(_engineContext.Database.GetConnectionString());
+            SqlCommand? command = null;
+            SqlDataReader? reader = null;
+            Stream? stream = null;
+            try
+            {
+
+                await connection.OpenAsync(cancellationToken);
+                const string sql = """SELECT  ContentData FROM FileContents WHERE Id = @ContentId""";
+                command = new SqlCommand(sql, connection);
+                command.Parameters.Add(new SqlParameter("@ContentId", SqlDbType.UniqueIdentifier)
+                {
+                    Value = ContentId
+                });
+
+                command.Parameters.Add(new SqlParameter("@Start", SqlDbType.BigInt)
+                {
+                    Value = checked(offset + 1)
+                });
+
+                command.Parameters.Add(new SqlParameter("@Length", SqlDbType.BigInt)
+                {
+                    Value = bytesToSend
+                });
+                reader = await command.ExecuteReaderAsync(CommandBehavior.SequentialAccess | CommandBehavior.SingleRow, cancellationToken);
+                if (!await reader.ReadAsync(cancellationToken))
+                    throw new FileNotFoundException("File Content Not Found");
+                if (await reader.IsDBNullAsync(0, cancellationToken))
+                    throw new InvalidDataException("File content is NULL.");
+                stream = reader.GetStream(0);
+                return (stream, async () =>
+                {
+                    try
+                    {
+                        await reader.DisposeAsync();
+                    }
+                    finally
+                    {
+                        try
+                        {
+                            await command.DisposeAsync();
+                        }
+                        finally
+                        {
+                            await connection.DisposeAsync();
+                        }
+                    }
+                }
+                );
+            }
+            catch
+            {
+                if (stream is not null)
+                    await stream.DisposeAsync();
+                if (command is not null)
+                    await command.DisposeAsync();
+                if (reader is not null)
+                    await reader.DisposeAsync();
+
+                await connection.DisposeAsync();
+                throw;
+            }
+        }
+    }
+}

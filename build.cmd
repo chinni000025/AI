@@ -7,6 +7,7 @@ if "%CONFIG%"=="" set CONFIG=Debug
 
 set CONNECTIVITY_SLN=AIEngineConnectivity\AIEngineConnectivity.slnx
 set CORE_SLN=AIEngineCore\AIEngineCore.slnx
+set GATEWAY_CORE_SLN=AIGatewayCore\AIGatewayCore.slnx
 set GATEWAY_SLN=AIEngineGateway\AIEngineGateway.slnx
 set GATEWAY_PROJ=AIEngineGateway\AIEngineGateway.csproj
 set SPEECH_SLN=AIEngineSpeechRecognition\AIEngineSpeechRecognition.slnx
@@ -16,13 +17,15 @@ set INSTALLER_PROJ=AIEngineInstaller\AIEngineInstaller.csproj
 if /I "%TARGET%"=="all" goto build_all
 if /I "%TARGET%"=="connectivity" goto build_connectivity
 if /I "%TARGET%"=="core" goto build_core
+if /I "%TARGET%"=="gateway_core" goto build_gateway_core
+if /I "%TARGET%"=="gatewaycore" goto build_gateway_core
 if /I "%TARGET%"=="speech" goto build_speech
 if /I "%TARGET%"=="client" goto build_client
 if /I "%TARGET%"=="gateway" goto build_gateway
 if /I "%TARGET%"=="installer" goto build_installer
 
 echo Unknown target: %TARGET%
-echo Usage: build.cmd [all^|connectivity^|core^|speech^|client^|gateway^|installer] [Release^|Debug]
+echo Usage: build.cmd [all^|connectivity^|core^|gateway_core^|speech^|client^|gateway^|installer] [Release^|Debug]
 exit /b 1
 
 :build_all
@@ -30,6 +33,10 @@ call :build_connectivity
 if !errorlevel! neq 0 exit /b !errorlevel!
 call :build_core
 if !errorlevel! neq 0 exit /b !errorlevel!
+if exist "%GATEWAY_CORE_SLN%" (
+    call :build_gateway_core
+    if !errorlevel! neq 0 exit /b !errorlevel!
+)
 call :build_speech
 if !errorlevel! neq 0 exit /b !errorlevel!
 call :build_client
@@ -47,10 +54,14 @@ echo Building AIEngineConnectivity (%CONFIG%)...
 dotnet build "%CONNECTIVITY_SLN%" -c "%CONFIG%"
 if !errorlevel! neq 0 exit /b !errorlevel!
 echo Updating AIEngineConnectivity references in dependent solutions...
+if not exist "AIEngineCore\libs" mkdir "AIEngineCore\libs"
 if not exist "AIEngineGateway\libs" mkdir "AIEngineGateway\libs"
 if not exist "AIEngineInstaller\libs" mkdir "AIEngineInstaller\libs"
+if not exist "AIGatewayCore\AIGatewayCore\libs" mkdir "AIGatewayCore\AIGatewayCore\libs"
+copy /Y "AIEngineConnectivity\bin\%CONFIG%\net10.0\AIEngineConnectivity.*" "AIEngineCore\libs\"
 copy /Y "AIEngineConnectivity\bin\%CONFIG%\net10.0\AIEngineConnectivity.*" "AIEngineGateway\libs\"
 copy /Y "AIEngineConnectivity\bin\%CONFIG%\net10.0\AIEngineConnectivity.*" "AIEngineInstaller\libs\"
+copy /Y "AIEngineConnectivity\bin\%CONFIG%\net10.0\AIEngineConnectivity.*" "AIGatewayCore\AIGatewayCore\libs\"
 goto :eof
 
 :build_core
@@ -65,7 +76,12 @@ copy /Y "AIEngineCore\bin\%CONFIG%\net10.0\AIEngineCore.*" "AIEngineGateway\libs
 copy /Y "AIEngineCore\bin\%CONFIG%\net10.0\AIEngineCore.*" "AIEngineInstaller\libs\"
 goto :eof
 
-:build_speech
+:build_gateway_core
+echo.
+echo Building AIGatewayCore (%CONFIG%)...
+dotnet build "%GATEWAY_CORE_SLN%" -c "%CONFIG%"
+if !errorlevel! neq 0 exit /b !errorlevel!
+goto :eof
 echo.
 echo Building AIEngineSpeechRecognition (%CONFIG%)...
 dotnet build "%SPEECH_SLN%" -c "%CONFIG%"

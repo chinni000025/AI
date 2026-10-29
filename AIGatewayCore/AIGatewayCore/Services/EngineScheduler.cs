@@ -1,0 +1,76 @@
+﻿using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.Entities;
+using AIEngineConnectivity.Services;
+using AIEngineGateway.BackgroundServices.Jobs;
+using Quartz;
+
+namespace AIEngineGateway.Services
+{
+    public class EngineScheduler : IEngineScheduler
+    {
+        private ISchedulerFactory _SchedulerFactory;
+        public EngineScheduler(ISchedulerFactory schedulerFactory)
+        {
+            _SchedulerFactory = schedulerFactory;
+        }
+
+        public async Task ScheduleJobAsync(IJobDetail job, ITrigger trigger,
+            CancellationToken ct = default)
+        {
+            var scheduler = await _SchedulerFactory.GetScheduler();
+            var IsJobExists = await scheduler.CheckExists(job.Key, ct);
+
+            if (IsJobExists)
+            {
+                await scheduler.RescheduleJob(trigger.Key, trigger, ct);
+                return;
+            }
+
+            await scheduler.ScheduleJob(job, trigger, ct);
+        }
+
+        public async Task DeleteJobAsync(JobKey jobKey, CancellationToken ct = default)
+        {
+            var scheduler = await _SchedulerFactory.GetScheduler();
+            var isJobExist = await scheduler.CheckExists(jobKey);
+            if (!isJobExist)
+                throw new Exception($"Job Not Exists with jobKey '{jobKey}'");
+
+            await scheduler.DeleteJob(jobKey, ct);
+        }
+
+        public async Task ScheduleEngineNotification(ScheduleEngineNotificationDTO scheduleEngineNotification,
+            CancellationToken ct = default)
+        {
+            var jobKey = new JobKey($"Notification-{scheduleEngineNotification.NotificationId}", "EngineNotifications");
+
+            var triggerKey = new TriggerKey($"NotificationTrigger-{scheduleEngineNotification.NotificationId}", "EngineNotifications");
+
+            var job = JobBuilder.Create<EngineNotificationJob>().WithIdentity(jobKey)
+                .UsingJobData("NotificationId", scheduleEngineNotification.NotificationId.ToString()).Build();
+
+            var trigger = TriggerBuilder.Create().WithIdentity(triggerKey).ForJob(job)
+                .StartAt(scheduleEngineNotification.RetryAt).Build();
+
+            await ScheduleJobAsync(job, trigger, ct);
+        }
+
+        public async Task DeleteEngineRecycleItems(RecycleBin recycleBin, CancellationToken ct = default)
+        {
+            var jobKey = new JobKey($"EngineRecycleBin-{recycleBin.EntityId}", "RecycleEntityId");
+
+            var triggerKey = new TriggerKey($"EngineRecycleBinTrigger-{recycleBin.EntityId}", "RecycleEntityId");
+
+            var job = JobBuilder.Create<EngineRecycleBinJob>().WithIdentity(jobKey)
+                .UsingJobData("RecycleBinId", recycleBin.Id.ToString())
+                .UsingJobData("RecycleItem", recycleBin.ItemId.ToString())
+                .UsingJobData("EntityId", recycleBin.EntityId)
+                .Build();
+
+            var trigger = TriggerBuilder.Create().WithIdentity(triggerKey).ForJob(job)
+                .StartAt(DateTimeOffset.UtcNow.AddDays(30)).Build();
+
+            await ScheduleJobAsync(job, trigger, ct);
+        }
+    }
+}

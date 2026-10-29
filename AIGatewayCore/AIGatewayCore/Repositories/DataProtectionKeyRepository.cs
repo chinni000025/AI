@@ -1,0 +1,39 @@
+﻿using AIEngineConnectivity.Entities;
+using AIEngineConnectivity.Repositories;
+using AIEngineGateway.EngineInfrastructure;
+using Microsoft.EntityFrameworkCore;
+
+namespace AIEngineGateway.Repositories
+{
+    public class DataProtectionKeyRepository : IDataProtectionKeyRepository
+    {
+        private readonly EngineContext _EngineContext;
+        private readonly EngineConfig _EngineConfig;
+
+        public DataProtectionKeyRepository(EngineContext engineContext, EngineConfig engineConfig)
+        {
+            _EngineContext = engineContext;
+            _EngineConfig = engineConfig;
+        }
+
+        public async Task<DataProtectionKey?> GetKeyAsync(string name, CancellationToken cancellationToken)
+        {
+            if (_EngineConfig.IsEngineConfig())
+            {
+                try
+                {
+                    var dataProtectionKey = await (from d in _EngineContext.DataProtectionKeys
+                                                   where d.ProtectionType.Equals(name)
+                                                   select d).AsNoTracking()
+                                               .FirstOrDefaultAsync(cancellationToken);
+                    return dataProtectionKey;
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+            return null;
+        }
+    }
+}
