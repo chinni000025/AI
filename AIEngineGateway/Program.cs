@@ -16,6 +16,7 @@ class Program
         builder.Services.AddEngineSpeechRecognition();
         builder.Services.AddingJWtService(builder.Configuration);
         builder.Services.AddControllersWithViews();
+        builder.Services.AddSwaggerGen();
         builder.Services.AddOpenApi();
         builder.Host.UseSerilog();
 
