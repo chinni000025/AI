@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AIEngineCore.EngineCore
 {
-    public class EngineEventPublisher
+    public class EngineEventPublisher : IEngineEventPublisher
     {
         private readonly IEngineBus _EngineBus;
         private readonly IServiceScopeFactory _serviceScopeFactory;

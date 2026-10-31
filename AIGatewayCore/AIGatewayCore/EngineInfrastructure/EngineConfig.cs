@@ -1,4 +1,5 @@
-﻿using AIEngineGateway.Extensions;
+﻿using AIEngineConnectivity.Services;
+using AIEngineGateway.Extensions;
 using Microsoft.AspNetCore.DataProtection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -8,7 +9,7 @@ using static AIEngineConnectivity.Constants.EngineConstants;
 namespace AIEngineGateway.EngineInfrastructure
 {
 #nullable disable
-    public class EngineConfig
+    public class EngineConfig : IEngineConfigService
     {
         public bool IsEngineConfig()
         {

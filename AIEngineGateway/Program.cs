@@ -1,15 +1,19 @@
 using AIEngineConnectivity.Services;
-using AIEngineGateway.EngineInfrastructure;
+using AIEngineCore.Extensions;
 using AIEngineGateway.Extensions;
 using AIEngineGateway.Hub;
 using AIEngineGateway.Services;
+using AIEngineSpeechRecognition.Extensions;
 using Serilog;
+
 class Program
 {
     public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
         builder.Services.AddEngineServices(builder.Configuration);
+        builder.Services.AddEngineCoreDependencies();
+        builder.Services.AddEngineSpeechRecognition();
         builder.Services.AddingJWtService(builder.Configuration);
         builder.Services.AddControllersWithViews();
         builder.Services.AddOpenApi();
@@ -19,7 +23,7 @@ class Program
         app.MapHub<NotificationHub>("/api/notificationHub");
         app.MapHub<EngineStatusHub>("/api/engineStatusHub");
         app.AddEngineMiddleware();
-        var engineConfig = app.Services.GetRequiredService<EngineConfig>();
+        var engineConfig = app.Services.GetRequiredService<IEngineConfigService>();
         if (engineConfig.IsEngineConfig())
         {
             _ = Task.Run(async () =>

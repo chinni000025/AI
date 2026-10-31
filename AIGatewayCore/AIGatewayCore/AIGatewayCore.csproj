@@ -35,8 +35,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\AIEngineConnectivity\AIEngineConnectivity.csproj" />
-    <ProjectReference Include="..\..\AIEngineCore\AIEngineCore.csproj" />
-    <ProjectReference Include="..\..\AIEngineGateway\AIEngineGateway.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="EngineInfrastructure\DatabaseScripts\*.sql" />
   </ItemGroup>
 
 </Project>

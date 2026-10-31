@@ -1,17 +1,19 @@
-﻿namespace AIEngineGateway.EngineInfrastructure.UserRateLimiter
+using AIEngineConnectivity.Services;
+
+namespace AIEngineGateway.EngineInfrastructure.UserRateLimiter
 {
-    public sealed class UserRateLimiter
+    public sealed class UserRateLimiter : IUserRateLimiter
     {
-        private readonly UserBucketStore _UserBucketStore;
+        private readonly UserBucketStore _userBucketStore;
 
         public UserRateLimiter(UserBucketStore userBucketStore)
         {
-            _UserBucketStore = userBucketStore;
+            _userBucketStore = userBucketStore;
         }
 
         public bool TryAddRequest(string userId)
         {
-            return _UserBucketStore.TryAddRequest(userId);
+            return _userBucketStore.TryAddRequest(userId);
         }
     }
 }

@@ -1,9 +1,10 @@
 ﻿using AIEngineConnectivity.Models;
+using AIEngineConnectivity.Services;
 using Microsoft.Extensions.Options;
 
 namespace AIEngineGateway.EngineInfrastructure.RateLimiter
 {
-    public class ServerRateLimiter
+    public class ServerRateLimiter : IServerRateLimiter
     {
         private int _serverLimiter;
         private readonly int _initialCount;

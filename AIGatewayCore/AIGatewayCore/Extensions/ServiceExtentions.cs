@@ -5,8 +5,6 @@ using AIEngineConnectivity.Helpers;
 using AIEngineConnectivity.Models;
 using AIEngineConnectivity.Repositories;
 using AIEngineConnectivity.Services;
-using AIEngineCore.Extensions;
-using AIEngineCore.Services;
 using AIEngineGateway.BackgroundServices;
 using AIEngineGateway.BackgroundServices.Jobs;
 using AIEngineGateway.Contracts;
@@ -16,7 +14,6 @@ using AIEngineGateway.EngineInfrastructure.UserRateLimiter;
 using AIEngineGateway.Helpers;
 using AIEngineGateway.Repositories;
 using AIEngineGateway.Services;
-using AIEngineSpeechRecognition.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -38,7 +35,6 @@ namespace AIEngineGateway.Extensions
             EngineRepositories(services);
             EngineServices(services);
             EncryptionExtensions(services);
-            AIExtensions(services);
             EngineConfiguration(services, config);
             CleanUpJobs(services);
             CorsOrigin(services);
@@ -82,24 +78,27 @@ namespace AIEngineGateway.Extensions
         public static void EngineConfiguration(IServiceCollection services)
         {
             services.AddSingleton<EngineConfig>();
+            services.AddSingleton<IEngineConfigService>(sp => sp.GetRequiredService<EngineConfig>());
             services.AddSingleton<DataBaseIntialiationServices>();
+            services.AddSingleton<EngineRecoveryKeyService>();
+            services.AddSingleton<IEngineRecoveryKeyService>(sp => sp.GetRequiredService<EngineRecoveryKeyService>());
             services.AddSingleton<UserBucketCleanUpHostedService>();
             services.AddSingleton<StartUpMigrations>();
             services.AddSingleton<EngineState>();
             services.AddHttpContextAccessor();
             services.AddEndpointsApiExplorer();
-            services.AddSwaggerGen();
             services.AddSignalR();
             services.AddSingleton<UserBucketStore>();
             services.AddSingleton<UserRateLimiter>();
+            services.AddSingleton<IUserRateLimiter>(sp => sp.GetRequiredService<UserRateLimiter>());
             services.AddSingleton<ServerRateLimiter>();
+            services.AddSingleton<IServerRateLimiter>(sp => sp.GetRequiredService<ServerRateLimiter>());
             services.AddControllers().AddNewtonsoftJson();
             services.AddScoped<IDataBaseProviderFactory, DataBaseProviderFactory>();
             services.AddScoped<PostgreServerProvider>();
             services.AddScoped<SqlServerProvider>();
             services.AddScoped<EngineDbConfigurator>();
             services.AddScoped<IEngineDataBaseService, EngineConfigureService>();
-            services.AddSingleton<EngineRecoveryKeyService>();
         }
 
         public static void EngineRepositories(IServiceCollection services)
@@ -124,23 +123,14 @@ namespace AIEngineGateway.Extensions
             services.AddSingleton<IUserSessionManager, UserSessionManager>();
             services.AddSingleton<IUserService, UserService>();
             services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IConversationService, ConversationService>();
             services.AddScoped<IPasswordService, PasswordServices>();
-            services.AddScoped<IEmailService, EmailService>();
             services.AddSingleton<IEngineScheduler, EngineScheduler>();
             services.AddScoped<IEngineNotificationService, EngineNotificationService>();
             services.AddScoped<IEngineDriveService, EngineDriveService>();
             services.AddScoped<IEngineRecycleBinService, EngineRecycleBinService>();
             services.AddKeyedScoped<IRecycleItemHandler, ConversationRecycleHandler>(RecycleItem.conversation);
             services.AddKeyedScoped<IRecycleItemHandler, EngineFileRecycleHandler>(RecycleItem.EngineFile);
-        }
-
-        public static void AIExtensions(IServiceCollection services)
-        {
-            services.AddScoped<IAIOrchestrator, AIOrchestrator>();
-            services.AddScoped<IConversationService, ConversationService>();
-            services.AddSingleton<IWhisperService, WhisperService>();
-            services.AddEngineCoreDependencies();
-            services.AddSingleton<IEngineLatch, EngineLatch>();
         }
 
         public static void EngineConfiguration(IServiceCollection services, IConfiguration config)

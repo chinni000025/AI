@@ -6,7 +6,6 @@ using AIEngineConnectivity.Helpers;
 using AIEngineConnectivity.Models;
 using AIEngineConnectivity.Repositories;
 using AIEngineConnectivity.Services;
-using AIEngineCore.EngineCore;
 using AIEngineCore.EngineNotifications;
 using AIEngineGateway.Hub;
 using Microsoft.AspNetCore.Antiforgery;
@@ -117,7 +116,7 @@ namespace AIEngineGateway.Services
                 CreatedAt = DateTime.UtcNow,
                 IsActive = true,
             };
-            var eventPublisher = _ServiceProvider.GetRequiredService<EngineEventPublisher>();
+            var eventPublisher = _ServiceProvider.GetRequiredService<IEngineEventPublisher>();
             await eventPublisher.PublishEvent(new EngineNotificationRequest
             {
                 EngineEvents = EngineEvents.UserCreated,

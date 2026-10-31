@@ -1,9 +1,10 @@
-﻿using System.Security.Cryptography;
+﻿using AIEngineConnectivity.Services;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace AIEngineGateway.EngineInfrastructure
 {
-    public sealed class EngineRecoveryKeyService
+    public sealed class EngineRecoveryKeyService : IEngineRecoveryKeyService
     {
         private const string Prefix = "AIE1-";
         private const string Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";

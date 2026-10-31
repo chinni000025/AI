@@ -1,5 +1,5 @@
-﻿using AIEngineConnectivity.Helpers;
-using AIEngineGateway.EngineInfrastructure.UserRateLimiter;
+using AIEngineConnectivity.Helpers;
+using AIEngineConnectivity.Services;
 using System.Security.Claims;
 
 namespace AIEngineGateway.Middlewares
@@ -8,14 +8,14 @@ namespace AIEngineGateway.Middlewares
     {
         private readonly ILogger<SpecificUserRateLimitingMiddleware> _logger;
         private RequestDelegate _next;
-        private readonly UserRateLimiter _UserRateLimiter;
+        private readonly IUserRateLimiter _userRateLimiter;
 
         public SpecificUserRateLimitingMiddleware(RequestDelegate next, ILogger<SpecificUserRateLimitingMiddleware> logger,
-            UserRateLimiter userRateLimiter)
+            IUserRateLimiter userRateLimiter)
         {
             _logger = logger;
             _next = next;
-            _UserRateLimiter = userRateLimiter;
+            _userRateLimiter = userRateLimiter;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -29,7 +29,7 @@ namespace AIEngineGateway.Middlewares
             if (context.User.Identity?.IsAuthenticated is true)
             {
                 var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (userId is null || !_UserRateLimiter.TryAddRequest(userId))
+                if (userId is null || !_userRateLimiter.TryAddRequest(userId))
                 {
                     if (userId is null)
                     {

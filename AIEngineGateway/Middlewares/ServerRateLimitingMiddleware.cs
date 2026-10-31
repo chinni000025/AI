@@ -1,5 +1,7 @@
 ﻿using AIEngineConnectivity.Helpers;
-using AIEngineGateway.EngineInfrastructure.RateLimiter;
+using AIEngineConnectivity.Services;
+
+
 
 namespace AIEngineGateway.Middlewares
 {
@@ -8,10 +10,10 @@ namespace AIEngineGateway.Middlewares
     {
         private ILogger<ServerRateLimitingMiddleware> _logger;
         private RequestDelegate _next;
-        private ServerRateLimiter _serverRateLimiter;
+        private IServerRateLimiter _serverRateLimiter;
 
         public ServerRateLimitingMiddleware(RequestDelegate next, ILogger<ServerRateLimitingMiddleware> logger,
-            ServerRateLimiter serverRateLimiter)
+            IServerRateLimiter serverRateLimiter)
         {
             _next = next;
             _logger = logger;

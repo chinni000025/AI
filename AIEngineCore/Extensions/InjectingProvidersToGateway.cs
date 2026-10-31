@@ -1,4 +1,6 @@
-﻿using AIEngineConnectivity.EngineCore;
+using AIEngineConnectivity.EngineCore;
+using AIEngineConnectivity.Helpers;
+using AIEngineConnectivity.Services;
 using AIEngineCore.EngineCore;
 using AIEngineCore.EngineNotifications.Email;
 using AIEngineCore.Providers;
@@ -16,11 +18,15 @@ namespace AIEngineCore.Extensions
             InitailzeProviders(services);
             AddingHostingServices(services);
             InitializingRouters(services);
+            services.AddScoped<IAIOrchestrator, AIOrchestrator>();
+            services.AddScoped<IEmailService, EmailService>();
+            services.AddSingleton<IEngineLatch, EngineLatch>();
             return services;
         }
 
         public static void InitializeEngineCore(IServiceCollection services)
         {
+            services.AddSingleton<IEngineEventPublisher, EngineEventPublisher>();
             services.AddSingleton<EngineEventPublisher>();
             services.AddSingleton<IEngineBus, EngineNotificationBus>();
             services.AddSingleton<IEmbeddedResourceProvider>(sp =>

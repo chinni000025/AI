@@ -8,12 +8,15 @@ namespace AIEngineGateway.Controllers
     [Route("api/[controller]")]
     public class EngineController : ControllerBase
     {
-        private readonly EngineConfig _engineConfig;
+        private readonly IEngineConfigService _engineConfig;
         private readonly ILogger<EngineController> _logger;
         private readonly IEngineDataBaseService _engineDataBaseService;
-        private readonly EngineRecoveryKeyService _engineRecoveryKeyService;
-        public EngineController(EngineConfig engineConfig, IEngineDataBaseService engineDataBaseService,
-            ILogger<EngineController> logger, EngineRecoveryKeyService engineRecoveryKeyService)
+        private readonly IEngineRecoveryKeyService _engineRecoveryKeyService;
+        public EngineController(
+            IEngineConfigService engineConfig,
+            IEngineDataBaseService engineDataBaseService,
+            ILogger<EngineController> logger,
+            IEngineRecoveryKeyService engineRecoveryKeyService)
         {
             _engineDataBaseService = engineDataBaseService;
             _engineConfig = engineConfig;
