@@ -175,6 +175,7 @@ namespace AIEngineGateway.Repositories
 
         public async Task FinalizeUploadAtomicAsync(Guid sessionId, IUserService userService, CancellationToken cancellationToken)
         {
+            var sw = System.Diagnostics.Stopwatch.StartNew();
 
             var uploadingSession = await (from us in _engineContext.EngineFileUploadingSessions
                                           where us.Id == sessionId
@@ -202,14 +203,17 @@ namespace AIEngineGateway.Repositories
                 _logger.LogError($"All the Chunks are not getting properly with session Id{sessionId}");
                 throw new Exception($"All the Chunks are not uploaded successfully ");
             }
-            var chunks = await (from f in _engineContext.FileChunks
-                                where f.SessionId == sessionId
-                                orderby f.ChunkIndex ascending
-                                select f).ToListAsync(cancellationToken);
-
+            List<FileChunks> chunks = new();
             var fileContentId = Guid.NewGuid();
             if (_engineContext.Database.IsNpgsql())
             {
+                chunks = await _engineContext.FileChunks.AsNoTracking().Where(f => f.SessionId == sessionId)
+                        .OrderBy(f => f.ChunkIndex).Select(f => new FileChunks
+                        {
+                            ChunkIndex = f.ChunkIndex,
+                            ChunkOid = f.ChunkOid
+                        }).ToListAsync(cancellationToken);
+
                 await PostgresFinalizeOidAsync(fileContentId, chunks, cancellationToken);
             }
             else if (_engineContext.Database.IsSqlServer())
@@ -250,6 +254,8 @@ namespace AIEngineGateway.Repositories
             uploadingSession.UploadStatus = UploadStatus.Completed;
             uploadingSession.UpdatedAt = now;
             await _engineContext.SaveChangesAsync(cancellationToken);
+            _logger.LogInformation("Finalize merge took {Ms} ms for {Bytes} bytes", sw.ElapsedMilliseconds, uploadingSession.FileSize);
+            sw.Restart();
         }
 
         private async Task PostgresFinalizeOidAsync(Guid fileContentId, List<FileChunks> chunks, CancellationToken cancellationToken)
@@ -260,24 +266,36 @@ namespace AIEngineGateway.Repositories
                 await connection.OpenAsync(cancellationToken);
             }
 
+            var transaction = _engineContext.Database.CurrentTransaction?.GetDbTransaction() as NpgsqlTransaction
+                ?? throw new InvalidOperationException("No active Postgres transaction was found.");
+
             var manager = new NpgsqlLargeObjectManager(connection);
             uint finalOid = await manager.CreateAsync(0, cancellationToken);
-            await using (var finalStream = await manager.OpenReadWriteAsync(finalOid, cancellationToken))
-            {
-                foreach (var chunk in chunks)
-                {
-                    if (chunk.ChunkOid is null)
-                    {
-                        throw new InvalidOperationException($"Chunk index {chunk.ChunkIndex} is missing OID.");
-                    }
-                    await using (var chunkStream = await manager.OpenReadAsync(chunk.ChunkOid.Value, cancellationToken))
-                    {
-                        await chunkStream.CopyToAsync(finalStream, cancellationToken);
-                    }
 
-                    // CRITICAL: Unlink (delete) temporary chunk OID from pg_largeobject to prevent orphan bloat!
-                    await manager.UnlinkAsync(chunk.ChunkOid.Value, cancellationToken);
+            long offset = 0;
+            foreach (var chunk in chunks)
+            {
+                if (chunk.ChunkOid is null)
+                {
+                    throw new InvalidOperationException($"Chunk index {chunk.ChunkIndex} is missing OID.");
                 }
+
+                // The copy runs inside the database; no file bytes travel to the app.
+                await using (var cmd = new NpgsqlCommand(
+                    @"SELECT length(d.data)FROM (SELECT lo_get(@chunk) AS data) d,
+                   LATERAL (SELECT lo_put(@final, @offset, d.data)) p;",
+                    connection, transaction))
+                {
+                    cmd.Parameters.AddWithValue("chunk", chunk.ChunkOid.Value);
+                    cmd.Parameters.AddWithValue("final", finalOid);
+                    cmd.Parameters.AddWithValue("offset", offset);
+
+                    var written = await cmd.ExecuteScalarAsync(cancellationToken);
+                    offset += Convert.ToInt64(written);
+                }
+
+                // Unlink the temporary chunk OID to prevent orphan bloat.
+                await manager.UnlinkAsync(chunk.ChunkOid.Value, cancellationToken);
             }
 
             var fileContent = new FileContent
@@ -471,7 +489,7 @@ namespace AIEngineGateway.Repositories
                                          c.ContentOid,
                                          c.Id
                                      }).AsNoTracking()
-                                     .FirstOrDefaultAsync(cancellationToken); // don' load Entire File content server will crush if you forget to select only Id or ContentId.
+                                     .FirstOrDefaultAsync(cancellationToken); // don't load Entire File content server will crush if you forget to select only Id or ContentId.
 
             if (fileContent is null)
             {
