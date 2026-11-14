@@ -18,6 +18,7 @@
 		<ProjectReference Include="..\AIEngineCore\AIEngineCore.csproj" />
 		<ProjectReference Include="..\AIEngineSpeechRecognition\AIEngineSpeechRecognition.csproj" />
 		<ProjectReference Include="..\AIEngineGateway\AIEngineGateway.csproj" />
+		<ProjectReference Include="..\AIEngineRedis\AIEngineRedis.csproj" />
 	</ItemGroup>
 
 	<!-- Logging & Documentation Abstractions used during startup -->

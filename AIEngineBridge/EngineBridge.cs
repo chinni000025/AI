@@ -3,6 +3,7 @@ using AIEngineCore.Extensions;
 using AIEngineGateway.Extensions;
 using AIEngineGateway.Hub;
 using AIEngineGateway.Services;
+using AIEngineRedis.Extensions;
 using AIEngineSpeechRecognition.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -28,7 +29,7 @@ namespace AIEngineBridge
             service.AddEndpointsApiExplorer();
             service.AddSwaggerGen();
             service.AddOpenApi();
-
+            service.AddAIEngineRedis(config);
             return service;
         }
 

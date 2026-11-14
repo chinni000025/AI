@@ -13,6 +13,7 @@ set GATEWAY_PROJ=AIEngineGateway\AIEngineGateway.csproj
 set SPEECH_SLN=AIEngineSpeechRecognition\AIEngineSpeechRecognition.slnx
 set INSTALLER_SLN=AIEngineInstaller\AIEngineInstaller.slnx
 set INSTALLER_PROJ=AIEngineInstaller\AIEngineInstaller.csproj
+set REDIS_SLN=AIEngineRedis\AIEngineRedis.slnx
 
 if /I "%TARGET%"=="all" goto build_all
 if /I "%TARGET%"=="connectivity" goto build_connectivity
@@ -23,13 +24,16 @@ if /I "%TARGET%"=="speech" goto build_speech
 if /I "%TARGET%"=="client" goto build_client
 if /I "%TARGET%"=="gateway" goto build_gateway
 if /I "%TARGET%"=="installer" goto build_installer
+if /I "%TARGET%"=="redis" goto build_redis
 
 echo Unknown target: %TARGET%
-echo Usage: build.cmd [all^|connectivity^|core^|gateway_core^|speech^|client^|gateway^|installer] [Release^|Debug]
+echo Usage: build.cmd [all^|connectivity^|core^|redis^|gateway_core^|speech^|client^|gateway^|installer] [Release^|Debug]
 exit /b 1
 
 :build_all
 call :build_connectivity
+if !errorlevel! neq 0 exit /b !errorlevel!
+call :build_redis
 if !errorlevel! neq 0 exit /b !errorlevel!
 call :build_core
 if !errorlevel! neq 0 exit /b !errorlevel!
@@ -118,6 +122,13 @@ goto :eof
 echo.
 echo Building AIEngineInstaller (%CONFIG%)...
 dotnet build "%INSTALLER_SLN%" -c "%CONFIG%"
+if !errorlevel! neq 0 exit /b !errorlevel!
+goto :eof
+
+:build_redis
+echo.
+echo Building AIEngineRedis (%CONFIG%)...
+dotnet build "%REDIS_SLN%" -c "%CONFIG%"
 if !errorlevel! neq 0 exit /b !errorlevel!
 goto :eof
 
