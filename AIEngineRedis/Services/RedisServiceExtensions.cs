@@ -11,21 +11,16 @@ namespace AIEngineRedis.Extensions;
 
 public static class RedisServiceExtensions
 {
-    public static IServiceCollection AddAIEngineRedis(
-        this IServiceCollection services,
-        IConfiguration configuration)
+    public static IServiceCollection AddAIEngineRedis(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddOptions<RedisOptions>()
             .Bind(configuration.GetSection(RedisOptions.SectionName))
-            .Validate(options => !string.IsNullOrWhiteSpace(options.ConnectionString),
-                "Redis connection string is required.")
+            .Validate(options => !string.IsNullOrWhiteSpace(options.ConnectionString), "Redis connection string is required.")
             .ValidateOnStart();
 
         services.AddSingleton<IConnectionMultiplexer>(serviceProvider =>
         {
-            var options = serviceProvider
-                .GetRequiredService<IOptions<RedisOptions>>()
-                .Value;
+            var options = serviceProvider.GetRequiredService<IOptions<RedisOptions>>().Value;
 
             var configurationOptions = ConfigurationOptions.Parse(options.ConnectionString);
             configurationOptions.ConnectTimeout = options.Timeout;
@@ -38,23 +33,19 @@ public static class RedisServiceExtensions
         });
 
         services.AddSingleton<RedisConnectionManager>();
-
         services.AddStackExchangeRedisCache(options =>
         {
-            var redisOptions = configuration
-                .GetSection(RedisOptions.SectionName)
-                .Get<RedisOptions>() ?? new RedisOptions();
+            var redisOptions = configuration.GetSection(RedisOptions.SectionName).Get<RedisOptions>() ?? new RedisOptions();
 
             options.Configuration = redisOptions.ConnectionString;
             options.InstanceName = string.IsNullOrWhiteSpace(redisOptions.InstanceName)
-                ? "AIEngine:"
-                : redisOptions.InstanceName.TrimEnd(':') + ":";
+                                    ? "AIEngine:" : redisOptions.InstanceName.TrimEnd(':') + ":";
         });
 
         services.AddHybridCache();
-
         services.AddSingleton<ICacheService, RedisCacheService>();
 
+        services.AddHealthChecks().AddCheck<RedisHealthCheck>("redis", tags: new[] { "redis" });
         return services;
     }
 }

@@ -5,9 +5,15 @@ namespace AIEngineRedis.Services
 {
     public class RedisCacheService(HybridCache hybridCache) : ICacheService
     {
-        public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default)
+        public async Task<T> GetOrCreateAsync<T>(string key, Func<CancellationToken, ValueTask<T>> factory,
+                TimeSpan? expiration = null, CancellationToken cancellationToken = default)
         {
-            return await hybridCache.GetOrCreateAsync<T?>(key, _ => ValueTask.FromResult<T?>(default), cancellationToken: cancellationToken);
+            var options = new HybridCacheEntryOptions
+            {
+                Expiration = expiration ?? TimeSpan.FromMinutes(10),
+                LocalCacheExpiration = expiration ?? TimeSpan.FromMinutes(2)
+            };
+            return await hybridCache.GetOrCreateAsync(key, factory, options, cancellationToken: cancellationToken);
         }
 
         public async Task RemoveAsync(string key, CancellationToken cancellation = default)

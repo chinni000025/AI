@@ -94,6 +94,7 @@ namespace AIEngineBridge
 
             app.MapHub<NotificationHub>("/api/notificationHub");
             app.MapHub<EngineStatusHub>("/api/engineStatusHub");
+            app.MapHealthChecks("/health");
             app.MapControllers();
 
             app.MapFallback(async context =>
