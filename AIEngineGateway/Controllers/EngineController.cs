@@ -1,6 +1,7 @@
 ﻿using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.Helpers;
 using AIEngineConnectivity.Services;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace AIEngineGateway.Controllers
 {
@@ -12,19 +13,23 @@ namespace AIEngineGateway.Controllers
         private readonly ILogger<EngineController> _logger;
         private readonly IEngineDataBaseService _engineDataBaseService;
         private readonly IEngineRecoveryKeyService _engineRecoveryKeyService;
+        private readonly IOutputCacheStore _outputCacheStore;
         public EngineController(
             IEngineConfigService engineConfig,
             IEngineDataBaseService engineDataBaseService,
             ILogger<EngineController> logger,
-            IEngineRecoveryKeyService engineRecoveryKeyService)
+            IEngineRecoveryKeyService engineRecoveryKeyService,
+            IOutputCacheStore outputCacheStore)
         {
             _engineDataBaseService = engineDataBaseService;
             _engineConfig = engineConfig;
             _logger = logger;
             _engineRecoveryKeyService = engineRecoveryKeyService;
+            _outputCacheStore = outputCacheStore;
         }
 
         [HttpGet("engine-status")]
+        [OutputCache(PolicyName = CachePolicies.ShortLivedCachePolicy)]
         public async Task<ActionResult<SystemStatusResponse>> GetStatusOfEngine()
         {
 
@@ -47,6 +52,7 @@ namespace AIEngineGateway.Controllers
             try
             {
                 await _engineDataBaseService.ConfigureDataBase(dataBaseConfiguration);
+                await _outputCacheStore.EvictByTagAsync(PoliciesTags.StatusDataTag, default);
                 return Ok(new { Message = "Database Configuration Successfully" });
             }
             catch (Exception ex)

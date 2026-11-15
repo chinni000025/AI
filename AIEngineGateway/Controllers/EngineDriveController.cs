@@ -3,7 +3,7 @@ using AIEngineConnectivity.DTOs;
 using AIEngineConnectivity.Helpers;
 using AIEngineConnectivity.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.AspNetCore.RateLimiting;
 
 namespace AIEngineGateway.Controllers
@@ -15,9 +15,11 @@ namespace AIEngineGateway.Controllers
     {
 
         private readonly IEngineDriveService _engineDriveService;
-        public EngineDriveController(IEngineDriveService engineDriveService)
+        private readonly IOutputCacheStore _outputCacheStore;
+        public EngineDriveController(IEngineDriveService engineDriveService, IOutputCacheStore outputCacheStore)
         {
             _engineDriveService = engineDriveService;
+            _outputCacheStore = outputCacheStore;
         }
 
         [HttpPost("initiate-upload")]
@@ -44,6 +46,7 @@ namespace AIEngineGateway.Controllers
             try
             {
                 await _engineDriveService.FinalizeUploadAsync(sessionId, cancellationToken);
+                await _outputCacheStore.EvictByTagAsync(PoliciesTags.UserDataTag, cancellationToken);
                 return Ok();
             }
             catch
@@ -53,6 +56,7 @@ namespace AIEngineGateway.Controllers
         }
 
         [HttpGet("getEngineFiles")]
+        [OutputCache(PolicyName = CachePolicies.UserCachePolicy)]
         public async Task<ActionResult<List<EngineFileResponse>>> GetEngineFiles(CancellationToken cancellationToken)
         {
             try
@@ -67,6 +71,7 @@ namespace AIEngineGateway.Controllers
         }
 
         [HttpGet("getEngineStorageInfo")]
+        [OutputCache(PolicyName = CachePolicies.UserCachePolicy)]
         public async Task<ActionResult<EngineFileStorageInfo>> GetStorageInfor(CancellationToken cancellationToken)
         {
             try
@@ -86,6 +91,7 @@ namespace AIEngineGateway.Controllers
             try
             {
                 await _engineDriveService.TrashFileByIds(FileIds, cancellationToken);
+                await _outputCacheStore.EvictByTagAsync(PoliciesTags.UserDataTag, cancellationToken);
                 return Ok();
             }
             catch
@@ -95,6 +101,7 @@ namespace AIEngineGateway.Controllers
         }
 
         [HttpGet("getTrashFiles")]
+        [OutputCache(PolicyName = CachePolicies.UserCachePolicy)]
         public async Task<ActionResult<List<EngineFileResponse>>> GetTrashFiles(CancellationToken cancellationToken)
         {
             var files = await _engineDriveService.GetTrashFilesAsync(cancellationToken);
@@ -107,6 +114,7 @@ namespace AIEngineGateway.Controllers
             try
             {
                 await _engineDriveService.DeleteFileAsync(fileIds, cancellationToken);
+                await _outputCacheStore.EvictByTagAsync(PoliciesTags.UserDataTag, cancellationToken);
                 return Ok("File Deleted Successfull");
             }
             catch

@@ -1,6 +1,7 @@
-﻿using AIEngineConnectivity.Services;
+﻿using AIEngineConnectivity.Helpers;
+using AIEngineConnectivity.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace AIEngineGateway.Controllers
 {
@@ -19,6 +20,7 @@ namespace AIEngineGateway.Controllers
 
         [HttpGet("public-key")]
         [AllowAnonymous]
+        [OutputCache(PolicyName = CachePolicies.GlobalCachePolicy)]
         public async Task<ActionResult<string>> GetPublicKey(CancellationToken cancellation)
         {
             return Ok(await _encryptionService.GetPublicKey(cancellation));

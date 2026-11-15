@@ -87,7 +87,6 @@ namespace AIEngineGateway.Extensions
             services.AddSingleton<EngineState>();
             services.AddHttpContextAccessor();
             services.AddEndpointsApiExplorer();
-            services.AddSignalR();
             services.AddSingleton<UserBucketStore>();
             services.AddSingleton<UserRateLimiter>();
             services.AddSingleton<IUserRateLimiter>(sp => sp.GetRequiredService<UserRateLimiter>());

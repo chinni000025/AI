@@ -1,0 +1,98 @@
+# Rebuild the Docker Compose Stack from Scratch
+
+Use the following steps to completely tear down the existing Docker Compose
+stack, remove its locally built image and cached layers, and start everything
+fresh.
+
+Run all commands from the project root:
+
+```text
+E:\Ai-workspace\ai-engine
+```
+
+> [!WARNING]
+> These commands remove containers, named volumes, the local application
+> image, and unused Docker build cache. Any data stored in the removed named
+> volumes will be deleted.
+
+## 1. Stop and remove the existing stack
+
+This removes the containers, networks, named volumes, and orphaned containers
+associated with the Compose project.
+
+```bash
+docker compose down -v --remove-orphans
+```
+
+### Verify the cleanup
+
+Confirm that no `ai_engine` or `wozniak` containers remain:
+
+```bash
+docker ps -a
+```
+
+## 2. Remove the built image and prune the build cache
+
+Remove the locally tagged application image and purge unused Docker build
+cache:
+
+```bash
+docker rmi ai-engine-host:local
+docker builder prune -f
+```
+
+### Verify the cleanup
+
+Confirm that `ai-engine-host` no longer appears in the local image list:
+
+```bash
+docker images
+```
+
+## 3. Rebuild the stack without cache
+
+Build every image layer from scratch:
+
+```bash
+docker compose build --no-cache
+```
+
+Wait for the build to complete successfully. The output should include:
+
+```text
+✔ Image ai-engine-host:local Built
+```
+
+## 4. Start the containers
+
+Start the host and Redis containers in detached mode:
+
+```bash
+docker compose up -d
+```
+
+### Verify the running containers
+
+Check that both containers are running and that the expected ports are bound:
+
+```bash
+docker ps
+```
+
+You should see:
+
+- `ai_engine_host` with `0.0.0.0:5000->8080/tcp`
+- `ai_engine_redis` with `0.0.0.0:6379->6379/tcp`
+- Both containers with a status of `Up`
+
+## Quick command summary
+
+```bash
+docker compose down -v --remove-orphans
+docker rmi ai-engine-host:local
+docker builder prune -f
+docker compose build --no-cache
+docker compose up -d
+docker ps
+```

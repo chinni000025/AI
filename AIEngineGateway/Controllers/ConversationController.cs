@@ -1,9 +1,11 @@
 ﻿using AIEngineConnectivity.Constants;
 using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.Helpers;
 using AIEngineConnectivity.Models;
 using AIEngineConnectivity.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.OutputCaching;
 using static AIEngineConnectivity.Models.EngineProjectDtos;
 
 namespace AIEngineGateway.Controllers
@@ -16,16 +18,19 @@ namespace AIEngineGateway.Controllers
         private readonly IConversationService _conversationService;
         private readonly IWhisperService _whisperService;
         private readonly ILogger<ConversationController> _logger;
+        private readonly IOutputCacheStore _outputCacheStore;
         public ConversationController(IConversationService conversationService, IWhisperService whisperService,
-            ILogger<ConversationController> logger)
+            ILogger<ConversationController> logger, IOutputCacheStore outputCacheStore)
         {
             _conversationService = conversationService;
             _whisperService = whisperService;
             _logger = logger;
+            _outputCacheStore = outputCacheStore;
         }
 
         [HttpGet]
         [Route("GetConversations")]
+        [OutputCache(PolicyName = CachePolicies.UserCachePolicy)]
         public async Task<IActionResult> GetConversations(CancellationToken cancellationToken) //used for get all the conversations to display side nav bar in prompt space.
         {
             try
@@ -42,6 +47,7 @@ namespace AIEngineGateway.Controllers
 
         [HttpGet]
         [Route("GetFavouriteConversations")]
+        [OutputCache(PolicyName = CachePolicies.UserCachePolicy)]
         public async Task<IActionResult> GetFavouriteConversations(CancellationToken cancellationToken) //used for get all the favourite conversations to display side nav bar in prompt space.
         {
             try
@@ -58,6 +64,7 @@ namespace AIEngineGateway.Controllers
 
         [HttpGet]
         [Route("GetConversation/{conversationId}")]
+        [OutputCache(PolicyName = CachePolicies.UserCachePolicy)]
         public async Task<IActionResult> GetConversationById(Guid conversationId, CancellationToken cancellationToken) // used to get the single conversations.
         {
             try
@@ -87,6 +94,7 @@ namespace AIEngineGateway.Controllers
                 };
 
                 var response = await _conversationService.SendMessage(conversationId, aiRequest.ProjectId, messagePayload, cancellationToken);
+                await _outputCacheStore.EvictByTagAsync(PoliciesTags.UserDataTag, cancellationToken);
                 return Ok(new { response });
             }
             catch (Exception ex)
@@ -110,6 +118,7 @@ namespace AIEngineGateway.Controllers
                 };
 
                 var response = await _conversationService.SendMessage(null, aiRequest.ProjectId, messagePayload, cancellationToken);
+                await _outputCacheStore.EvictByTagAsync(PoliciesTags.UserDataTag, cancellationToken);
                 return Ok(new { response });
             }
             catch (Exception ex)
@@ -124,6 +133,7 @@ namespace AIEngineGateway.Controllers
         public async Task<IActionResult> DeleteConversation(Guid conversationId, CancellationToken cancellationToken)
         {
             var response = await _conversationService.DeleteConversation(conversationId, cancellationToken);
+            await _outputCacheStore.EvictByTagAsync(PoliciesTags.UserDataTag, cancellationToken);
             return Ok(response);
         }
 
@@ -162,6 +172,7 @@ namespace AIEngineGateway.Controllers
 
                 var response = await _conversationService.UpdateConversation(conversationId, jsonPatchDocument,
                                         cancellationToken);
+                await _outputCacheStore.EvictByTagAsync(PoliciesTags.UserDataTag, cancellationToken);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -194,6 +205,7 @@ namespace AIEngineGateway.Controllers
         }
 
         [HttpGet("GetArchiveChats")]
+        [OutputCache(PolicyName = CachePolicies.UserCachePolicy)]
         public async Task<IActionResult> GetArchiveChats([FromQuery] ArchiveChatRequest archieveChatRequest, CancellationToken cancellationToken)
         {
             try
@@ -229,7 +241,9 @@ namespace AIEngineGateway.Controllers
         {
             try
             {
-                return Ok(await _conversationService.CreateProjectAsync(createEmptyProject, cancellationToken));
+                var result = await _conversationService.CreateProjectAsync(createEmptyProject, cancellationToken);
+                await _outputCacheStore.EvictByTagAsync(PoliciesTags.UserDataTag, cancellationToken);
+                return Ok(result);
             }
             catch
             {
@@ -238,6 +252,7 @@ namespace AIEngineGateway.Controllers
         }
 
         [HttpGet("getUserProjects")]
+        [OutputCache(PolicyName = CachePolicies.UserCachePolicy)]
         public async Task<IActionResult> GetUserCurrentUserProject(CancellationToken cancellationToken)
         {
             try
@@ -252,6 +267,7 @@ namespace AIEngineGateway.Controllers
         }
 
         [HttpGet("getConversationProject/{ProjectId:guid}")]
+        [OutputCache(PolicyName = CachePolicies.UserCachePolicy)]
         public async Task<IActionResult> GetProjectConversationsAsync(Guid ProjectId, CancellationToken cancellationToken)
         {
             try

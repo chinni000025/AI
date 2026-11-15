@@ -1,6 +1,7 @@
-﻿using AIEngineConnectivity.Models;
+﻿using AIEngineConnectivity.Helpers;
+using AIEngineConnectivity.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace AIEngineGateway.Controllers
 {
@@ -17,6 +18,7 @@ namespace AIEngineGateway.Controllers
 
         [HttpGet]
         [Route("GetModels")]
+        [OutputCache(PolicyName = CachePolicies.GlobalCachePolicy)]
         public async Task<IActionResult> GetModels(CancellationToken cancellationToken) //used for get all the conversations to display side nav bar in prompt space.
         {
             try

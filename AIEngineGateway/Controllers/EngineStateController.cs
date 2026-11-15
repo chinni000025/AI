@@ -1,6 +1,7 @@
 ﻿using AIEngineConnectivity.DTOs;
+using AIEngineConnectivity.Helpers;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace AIEngineGateway.Controllers
 {
@@ -18,6 +19,7 @@ namespace AIEngineGateway.Controllers
 
         [HttpGet("engine-status")]
         [AllowAnonymous]
+        [OutputCache(PolicyName = CachePolicies.ShortLivedCachePolicy)]
         public IActionResult GetEngineState()
         {
             return Ok(new

@@ -11,9 +11,10 @@ services:
       - "5000:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - Redis__ConnectionString=ai_engine_redis:6379
+      - Redis__ConnectionString=ai_engine_redis:6379,abortConnect=false,connectRetry=5
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
     volumes:
       - ai_engine_data:/var/lib/AIEngine
       - ai_engine_logs:/var/log/AIEngine
@@ -22,10 +23,20 @@ services:
   redis:
     image: redis:7-alpine
     container_name: ai_engine_redis
+    command: >
+      redis-server
+      --appendonly yes
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
     ports:
       - "6379:6379"
     volumes:
       - ai_engine_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     restart: unless-stopped
 
 volumes:
