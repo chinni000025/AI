@@ -127,7 +127,7 @@ export class PromptSpace implements AfterViewChecked {
     activeProject: AIProjectInfo | null = null;
     projectInfo: AIProjectInfo[] = [];
     projectConversation: ProjectConversationInfo[] = [];
-    projectConversationMap: Record<string, ProjectConversationInfo[]> = {};
+    projectConversationMap: Record<string, ProjectConversationInfo[] | undefined> = {};
     expandedSidebarProjectId: string | null = null;
     manuallyCollapsedProjectIds = new Set<string>();
     isThinkMode = false;

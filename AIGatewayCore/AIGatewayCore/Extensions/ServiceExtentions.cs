@@ -9,8 +9,6 @@ using AIEngineGateway.BackgroundServices;
 using AIEngineGateway.BackgroundServices.Jobs;
 using AIEngineGateway.Contracts;
 using AIEngineGateway.EngineInfrastructure;
-using AIEngineGateway.EngineInfrastructure.RateLimiter;
-using AIEngineGateway.EngineInfrastructure.UserRateLimiter;
 using AIEngineGateway.Helpers;
 using AIEngineGateway.Repositories;
 using AIEngineGateway.Services;
@@ -82,16 +80,19 @@ namespace AIEngineGateway.Extensions
             services.AddSingleton<DataBaseIntialiationServices>();
             services.AddSingleton<EngineRecoveryKeyService>();
             services.AddSingleton<IEngineRecoveryKeyService>(sp => sp.GetRequiredService<EngineRecoveryKeyService>());
-            services.AddSingleton<UserBucketCleanUpHostedService>();
             services.AddSingleton<StartUpMigrations>();
             services.AddSingleton<EngineState>();
             services.AddHttpContextAccessor();
             services.AddEndpointsApiExplorer();
-            services.AddSingleton<UserBucketStore>();
-            services.AddSingleton<UserRateLimiter>();
-            services.AddSingleton<IUserRateLimiter>(sp => sp.GetRequiredService<UserRateLimiter>());
-            services.AddSingleton<ServerRateLimiter>();
-            services.AddSingleton<IServerRateLimiter>(sp => sp.GetRequiredService<ServerRateLimiter>());
+
+            #region Migrated to Redis for Multi-Node Support
+            // services.AddSingleton<UserBucketCleanUpHostedService>();
+            // services.AddSingleton<UserBucketStore>();
+            // services.AddSingleton<UserRateLimiter>();
+            // services.AddSingleton<IUserRateLimiter>(sp => sp.GetRequiredService<UserRateLimiter>());
+            // services.AddSingleton<ServerRateLimiter>();
+            // services.AddSingleton<IServerRateLimiter>(sp => sp.GetRequiredService<ServerRateLimiter>());
+            #endregion
             services.AddControllers().AddNewtonsoftJson();
             services.AddScoped<IDataBaseProviderFactory, DataBaseProviderFactory>();
             services.AddScoped<PostgreServerProvider>();
@@ -119,7 +120,9 @@ namespace AIEngineGateway.Extensions
             services.AddScoped<IEngineConnectionService, EngineConnectionService>();
             services.AddScoped<IIdentityHelper, IdentityHelpers>();
             services.AddScoped<IIdentityService, IdentityService>();
-            services.AddSingleton<IUserSessionManager, UserSessionManager>();
+            #region Migrated to Redis for Multi - Node Support
+            //services.AddSingleton<IUserSessionManager, UserSessionManager>(); //Moved to Redis.
+            #endregion
             services.AddSingleton<IUserService, UserService>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IConversationService, ConversationService>();
@@ -156,7 +159,7 @@ namespace AIEngineGateway.Extensions
         public static void CleanUpJobs(IServiceCollection services)
         {
             services.AddHostedService<DataBaseCleanUpServices>();
-            services.AddHostedService<UserBucketCleanUpHostedService>();
+            // services.AddHostedService<UserBucketCleanUpHostedService>(); // Migrated to Redis: rate limiter keys expire automatically via TTL
             services.AddHostedService<RestoreEngineNotifications>();
             services.AddHostedService<CleanSessionsAndChunks>();
             services.AddScoped<ICleanUpJob, RefreshTokenCleanUpJob>();
@@ -208,6 +211,14 @@ namespace AIEngineGateway.Extensions
                         store.UseProperties = true;
                         store.UseSystemTextJsonSerializer();
                         store.PerformSchemaValidation = false;
+
+                        //  Coordinates scheduled jobs across all nodes via database row locks
+                        store.UseClustering(cluster =>
+                        {
+                            cluster.CheckinInterval = TimeSpan.FromSeconds(15);
+                            cluster.CheckinMisfireThreshold = TimeSpan.FromSeconds(20);
+                        });
+
                         if (dbProvider == DataBaseProvider.SqlServer)
                         {
                             store.UseSqlServer(sql =>

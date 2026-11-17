@@ -12,6 +12,12 @@ public static class RedisServiceExtensions
 {
     public static IServiceCollection AddAIEngineRedis(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddSingleton<IUserSessionManager, RedisUserSessionManager>();
+        services.AddSingleton<IDistributedLockService, RedisDistributedLockService>();
+        services.AddSingleton<RedisRateLimiter>();
+        services.AddSingleton<IUserRateLimiter>(sp => sp.GetRequiredService<RedisRateLimiter>());
+        services.AddSingleton<IServerRateLimiter>(sp => sp.GetRequiredService<RedisRateLimiter>());
+
         services.AddOptions<RedisOptions>()
             .Bind(configuration.GetSection(RedisOptions.SectionName))
             .Validate(options => !string.IsNullOrWhiteSpace(options.ConnectionString), "Redis connection string is required.")

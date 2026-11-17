@@ -18,13 +18,15 @@ namespace AIEngineGateway.Services
         private readonly IRepositoryWrapper _Repository;
         private readonly IAIOrchestrator _aIOrchestrator;
         private readonly IEngineScheduler _engineScheduler;
+        private readonly ICacheService _cacheService;
         public ConversationService(IUserService userService, IRepositoryWrapper repository,
-            IAIOrchestrator aIOrchestrator, IEngineScheduler engineScheduler)
+            IAIOrchestrator aIOrchestrator, IEngineScheduler engineScheduler, ICacheService cacheService)
         {
             _UserService = userService;
             _Repository = repository;
             _aIOrchestrator = aIOrchestrator;
             _engineScheduler = engineScheduler;
+            _cacheService = cacheService;
         }
 
         public async Task<object> DeleteConversation(Guid conversationId, CancellationToken cancellationToken)
@@ -55,6 +57,10 @@ namespace AIEngineGateway.Services
                 await _engineScheduler.DeleteEngineRecycleItems(entity, cancellationToken);
             }, cancellationToken);
 
+            var currentUser = _UserService.GetCurrentUser;
+            await _cacheService.RemoveAsync(CacheKeys.Conversation(conversationId), cancellationToken);
+            await _cacheService.RemoveAsync(CacheKeys.UserConversations(currentUser.UserId), cancellationToken);
+
             return new
             {
                 response = "Ok"
@@ -64,17 +70,23 @@ namespace AIEngineGateway.Services
         public async Task<object> GetConversationById(Guid conversationId, CancellationToken cancellationToken)
         {
             var currentUser = _UserService.GetCurrentUser;
-            var conversation = await _Repository.ConversationRepository
+            var cacheKey = CacheKeys.Conversation(conversationId);
+            return await _cacheService.GetOrCreateAsync(cacheKey, async ct =>
+            {
+                return await _Repository.ConversationRepository
                 .GetConversationWithMessages(conversationId, currentUser.UserId, cancellationToken);
-            return conversation;
+            }, TimeSpan.FromMinutes(10), TimeSpan.FromMinutes(2), new[] { CacheKeys.TagUser(currentUser.UserId) }, cancellationToken);
         }
 
         public async Task<object> GetConversations(CancellationToken cancellationToken)
         {
             var currentUser = _UserService.GetCurrentUser;
-            var conversation = await _Repository.ConversationRepository
+            var cacheKey = CacheKeys.UserConversations(currentUser.UserId);
+            return await _cacheService.GetOrCreateAsync(cacheKey, async ct =>
+            {
+                return await _Repository.ConversationRepository
                                     .GetUserConversations(currentUser.UserId, cancellationToken);
-            return conversation;
+            }, TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(1), new[] { CacheKeys.TagUser(currentUser.UserId) }, cancellationToken);
         }
 
         public async Task<object> GetFavouriteConversations(CancellationToken cancellationToken)
@@ -159,7 +171,8 @@ namespace AIEngineGateway.Services
                     conversation.UpdatedAt = DateTime.UtcNow;
                     conversation.LastMessageAt = DateTime.UtcNow;
                 });
-
+                await _cacheService.RemoveAsync(CacheKeys.Conversation(conversation.ConversationId), cancellationToken);
+                await _cacheService.RemoveAsync(CacheKeys.UserConversations(currentUser.UserId), cancellationToken);
                 return new
                 {
                     conversationId = conversation.ConversationId,
@@ -222,7 +235,8 @@ namespace AIEngineGateway.Services
                     break;
             }
             await _Repository.SaveChangesAsync(cancellation);
-
+            await _cacheService.RemoveAsync(CacheKeys.Conversation(conversationId), cancellation);
+            await _cacheService.RemoveAsync(CacheKeys.UserConversations(currentUser.UserId), cancellation);
             return new
             {
                 response = "Update Conversation Successfully"
