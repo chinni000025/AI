@@ -1,6 +1,7 @@
 using AIEngineConnectivity.Constants;
 using AIEngineConnectivity.Services;
 using System;
+using System.Runtime.InteropServices;
 using System.Text;
 using Whisper.net;
 using Whisper.net.Ggml;
@@ -33,35 +34,50 @@ namespace AIEngineSpeechRecognition.Services
         {
             if (_isInitialize)
                 return;
-            if (!Directory.Exists(_ffmpegPath) || !File.Exists(Path.Combine(_ffmpegPath, WhisperConstants.AudioExecutionFile)))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                Directory.CreateDirectory(_ffmpegPath);
-                FFmpeg.SetExecutablesPath(_ffmpegPath);
-                await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official, _ffmpegPath);
+                // 1. On Linux / Docker, use system FFmpeg pre-installed in /usr/bin
+                if (File.Exists("/usr/bin/ffmpeg"))
+                {
+                    FFmpeg.SetExecutablesPath("/usr/bin");
+                }
+                else if (Directory.Exists(_ffmpegPath) && File.Exists(Path.Combine(_ffmpegPath, "ffmpeg")))
+                {
+                    FFmpeg.SetExecutablesPath(_ffmpegPath);
+                }
+                else
+                {
+                    Directory.CreateDirectory(_ffmpegPath);
+                    FFmpeg.SetExecutablesPath(_ffmpegPath);
+                    await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official, _ffmpegPath);
+                }
             }
             else
             {
-                FFmpeg.SetExecutablesPath(_ffmpegPath);
+                if (!Directory.Exists(_ffmpegPath) || !File.Exists(Path.Combine(_ffmpegPath, WhisperConstants.AudioExecutionFile)))
+                {
+                    Directory.CreateDirectory(_ffmpegPath);
+                    FFmpeg.SetExecutablesPath(_ffmpegPath);
+                    await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official, _ffmpegPath);
+                }
+                else
+                {
+                    FFmpeg.SetExecutablesPath(_ffmpegPath);
+                }
             }
-
             var modelDirectory = Path.GetDirectoryName(_modelPath)!;
             if (!Directory.Exists(modelDirectory))
                 Directory.CreateDirectory(modelDirectory);
-
             if (!File.Exists(_modelPath))
             {
                 using var httpClient = new HttpClient();
                 var downloader = new WhisperGgmlDownloader(httpClient);
-
                 using var modelStream = await downloader.GetGgmlModelAsync(GgmlType.BaseEn);
                 using var fileWrite = File.Create(_modelPath);
-
                 await modelStream.CopyToAsync(fileWrite);
             }
-
             if (!File.Exists(_modelPath))
                 throw new Exception("Model file not found after download.");
-
             _whisperFactory = WhisperFactory.FromPath(_modelPath);
             _isInitialize = true;
         }

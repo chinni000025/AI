@@ -11,13 +11,21 @@ namespace AIEngineRedis.Services
     {
         public static IServiceCollection AddEngineOutputCache(this IServiceCollection services, IConfiguration configuration)
         {
-            // Connect Output Cache store directly to Redis
-            services.AddStackExchangeRedisOutputCache(options =>
+
+            var redisOptions = configuration.GetSection(RedisOptions.SectionName).Get<RedisOptions>() ?? new RedisOptions();
+            bool isEnabled = redisOptions.Enable && !string.IsNullOrWhiteSpace(redisOptions.ConnectionString);
+            if (isEnabled)
             {
-                var redisOptions = configuration.GetSection(RedisOptions.SectionName).Get<RedisOptions>() ?? new RedisOptions();
-                options.Configuration = redisOptions.ConnectionString;
-                options.InstanceName = "AIEngine_OutputCache:";
-            });
+                //Production.
+                services.AddStackExchangeRedisOutputCache(options =>
+                {
+                    options.Configuration = redisOptions.ConnectionString;
+                    options.InstanceName = "AIEngine_OutputCache:";
+                });
+            }
+
+            // Connect Output Cache store directly to Redis
+
 
             services.AddOutputCache(options =>
             {

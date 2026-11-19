@@ -9,15 +9,18 @@ services:
     container_name: ai_engine_host
     ports:
       - "5000:8080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - Redis__Enable=true
       - Redis__ConnectionString=ai_engine_redis:6379,abortConnect=false,connectRetry=5
     depends_on:
       redis:
         condition: service_healthy
     volumes:
       - ai_engine_data:/var/lib/AIEngine
-      - ai_engine_logs:/var/log/AIEngine
+      - ai_engine_logs:/usr/share/AIEngine/AIEngineLogs
     restart: unless-stopped
 
   redis:

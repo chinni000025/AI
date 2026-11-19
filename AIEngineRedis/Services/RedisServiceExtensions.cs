@@ -12,6 +12,19 @@ public static class RedisServiceExtensions
 {
     public static IServiceCollection AddAIEngineRedis(this IServiceCollection services, IConfiguration configuration)
     {
+        var healthChecks = services.AddHealthChecks();
+        var redisOptions = configuration.GetSection(RedisOptions.SectionName).Get<RedisOptions>() ?? new RedisOptions();
+        bool isEnabled = redisOptions.Enable && !string.IsNullOrWhiteSpace(redisOptions.ConnectionString);
+
+        if (!isEnabled)
+        {
+            services.AddSingleton<IDistributedLockService, LocalDistributedLockService>();
+            services.AddHybridCache();
+            services.AddSingleton<ICacheService, RedisCacheService>();
+            return services;
+        }
+
+
         services.AddSingleton<IUserSessionManager, RedisUserSessionManager>();
         services.AddSingleton<IDistributedLockService, RedisDistributedLockService>();
         services.AddSingleton<RedisRateLimiter>();

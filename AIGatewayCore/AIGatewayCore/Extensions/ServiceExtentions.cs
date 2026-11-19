@@ -9,6 +9,8 @@ using AIEngineGateway.BackgroundServices;
 using AIEngineGateway.BackgroundServices.Jobs;
 using AIEngineGateway.Contracts;
 using AIEngineGateway.EngineInfrastructure;
+using AIEngineGateway.EngineInfrastructure.RateLimiter;
+using AIEngineGateway.EngineInfrastructure.UserRateLimiter;
 using AIEngineGateway.Helpers;
 using AIEngineGateway.Repositories;
 using AIEngineGateway.Services;
@@ -84,15 +86,6 @@ namespace AIEngineGateway.Extensions
             services.AddSingleton<EngineState>();
             services.AddHttpContextAccessor();
             services.AddEndpointsApiExplorer();
-
-            #region Migrated to Redis for Multi-Node Support
-            // services.AddSingleton<UserBucketCleanUpHostedService>();
-            // services.AddSingleton<UserBucketStore>();
-            // services.AddSingleton<UserRateLimiter>();
-            // services.AddSingleton<IUserRateLimiter>(sp => sp.GetRequiredService<UserRateLimiter>());
-            // services.AddSingleton<ServerRateLimiter>();
-            // services.AddSingleton<IServerRateLimiter>(sp => sp.GetRequiredService<ServerRateLimiter>());
-            #endregion
             services.AddControllers().AddNewtonsoftJson();
             services.AddScoped<IDataBaseProviderFactory, DataBaseProviderFactory>();
             services.AddScoped<PostgreServerProvider>();
@@ -120,9 +113,6 @@ namespace AIEngineGateway.Extensions
             services.AddScoped<IEngineConnectionService, EngineConnectionService>();
             services.AddScoped<IIdentityHelper, IdentityHelpers>();
             services.AddScoped<IIdentityService, IdentityService>();
-            #region Migrated to Redis for Multi - Node Support
-            //services.AddSingleton<IUserSessionManager, UserSessionManager>(); //Moved to Redis.
-            #endregion
             services.AddSingleton<IUserService, UserService>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IConversationService, ConversationService>();
@@ -148,6 +138,18 @@ namespace AIEngineGateway.Extensions
             services.Configure<UserRateLimiterOptions>(config.GetSection("UserRateLimiter"));
             services.Configure<ServerRateLimiterOptions>(config.GetSection("ServerRateLimiter"));
             services.Configure<EngineUploadFileTTL>(config.GetSection("EngineUploadFileTTL"));
+
+            var redisEnabled = config.GetValue<bool>("Redis:Enable", true);
+            if (!redisEnabled)
+            {
+                // Use in-memory user sessions & rate limiting for local dev
+                services.AddSingleton<UserBucketStore>();
+                services.AddSingleton<UserRateLimiter>();
+                services.AddSingleton<IUserRateLimiter>(sp => sp.GetRequiredService<UserRateLimiter>());
+                services.AddSingleton<ServerRateLimiter>();
+                services.AddSingleton<IServerRateLimiter>(sp => sp.GetRequiredService<ServerRateLimiter>());
+                services.AddSingleton<IUserSessionManager, UserSessionManager>();
+            }
         }
 
         public static void EncryptionExtensions(IServiceCollection services)
@@ -188,6 +190,7 @@ namespace AIEngineGateway.Extensions
                 .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
                 .MinimumLevel.Override("Microsoft.Hosting.Lifetime", Serilog.Events.LogEventLevel.Information)
                 .Enrich.FromLogContext()
+                .WriteTo.Console()
                 .WriteTo.File(
                     path: EngineConstants.EngineLogPath,
                     rollingInterval: RollingInterval.Day,

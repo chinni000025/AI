@@ -3,6 +3,7 @@ using AIEngineCore.Extensions;
 using AIEngineGateway.Extensions;
 using AIEngineGateway.Hub;
 using AIEngineGateway.Services;
+using AIEngineRedis.Configurations;
 using AIEngineRedis.Extensions;
 using AIEngineRedis.Services;
 using AIEngineSpeechRecognition.Extensions;
@@ -38,10 +39,10 @@ namespace AIEngineBridge
 
         private static void AddSignalRForEngine(this IServiceCollection services, IConfiguration configuration)
         {
-            var redisConnectionString = configuration.GetSection("Redis:ConnectionString").Value;
-            if (!string.IsNullOrWhiteSpace(redisConnectionString))
+            var redisOptions = configuration.GetSection(RedisOptions.SectionName).Get<RedisOptions>() ?? new RedisOptions();
+            if (redisOptions.Enable && !string.IsNullOrWhiteSpace(redisOptions.ConnectionString))
             {
-                services.AddSignalR().AddStackExchangeRedis(redisConnectionString, options =>
+                services.AddSignalR().AddStackExchangeRedis(redisOptions.ConnectionString, options =>
                 {
                     options.Configuration.ChannelPrefix = StackExchange.Redis.RedisChannel.Literal("AIEngine_SignalR");
                 });
