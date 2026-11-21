@@ -19,6 +19,6 @@ export interface SttError {
 export interface SttTranscripState {
     sessionId: string | null,
     currentUtteranceId: number | null,
-    interimText: string,
+    interimText: string, // Non Finalized Text.
     finalizedUtterances: string[]
 }
