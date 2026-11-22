@@ -102,7 +102,7 @@ namespace AIEngineConnectivity.Constants
 
     public static class WhisperConstants
     {
-        public const string WhisperModel = "ggml-large-v3-turbo-q5_0.bin";
+        public const string WhisperModel = "ggml-base.en.bin";
         public const string SilerioVADModel = "silero_vad.onnx";
         public const string ModelsFolder = "Models";
         public const string AudioConverter = "FFmpeg";

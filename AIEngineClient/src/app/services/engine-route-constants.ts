@@ -145,7 +145,7 @@ export class HubEndpoints {
 }
 
 export class WebRTC {
-    public static readonly STUNServer = 'stun: stun.l.google.com: 19302';
+    public static readonly STUNServer = 'stun:stun.l.google.com:19302';
 }
 
 export const ExcludeEncryptionEndPoints: string[] = [
