@@ -15,6 +15,7 @@ export class EngineControllers {
     public static readonly ConnectionController = "Connection";
     public static readonly EncryptionController = "Encryption";
     public static readonly EngineDriveController = "EngineDrive";
+    public static readonly SttController = "Stt";
 }
 
 export class EngineRoutes {
@@ -35,16 +36,15 @@ export class EngineConstants {
     public static EngineResponse = "EngineResponse";
     public static EngineStateChanged = "EngineStateChange";
     public static UploadingSessionId = "UploadingSessionId";
+    public static TranscriptReceived = "TranscriptReceived";
 
     //For Snackbar
     public static Success = "Success";
     public static Error = "Error";
     public static Info = "Info";
     public static Warning = "Warning";
-
     public static Top = "Top";
     public static Bottom = "Bottom";
-
     public static User = "User";
     public static Assistant = "Assistant";
     public static ConversationId = "id";
@@ -144,12 +144,19 @@ export class HubEndpoints {
     public static readonly EngineStatusHub = "engineStatusHub";
 }
 
+export class WebRTC {
+    public static readonly STUNServer = 'stun: stun.l.google.com: 19302';
+}
+
 export const ExcludeEncryptionEndPoints: string[] = [
     'Engine/configure-database',
     'Engine/test-engine',
     'Engine/engine-status',
     'Engine/getEngineKey',
-    'Engine/getEngineKey'
+    'Stt/offer',
+    'Stt/candidate',
+    'Stt/stop',
+    'Stt'
 ];
 
 export interface ChunkUpload {
@@ -195,3 +202,4 @@ export interface EngineErrorResponseDto {
     errorMessage: string;
     correlationId?: string;
 }
+

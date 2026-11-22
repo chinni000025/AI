@@ -3,6 +3,7 @@ using AIEngineCore.Extensions;
 using AIEngineGateway.Extensions;
 using AIEngineGateway.Hub;
 using AIEngineGateway.Services;
+using AIEngineGateway.SpeechRecognition;
 using AIEngineRedis.Configurations;
 using AIEngineRedis.Extensions;
 using AIEngineRedis.Services;
@@ -25,6 +26,8 @@ namespace AIEngineBridge
             service.AddingJWtService(config);
             service.AddEngineCoreDependencies();
             service.AddEngineSpeechRecognition();
+            service.AddSingleton<SttSessionRegistry>();
+            service.AddTransient<TranscriptPump>();
             service.AddControllersWithViews()
                 .AddApplicationPart(typeof(AIEngineGateway.Controllers.ConversationController).Assembly)
                 .AddNewtonsoftJson(); // via reflections.

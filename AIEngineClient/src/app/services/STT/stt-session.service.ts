@@ -24,7 +24,6 @@ export class SttSessionService {
     };
 
     private readonly stateSubject = new BehaviorSubject<SttSessionUiState>(this.initialState);
-
     readonly state$ = this.stateSubject.asObservable();
 
     get snapshot(): SttSessionUiState {

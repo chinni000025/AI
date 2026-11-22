@@ -1,30 +1,32 @@
 using AIEngineConnectivity.Constants;
 using AIEngineConnectivity.Services;
-using System;
-using System.Runtime.InteropServices;
+using AIEngineSpeechRecognition.Hosting;
 using System.Text;
 using Whisper.net;
-using Whisper.net.Ggml;
-using Xabe.FFmpeg;
-using Xabe.FFmpeg.Downloader;
 
 namespace AIEngineSpeechRecognition.Services
 {
     public class WhisperService : IDisposable, IWhisperService
     {
-        private readonly string _modelPath;
-        private readonly string _ffmpegPath; // for 16khz frequency conversion.
-        private WhisperFactory _whisperFactory;
+        private string _modelPath;
+        private WhisperFactory? _whisperFactory;
         private bool _isInitialize;
-        private WhisperProcessor _processor;
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(2);
+
         public WhisperService()
         {
-            // Application Running Path.
-            var baseDirectory = AppDomain.CurrentDomain.BaseDirectory; // directory//folder//filename
-            _modelPath = Path.Combine(baseDirectory, WhisperConstants.ModelsFolder, WhisperConstants.WhisperModel);
-            _ffmpegPath = Path.Combine(baseDirectory, WhisperConstants.AudioConverter);
+            var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            var primaryModel = Path.Combine(baseDirectory, WhisperConstants.ModelsFolder, WhisperConstants.WhisperModel);
+            if (File.Exists(primaryModel))
+            {
+                _modelPath = primaryModel;
+            }
+            else
+            {
+                _modelPath = Path.Combine(baseDirectory, WhisperConstants.ModelsFolder, "ggml-base.en.bin");
+            }
         }
+
         public async Task InitializeAsync()
         {
             await EnsureDependenciesReadAsync();
@@ -34,50 +36,23 @@ namespace AIEngineSpeechRecognition.Services
         {
             if (_isInitialize)
                 return;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+
+            var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            await SpeechModelProvisioner.EnsureModelsReadyAsync(baseDirectory);
+
+            if (!File.Exists(_modelPath))
             {
-                // 1. On Linux / Docker, use system FFmpeg pre-installed in /usr/bin
-                if (File.Exists("/usr/bin/ffmpeg"))
+                var fallback = Path.Combine(baseDirectory, "Models", "ggml-base.en.bin");
+                if (File.Exists(fallback))
                 {
-                    FFmpeg.SetExecutablesPath("/usr/bin");
-                }
-                else if (Directory.Exists(_ffmpegPath) && File.Exists(Path.Combine(_ffmpegPath, "ffmpeg")))
-                {
-                    FFmpeg.SetExecutablesPath(_ffmpegPath);
+                    _modelPath = fallback;
                 }
                 else
                 {
-                    Directory.CreateDirectory(_ffmpegPath);
-                    FFmpeg.SetExecutablesPath(_ffmpegPath);
-                    await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official, _ffmpegPath);
+                    throw new FileNotFoundException("Whisper model file not found after provisioning.", _modelPath);
                 }
             }
-            else
-            {
-                if (!Directory.Exists(_ffmpegPath) || !File.Exists(Path.Combine(_ffmpegPath, WhisperConstants.AudioExecutionFile)))
-                {
-                    Directory.CreateDirectory(_ffmpegPath);
-                    FFmpeg.SetExecutablesPath(_ffmpegPath);
-                    await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official, _ffmpegPath);
-                }
-                else
-                {
-                    FFmpeg.SetExecutablesPath(_ffmpegPath);
-                }
-            }
-            var modelDirectory = Path.GetDirectoryName(_modelPath)!;
-            if (!Directory.Exists(modelDirectory))
-                Directory.CreateDirectory(modelDirectory);
-            if (!File.Exists(_modelPath))
-            {
-                using var httpClient = new HttpClient();
-                var downloader = new WhisperGgmlDownloader(httpClient);
-                using var modelStream = await downloader.GetGgmlModelAsync(GgmlType.BaseEn);
-                using var fileWrite = File.Create(_modelPath);
-                await modelStream.CopyToAsync(fileWrite);
-            }
-            if (!File.Exists(_modelPath))
-                throw new Exception("Model file not found after download.");
+
             _whisperFactory = WhisperFactory.FromPath(_modelPath);
             _isInitialize = true;
         }
@@ -85,38 +60,39 @@ namespace AIEngineSpeechRecognition.Services
         public async Task<string> TranscribeAudioAsync(string inputFilePath, CancellationToken cancellationToken)
         {
             await EnsureDependenciesReadAsync();
-            await _semaphore.WaitAsync();
+            await _semaphore.WaitAsync(cancellationToken);
 
-            string tempWavPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.wav");
             try
-            {   //convert to 16khz frequency per sec using pluse code modulation.__--__--__--__-- like this manner __ represents 0 and -- represents 1.
-                await FFmpeg.Conversions.New()
-                    .AddParameter($"-i \"{inputFilePath}\" {WhisperConstants.SamplingRate} {WhisperConstants.Channel} {WhisperConstants.AudioCode} \"{tempWavPath}\"")
-                    .Start();
-                _processor = _whisperFactory.CreateBuilder().WithLanguage(WhisperConstants.Language).Build();
-                StringBuilder stringBuilder = new StringBuilder();
-                using var fileRead = File.OpenRead(tempWavPath);
-                await foreach (var result in _processor.ProcessAsync(fileRead, cancellationToken))
+            {
+                using var processor = _whisperFactory!.CreateBuilder()
+                    .WithLanguage(WhisperConstants.Language)
+                    .WithSingleSegment()
+                    .WithTemperature(0f)
+                    .Build();
+
+                var stringBuilder = new StringBuilder();
+                using var fileRead = File.OpenRead(inputFilePath);
+
+                await foreach (var result in processor.ProcessAsync(fileRead, cancellationToken))
                 {
-                    stringBuilder.Append(result.Text).Append(" ");
+                    if (!string.IsNullOrWhiteSpace(result.Text))
+                    {
+                        stringBuilder.Append(result.Text).Append(' ');
+                    }
                 }
+
                 return stringBuilder.ToString().Trim();
             }
             finally
             {
-                _semaphore.Release(); // prevents dead lock.
-                //removing Temp file
-                if (File.Exists(tempWavPath))
-                    File.Delete(tempWavPath);
+                _semaphore.Release();
             }
-
         }
+
         public void Dispose()
         {
             _whisperFactory?.Dispose();
             _semaphore?.Dispose();
-            _processor?.Dispose();
-
         }
     }
 }

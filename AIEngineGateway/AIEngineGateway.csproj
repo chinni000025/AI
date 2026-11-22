@@ -39,6 +39,7 @@
 		<PackageReference Include="Quartz.Serialization.SystemTextJson" Version="3.18.2" />
 		<PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
 		<PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+		<PackageReference Include="SIPSorcery" Version="10.0.17" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.5" />
 		<PackageReference Include="Google.GenAI" Version="1.0.0-beta.1" />
 	</ItemGroup>

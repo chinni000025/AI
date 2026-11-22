@@ -110,6 +110,11 @@ export class SignalRService {
         return hubEvents.get(eventName)! as Subject<T>;
     }
 
+    getConnectionId(hubName: string): string | null {
+        const connection = this.hubConnection.get(hubName);
+        return connection?.connectionId ?? null;
+    }
+
     unsubscribeHub(hubName: string, eventName: string) {
         const hubEvents = this.eventMap.get(hubName);
         if (!hubEvents) {

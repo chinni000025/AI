@@ -14,6 +14,8 @@ namespace AIEngineConnectivity.Constants
             SqlServer = 1,
             PostgreSql = 2,
         }
+
+        public static readonly string TranscriptReceived = "TranscriptReceived";
     }
 
     public static class AuthConstants
@@ -100,7 +102,8 @@ namespace AIEngineConnectivity.Constants
 
     public static class WhisperConstants
     {
-        public const string WhisperModel = "ggml-base.en.bin";
+        public const string WhisperModel = "ggml-large-v3-turbo-q5_0.bin";
+        public const string SilerioVADModel = "silero_vad.onnx";
         public const string ModelsFolder = "Models";
         public const string AudioConverter = "FFmpeg";
         public const string AudioExecutionFile = "ffmpeg.exe";
@@ -108,6 +111,7 @@ namespace AIEngineConnectivity.Constants
         public const string SamplingRate = "-ar 16000"; // sampling rate 16khz..
         public const string Channel = "-ac 1";
         public const string AudioCode = "-c:a pcm_s16le"; //uses pluse code modulation 16 bit samples with little ending.
+        public const string SileroVadDownloadUrl = "https://github.com/snakers4/silero-vad/raw/master/src/silero_vad/data/silero_vad.onnx";
     }
 
     public static class Connection
@@ -231,5 +235,10 @@ namespace AIEngineConnectivity.Constants
         conversation = 1,
         EngineFile = 2,
         Project = 3
+    }
+
+    public static class WebRTC
+    {
+        public const string STUNServer = "stun:stun.l.google.com:19302";
     }
 }

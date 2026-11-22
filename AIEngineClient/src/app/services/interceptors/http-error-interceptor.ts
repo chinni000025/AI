@@ -15,8 +15,8 @@ export class httpErrorInterceptor implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(req).pipe(
       catchError((error: HttpErrorResponse) => {
-        // Skip 499 (client cancelled/aborted) and 401 (handled by RefreshTokenInterceptor)
-        if (error.status === 499 || error.status === 401) {
+        // Skip 499 (client cancelled/aborted) and 401 (handled by RefreshTokenInterceptor), and STT candidate trickles
+        if (error.status === 499 || error.status === 401 || req.url.includes('Stt/candidate')) {
           return throwError(() => error);
         }
 

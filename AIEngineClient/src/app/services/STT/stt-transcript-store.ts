@@ -46,45 +46,56 @@ export class SttTranscriptStore {
     //Returns false when the event is stale, duplicated,
     // belongs to another session, or arrives after finalization.
 
-    applyTranscript(event: SttTranscriptEvent): boolean {
-        const currentState = this.stateSubject.value;
+    applyTranscript(rawEvent: any): boolean {
+        if (!rawEvent) return false;
 
-        if (!currentState.sessionId ||
-            event.sessionId !== currentState.sessionId) {
+        const rawText = (rawEvent.text ?? rawEvent.Text ?? '').toString();
+        const cleanText = rawText.replace(/\[.*?\]|\(.*?\)/g, '').trim();
+
+        const event: SttTranscriptEvent = {
+            sessionId: (rawEvent.sessionId ?? rawEvent.SessionId ?? '').toString().toLowerCase(),
+            utteranceId: Number(rawEvent.utteranceId ?? rawEvent.UtteranceId ?? 0),
+            revision: Number(rawEvent.revision ?? rawEvent.Revision ?? 0),
+            text: cleanText,
+            isFinal: Boolean(rawEvent.isFinal ?? rawEvent.IsFinal ?? false),
+            createdAt: (rawEvent.createdAt ?? rawEvent.CreatedAt ?? new Date().toISOString()).toString()
+        };
+
+        if (!cleanText && !event.isFinal) {
             return false;
         }
 
-        if (
-            !Number.isInteger(event.utteranceId) ||
-            !Number.isInteger(event.revision) ||
-            event.utteranceId < 0 ||
-            event.revision < 0 ||
-            typeof event.text !== 'string' ||
-            typeof event.isFinal !== 'boolean'
-        ) {
+        const currentState = this.stateSubject.value;
+        const currentSessionId = (currentState.sessionId ?? '').toLowerCase().replace(/[{}]/g, '');
+        const eventSessionId = (event.sessionId ?? '').toLowerCase().replace(/[{}]/g, '');
+
+        if (currentSessionId && eventSessionId && eventSessionId !== currentSessionId) {
+            return false;
+        }
+
+        // If store didn't have sessionId yet, attach it from first event
+        if (!currentState.sessionId && eventSessionId) {
+            currentState.sessionId = eventSessionId;
+        }
+
+        if (!Number.isInteger(event.utteranceId) || !Number.isInteger(event.revision) ||
+            event.utteranceId < 0 || event.revision < 0 ||
+            typeof event.text !== 'string' || typeof event.isFinal !== 'boolean') {
             return false;
         }
 
         if (this.finalizedUtteranceIds.has(event.utteranceId)) {
             return false;
         }
+        const previousRevision = this.latestRevisionByUtterance.get(event.utteranceId);
 
-        const previousRevision =
-            this.latestRevisionByUtterance.get(event.utteranceId);
-
-        if (
-            previousRevision !== undefined &&
-            event.revision <= previousRevision
-        ) {
+        if (previousRevision !== undefined && event.revision <= previousRevision) {
             return false;
         }
 
         // Ignore stale interim events, but allow legitimate
         // delayed final events for older utterances.
-        if (
-            event.utteranceId < this.latestUtteranceId &&
-            !event.isFinal
-        ) {
+        if (event.utteranceId < this.latestUtteranceId && !event.isFinal) {
             return false;
         }
 

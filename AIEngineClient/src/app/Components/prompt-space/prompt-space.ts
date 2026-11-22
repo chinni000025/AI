@@ -1,7 +1,7 @@
 import { Component, ElementRef, HostListener, ViewChild, AfterViewChecked, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ConfirmationDialog } from '../dialogs/confirmation-dialog/confirmation-dialog';
-import { Buttons, CatalogModel, CatalogProvider, EngineConstants, EngineRoutes, HubConfiguration, HubEndpoints } from '../../services/engine-route-constants';
+import { Buttons, CatalogModel, CatalogProvider, EngineConstants, EngineRoutes, HubConfiguration, HubEndpoints, WebRTC } from '../../services/engine-route-constants';
 import { DialogService } from '../../services/dialog.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SignalRService } from '../../services/signalr-service';
@@ -80,9 +80,6 @@ export class PromptSpace implements AfterViewChecked {
     promptText = '';
 
     isVoiceModalOpen = false;
-
-    // ── Text-to-Speech UI state ─────────────────────────────────
-    /** ID of the message currently being "spoken". null = none. */
     speakingMsgId: string | null = null;
     private speakStopTimeout?: any;
     private shouldScrollToBottom = false;
@@ -126,10 +123,13 @@ export class PromptSpace implements AfterViewChecked {
     sttInterimText = '';
     sttFinalText = '';
     sttConnectionState: RTCPeerConnectionState = 'new';
+    activeSttSessionId: string | null = null;
     private sttOperationId = 0;
+    private interimStreamTimer: any = null;
+    private targetInterimWords: string[] = [];
+    private displayedInterimWords: string[] = [];
 
-    constructor(
-        private dialogService: DialogService,
+    constructor(private dialogService: DialogService,
         public themeService: ThemeService,
         private router: Router,
         private signalr: SignalRService,
@@ -161,6 +161,7 @@ export class PromptSpace implements AfterViewChecked {
             }
         };
         this.signalr.startConnection(hugConfiguration);
+
         this.signalr.subscribeHub(HubEndpoints.NotificationHub, EngineConstants.ForceLogout).subscribe(() => {
             this.dialogService.open(ConfirmationDialog, {
                 message: "Session Terminated",
@@ -201,6 +202,7 @@ export class PromptSpace implements AfterViewChecked {
 
     ngOnDestroy() {
         this.sttOperationId++;
+        this.clearInterimStream();
         clearTimeout(this.enableTitleEditTimeout);
         clearTimeout(this.speakStopTimeout);
         clearTimeout(this.copiedMessageResetTimeout);
@@ -211,7 +213,7 @@ export class PromptSpace implements AfterViewChecked {
         }
         this.isEngineDriveDialogOpen = false;
         this.signalr.unsubscribeHub(HubEndpoints.NotificationHub, EngineConstants.ForceLogout);
-        this.signalr.unsubscribeHub(HubEndpoints.NotificationHub, 'TranscriptReceived');
+        this.signalr.unsubscribeHub(HubEndpoints.NotificationHub, EngineConstants.TranscriptReceived);
         this.sttWebRtcService.close();
         this.releaseSttMicrophone();
         this.destroy$.next();
@@ -273,7 +275,6 @@ export class PromptSpace implements AfterViewChecked {
 
     selectModel(provider: string, modelId: string): void {
         this.showModelMenu = false;
-
         if (this.selectedProvider === provider && this.selectedModel === modelId) {
             return;
         }
@@ -467,6 +468,9 @@ export class PromptSpace implements AfterViewChecked {
         this.sttOperationId++;
         this.isVoiceModalOpen = false;
         this.stopSttSession();
+        this.resetSttTranscript();
+        this.sttTranscriptStore.reset();
+        this.sttSessionService.reset();
         this.cdr.markForCheck();
     }
 
@@ -520,49 +524,108 @@ export class PromptSpace implements AfterViewChecked {
             });
     }
 
-    private async acquireSttMicrophone(): Promise<MediaStream> {
-        return await this.sttMicrophoneService.acquire();
-    }
-
     private releaseSttMicrophone(): void {
         this.sttMicrophoneService.release();
-    }
-
-    private async initializeSttWebRtc(configuration: RTCConfiguration): Promise<void> {
-        const stream = await this.acquireSttMicrophone();
-        try {
-            this.sttWebRtcService.initialize(stream, configuration);
-
-            this.sttWebRtcService.connectionState$
-                .pipe(takeUntil(this.destroy$))
-                .subscribe(connectionState => {
-                    console.log('STT WebRTC connection state:', connectionState);
-                    this.cdr.markForCheck();
-                });
-        } catch (error) {
-            this.releaseSttMicrophone();
-            throw error;
-        }
     }
 
     private subscribeToSttTranscript(): void {
         this.sttTranscriptStore.state$
             .pipe(takeUntil(this.destroy$))
             .subscribe(state => {
-                this.sttFinalText = state.finalizedUtterances.join(' ');
-                this.sttInterimText = state.interimText;
+                const newFinal = state.finalizedUtterances.join(' ');
+                if (newFinal !== this.sttFinalText) {
+                    this.sttFinalText = newFinal;
+                }
 
+                this.streamInterimLively(state.interimText);
                 this.cdr.markForCheck();
             });
     }
 
+    private streamInterimLively(targetText: string): void {
+        const clean = (targetText || '').trim();
+        if (!clean) {
+            this.clearInterimStream();
+            this.sttInterimText = '';
+            this.displayedInterimWords = [];
+            this.targetInterimWords = [];
+            this.cdr.markForCheck();
+            return;
+        }
+
+        const words = clean.split(/\s+/).filter(Boolean);
+        this.targetInterimWords = words;
+
+        // If displayed text is already ahead or diverged from target, synchronize base
+        if (this.displayedInterimWords.length > words.length ||
+            (this.displayedInterimWords.length > 0 && this.displayedInterimWords[0].toLowerCase() !== words[0].toLowerCase())) {
+            this.displayedInterimWords = words.slice(0, Math.max(0, words.length - 2));
+            this.sttInterimText = this.displayedInterimWords.join(' ');
+        }
+
+        if (!this.interimStreamTimer) {
+            this.tickStreamWord();
+        }
+    }
+
+    private tickStreamWord(): void {
+        this.clearInterimStream();
+
+        const step = () => {
+            if (this.displayedInterimWords.length < this.targetInterimWords.length) {
+                const nextIdx = this.displayedInterimWords.length;
+                this.displayedInterimWords.push(this.targetInterimWords[nextIdx]);
+                this.sttInterimText = this.displayedInterimWords.join(' ');
+                this.cdr.markForCheck();
+
+                if (this.displayedInterimWords.length < this.targetInterimWords.length) {
+                    const lag = this.targetInterimWords.length - this.displayedInterimWords.length;
+                    const delay = lag > 4 ? 25 : 55;
+                    this.interimStreamTimer = setTimeout(step, delay);
+                } else {
+                    this.interimStreamTimer = null;
+                }
+            } else {
+                this.interimStreamTimer = null;
+            }
+        };
+
+        step();
+    }
+
+    private clearInterimStream(): void {
+        if (this.interimStreamTimer) {
+            clearTimeout(this.interimStreamTimer);
+            this.interimStreamTimer = null;
+        }
+    }
+
     private resetSttTranscript(): void {
+        this.clearInterimStream();
+        this.displayedInterimWords = [];
+        this.targetInterimWords = [];
         this.sttInterimText = '';
         this.sttFinalText = '';
     }
 
     get hasSttTranscript(): boolean {
         return !!(this.sttInterimText.trim() || this.sttFinalText.trim());
+    }
+
+    private generateGuid(): string {
+        if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+            return crypto.randomUUID();
+        }
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+            const r = Math.random() * 16 | 0;
+            const v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+
+    private cleanupSttAudio(): void {
+        this.sttWebRtcService.close();
+        this.sttMicrophoneService.release();
     }
 
     async startSttSession(): Promise<void> {
@@ -576,27 +639,75 @@ export class PromptSpace implements AfterViewChecked {
 
         const operationId = ++this.sttOperationId;
         this.isSttStarting = true;
-
         try {
-            await this.sttMicrophoneService.acquire();
+            const stream = await this.sttMicrophoneService.acquire();
 
-            // The user may have cancelled while the browser was
-            // waiting for microphone permission.
             if (operationId !== this.sttOperationId) {
                 this.sttMicrophoneService.release();
                 return;
             }
 
             this.sttSessionService.markConnecting();
+            this.cdr.markForCheck();
 
             // WebRTC initialization and backend signaling
-            // will be added after the backend contract is confirmed.
+            const rtcConfig: RTCConfiguration = {
+                iceServers: [{ urls: WebRTC.STUNServer }]
+            };
+            this.sttWebRtcService.initialize(stream, rtcConfig);
+
+            const activeSessionId = this.generateGuid();
+            this.activeSttSessionId = activeSessionId;
+            this.sttTranscriptStore.startSession(activeSessionId);
+
+            // Forward ICE candidates to backend
+            this.sttWebRtcService.iceCandidate$
+                .pipe(takeUntil(this.destroy$))
+                .subscribe(candidate => {
+                    if (candidate && candidate.candidate && this.activeSttSessionId) {
+                        this.chatService.sendSttIceCandidate(
+                            this.activeSttSessionId,
+                            candidate.candidate,
+                            candidate.sdpMid,
+                            candidate.sdpMLineIndex
+                        ).subscribe({ error: () => { } });
+                    }
+                });
+
+            const offer = await this.sttWebRtcService.createOffer();
+            const connectionId = this.signalr.getConnectionId(HubEndpoints.NotificationHub) ?? this.tokenService.ensureSessionId();
+            this.chatService.sendSttOffer(activeSessionId, offer.sdp ?? '', connectionId)
+                .pipe(takeUntil(this.destroy$))
+                .subscribe({
+                    next: async (res: any) => {
+                        if (operationId !== this.sttOperationId) {
+                            return;
+                        }
+                        if (res?.sdpAnswer) {
+                            await this.sttWebRtcService.setRemoteDescription({
+                                type: 'answer',
+                                sdp: res.sdpAnswer
+                            });
+                            this.sttSessionService.markListening();
+                            this.cdr.markForCheck();
+                        }
+                    },
+                    error: (err: any) => {
+                        if (operationId !== this.sttOperationId) return;
+                        this.cleanupSttAudio();
+                        this.sttSessionService.fail({
+                            code: 'WEBRTC_SIGNALING_FAILED',
+                            message: err?.error?.error || err?.message || 'Failed to negotiate audio connection with server.',
+                            recoverable: true
+                        });
+                        this.cdr.markForCheck();
+                    }
+                });
         } catch (error) {
-            // Do not show an error for an operation that was cancelled.
             if (operationId !== this.sttOperationId) {
                 return;
             }
-
+            this.cleanupSttAudio();
             this.sttSessionService.fail({
                 code: 'MICROPHONE_ACCESS_FAILED',
                 message: error instanceof Error
@@ -604,8 +715,6 @@ export class PromptSpace implements AfterViewChecked {
                     : 'Unable to access the microphone.',
                 recoverable: true
             });
-
-            this.sttMicrophoneService.release();
         } finally {
             this.isSttStarting = false;
             this.cdr.markForCheck();
@@ -616,6 +725,12 @@ export class PromptSpace implements AfterViewChecked {
         this.sttOperationId++;
         const currentState = this.sttSessionService.snapshot.state;
 
+        if (this.activeSttSessionId) {
+            const closingSessionId = this.activeSttSessionId;
+            this.activeSttSessionId = null;
+            this.chatService.stopSttBackendSession(closingSessionId).subscribe({ error: () => { } });
+        }
+
         if (currentState === 'idle') {
             return;
         }
@@ -624,11 +739,11 @@ export class PromptSpace implements AfterViewChecked {
             this.sttSessionService.markStopping();
         }
 
-        this.sttWebRtcService.close();
-        this.sttMicrophoneService.release();
-        this.sttTranscriptStore.reset();
+        this.cleanupSttAudio();
 
-        this.sttSessionService.reset();
+        if (currentState !== 'error') {
+            this.sttSessionService.reset();
+        }
 
         this.cdr.markForCheck();
     }
@@ -687,11 +802,10 @@ export class PromptSpace implements AfterViewChecked {
         }
     }
 
-    private handleSttTranscriptEvent(event: SttTranscriptEvent): void {
+    private handleSttTranscriptEvent(event: any): void {
         if (!event) {
             return;
         }
-
         const accepted = this.sttTranscriptStore.applyTranscript(event);
         if (!accepted) {
             return;
@@ -701,7 +815,7 @@ export class PromptSpace implements AfterViewChecked {
     }
 
     private subscribeToSignalRTranscript(): void {
-        this.signalr.subscribeHub<SttTranscriptEvent>(HubEndpoints.NotificationHub, 'TranscriptReceived')
+        this.signalr.subscribeHub<SttTranscriptEvent>(HubEndpoints.NotificationHub, EngineConstants.TranscriptReceived)
             .pipe(takeUntil(this.destroy$))
             .subscribe(event => {
                 if (event) {
@@ -732,10 +846,6 @@ export class PromptSpace implements AfterViewChecked {
 
     onVoiceInput(): void {
         this.openVoiceModal();
-    }
-
-    onAttach(): void {
-        console.log('[PromptSpace] Attach file requested');
     }
 
     async copyMessage(msg: ChatMessage, event: MouseEvent): Promise<void> {
@@ -880,7 +990,6 @@ export class PromptSpace implements AfterViewChecked {
                 this.shouldScrollToBottom = true;
             },
             error: (err) => {
-                console.error('Error fetching AI response:', err);
                 // Optionally show an error message in the chat
                 const errorMsg: ChatMessage = {
                     id: this.generateId(),
@@ -1185,7 +1294,7 @@ export class PromptSpace implements AfterViewChecked {
                 this.projectInfo = res as AIProjectInfo[];
                 this.cdr.markForCheck();
             }, error: (err) => {
-                console.error("Failed to load projects:", err);
+                this.snack.showErrorMessage(err);
             }
         });
     }
@@ -1217,7 +1326,6 @@ export class PromptSpace implements AfterViewChecked {
 
     openProjectWorkspace(project: AIProjectInfo, event?: Event): void {
         event?.stopPropagation();
-        // Toggle sidebar sub-list for this project
         this.expandedSidebarProjectId = this.expandedSidebarProjectId === project.id ? null : project.id;
         this.isProjectExiting = false;
         this.activeProject = project;

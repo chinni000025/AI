@@ -44,4 +44,25 @@ export class ChatService {
     getModels(): any {
         return this.http.get(`${EngineControllers.DashboardController}/GetModels`);
     }
+
+    sendSttOffer(sessionId: string, sdpOffer: string, connectionId: string) {
+        return this.http.post<any>(`${EngineControllers.SttController}/offer`, {
+            sessionId,
+            sdpOffer,
+            connectionId
+        });
+    }
+
+    sendSttIceCandidate(sessionId: string, candidate: string, sdpMid?: string | null, sdpMLineIndex?: number | null) {
+        return this.http.post<any>(`${EngineControllers.SttController}/candidate`, {
+            sessionId,
+            candidate,
+            sdpMid,
+            sdpMLineIndex
+        });
+    }
+
+    stopSttBackendSession(sessionId: string) {
+        return this.http.post<any>(`${EngineControllers.SttController}/stop`, { sessionId });
+    }
 }
