@@ -9,5 +9,3 @@
 5. Analyse the Failure Cases.
 
 6. Scale.
-
-7. Code.
