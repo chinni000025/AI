@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
@@ -14,7 +14,7 @@
 	<!-- Project References to All Segregated Modules -->
 	<ItemGroup>
 		<ProjectReference Include="..\AIEngineConnectivity\AIEngineConnectivity.csproj" />
-		<ProjectReference Include="..\AIGatewayCore\AIGatewayCore\AIGatewayCore.csproj" />
+		<ProjectReference Include="..\AIEngineGatewayCore\AIEngineGatewayCore\AIEngineGatewayCore.csproj" />
 		<ProjectReference Include="..\AIEngineCore\AIEngineCore.csproj" />
 		<ProjectReference Include="..\AIEngineSpeechRecognition\AIEngineSpeechRecognition.csproj" />
 		<ProjectReference Include="..\AIEngineGateway\AIEngineGateway.csproj" />

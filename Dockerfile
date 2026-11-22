@@ -21,7 +21,7 @@ WORKDIR /src
 
 # Copy project files for dependency restoration
 COPY ["AIEngineConnectivity/AIEngineConnectivity.csproj", "AIEngineConnectivity/"]
-COPY ["AIGatewayCore/AIGatewayCore/AIGatewayCore.csproj", "AIGatewayCore/AIGatewayCore/"]
+COPY ["AIEngineGatewayCore/AIEngineGatewayCore/AIEngineGatewayCore.csproj", "AIEngineGatewayCore/AIEngineGatewayCore/"]
 COPY ["AIEngineCore/AIEngineCore.csproj", "AIEngineCore/"]
 COPY ["AIEngineSpeechRecognition/AIEngineSpeechRecognition.csproj", "AIEngineSpeechRecognition/"]
 COPY ["AIEngineGateway/AIEngineGateway.csproj", "AIEngineGateway/"]

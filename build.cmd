@@ -7,7 +7,7 @@ if "%CONFIG%"=="" set CONFIG=Debug
 
 set CONNECTIVITY_SLN=AIEngineConnectivity\AIEngineConnectivity.slnx
 set CORE_SLN=AIEngineCore\AIEngineCore.slnx
-set GATEWAY_CORE_SLN=AIGatewayCore\AIGatewayCore.slnx
+set GATEWAY_CORE_SLN=AIEngineGatewayCore\AIEngineGatewayCore.slnx
 set GATEWAY_SLN=AIEngineGateway\AIEngineGateway.slnx
 set GATEWAY_PROJ=AIEngineGateway\AIEngineGateway.csproj
 set SPEECH_SLN=AIEngineSpeechRecognition\AIEngineSpeechRecognition.slnx
@@ -21,6 +21,8 @@ if /I "%TARGET%"=="connectivity" goto build_connectivity
 if /I "%TARGET%"=="core" goto build_core
 if /I "%TARGET%"=="gateway_core" goto build_gateway_core
 if /I "%TARGET%"=="gatewaycore" goto build_gateway_core
+if /I "%TARGET%"=="aienginegateway_core" goto build_gateway_core
+if /I "%TARGET%"=="aienginegatewaycore" goto build_gateway_core
 if /I "%TARGET%"=="speech" goto build_speech
 if /I "%TARGET%"=="client" goto build_client
 if /I "%TARGET%"=="gateway" goto build_gateway
@@ -65,11 +67,11 @@ echo Updating AIEngineConnectivity references in dependent solutions...
 if not exist "AIEngineCore\libs" mkdir "AIEngineCore\libs"
 if not exist "AIEngineGateway\libs" mkdir "AIEngineGateway\libs"
 if not exist "AIEngineInstaller\libs" mkdir "AIEngineInstaller\libs"
-if not exist "AIGatewayCore\AIGatewayCore\libs" mkdir "AIGatewayCore\AIGatewayCore\libs"
+if not exist "AIEngineGatewayCore\AIEngineGatewayCore\libs" mkdir "AIEngineGatewayCore\AIEngineGatewayCore\libs"
 copy /Y "AIEngineConnectivity\bin\%CONFIG%\net10.0\AIEngineConnectivity.*" "AIEngineCore\libs\"
 copy /Y "AIEngineConnectivity\bin\%CONFIG%\net10.0\AIEngineConnectivity.*" "AIEngineGateway\libs\"
 copy /Y "AIEngineConnectivity\bin\%CONFIG%\net10.0\AIEngineConnectivity.*" "AIEngineInstaller\libs\"
-copy /Y "AIEngineConnectivity\bin\%CONFIG%\net10.0\AIEngineConnectivity.*" "AIGatewayCore\AIGatewayCore\libs\"
+copy /Y "AIEngineConnectivity\bin\%CONFIG%\net10.0\AIEngineConnectivity.*" "AIEngineGatewayCore\AIEngineGatewayCore\libs\"
 goto :eof
 
 :build_core
@@ -86,14 +88,14 @@ goto :eof
 
 :build_gateway_core
 echo.
-echo Building AIGatewayCore (%CONFIG%)...
+echo Building AIEngineGatewayCore (%CONFIG%)...
 dotnet build "%GATEWAY_CORE_SLN%" -c "%CONFIG%"
 if !errorlevel! neq 0 exit /b !errorlevel!
-echo Updating AIGatewayCore references in dependent solutions...
+echo Updating AIEngineGatewayCore references in dependent solutions...
 if not exist "AIEngineGateway\libs" mkdir "AIEngineGateway\libs"
 if not exist "AIEngineInstaller\libs" mkdir "AIEngineInstaller\libs"
-copy /Y "AIGatewayCore\AIGatewayCore\bin\%CONFIG%\net10.0\AIGatewayCore.*" "AIEngineGateway\libs\"
-copy /Y "AIGatewayCore\AIGatewayCore\bin\%CONFIG%\net10.0\AIGatewayCore.*" "AIEngineInstaller\libs\"
+copy /Y "AIEngineGatewayCore\AIEngineGatewayCore\bin\%CONFIG%\net10.0\AIEngineGatewayCore.*" "AIEngineGateway\libs\"
+copy /Y "AIEngineGatewayCore\AIEngineGatewayCore\bin\%CONFIG%\net10.0\AIEngineGatewayCore.*" "AIEngineInstaller\libs\"
 goto :eof
 
 :build_speech
