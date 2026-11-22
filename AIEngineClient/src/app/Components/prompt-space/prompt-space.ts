@@ -1,7 +1,7 @@
 import { Component, ElementRef, HostListener, ViewChild, AfterViewChecked, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ConfirmationDialog } from '../dialogs/confirmation-dialog/confirmation-dialog';
-import { Buttons, CatalogModel, CatalogProvider, EngineConstants, EngineRoutes, HubConfiguration, HubEndpoints, VoiceStatusLabel } from '../../services/engine-route-constants';
+import { Buttons, CatalogModel, CatalogProvider, EngineConstants, EngineRoutes, HubConfiguration, HubEndpoints } from '../../services/engine-route-constants';
 import { DialogService } from '../../services/dialog.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SignalRService } from '../../services/signalr-service';
@@ -10,7 +10,7 @@ import { ThemeService } from '../../services/theme.service';
 import { LoaderService } from '../../services/loader-service';
 import { SnackbarService } from '../../services/snackbar-service';
 import { IdentityService } from '../../services/identity-service';
-import { finalize, timestamp } from 'rxjs';
+import { finalize, Subject, takeUntil, timestamp } from 'rxjs';
 import { RenameSvg } from "../svgs/rename-svg/rename-svg";
 import { ArchiveSvg } from "../svgs/archive-svg/archive-svg";
 import { TrashSvg } from "../svgs/trash-svg/trash-svg";
@@ -44,6 +44,11 @@ import { AIProject, AIProjectInfo, ProjectConversationInfo } from '../../models/
 import { TokenService } from '../../services/token-service';
 import { ProjectService } from '../../services/project-service';
 import { ProjectSvg } from '../svgs/project-svg/project-svg';
+import { SttSessionService } from '../../services/STT/stt-session.service';
+import { SttMicrophoneService } from '../../services/STT/stt-microphone.service';
+import { SttWebRtcService } from '../../services/STT/stt-webrtc.service';
+import { SttError, SttSessionState, SttTranscriptEvent } from '../../models/stt.models';
+import { SttTranscriptStore } from '../../services/STT/stt-transcript-store';
 
 @Component({
     selector: 'app-prompt-space',
@@ -75,24 +80,6 @@ export class PromptSpace implements AfterViewChecked {
     promptText = '';
 
     isVoiceModalOpen = false;
-    voiceState: 'idle' | 'listening' | 'processing' | 'done' = 'idle';
-    voiceTranscript = '';
-    voiceBars = [0.4, 0.7, 0.9, 0.6, 1.0, 0.5, 0.8, 0.3, 0.65, 0.85, 0.45, 0.75];
-    get voiceStatusLabel(): string {
-        switch (this.voiceState) {
-            case VoiceStatusLabel.Listening: return 'Listening…';
-            case VoiceStatusLabel.Processing: return 'Processing speech…';
-            case VoiceStatusLabel.Done: return 'Transcription complete';
-            default: return 'Tap the mic to speak';
-        }
-    }
-    private mediaRecorder!: MediaRecorder;
-    private audioChunks: Blob[] = [];
-    private recordedBlod!: Blob;
-    private audioContext!: AudioContext;
-    private analyser!: AnalyserNode; // for voice bars.
-    private dataArray!: Uint8Array<ArrayBuffer>; //frequency data. 0-->255.
-    private animatedFrameId!: number;
 
     // ── Text-to-Speech UI state ─────────────────────────────────
     /** ID of the message currently being "spoken". null = none. */
@@ -132,6 +119,14 @@ export class PromptSpace implements AfterViewChecked {
     manuallyCollapsedProjectIds = new Set<string>();
     isThinkMode = false;
     isProjectExiting = false;
+    private readonly destroy$ = new Subject<void>();
+    sttState: SttSessionState = 'idle';
+    sttError: SttError | null = null;
+    isSttStarting = false;
+    sttInterimText = '';
+    sttFinalText = '';
+    sttConnectionState: RTCPeerConnectionState = 'new';
+    private sttOperationId = 0;
 
     constructor(
         private dialogService: DialogService,
@@ -146,7 +141,11 @@ export class PromptSpace implements AfterViewChecked {
         private route: ActivatedRoute,
         private promptSpaceService: PromptSpaceService,
         private tokenService: TokenService,
-        private projectService: ProjectService
+        private projectService: ProjectService,
+        private sttSessionService: SttSessionService,
+        private sttMicrophoneService: SttMicrophoneService,
+        private sttWebRtcService: SttWebRtcService,
+        private sttTranscriptStore: SttTranscriptStore,
     ) { }
 
     ngOnInit() {
@@ -182,6 +181,11 @@ export class PromptSpace implements AfterViewChecked {
                 this.loadConversation(conversationId);
             }
         });
+
+        this.subscribeToSttSession();
+        this.subscribeToSttTranscript();
+        this.subscribeToSttConnection();
+        this.subscribeToSignalRTranscript();
     }
 
     getUserName(): string | null {
@@ -196,6 +200,7 @@ export class PromptSpace implements AfterViewChecked {
     }
 
     ngOnDestroy() {
+        this.sttOperationId++;
         clearTimeout(this.enableTitleEditTimeout);
         clearTimeout(this.speakStopTimeout);
         clearTimeout(this.copiedMessageResetTimeout);
@@ -206,6 +211,11 @@ export class PromptSpace implements AfterViewChecked {
         }
         this.isEngineDriveDialogOpen = false;
         this.signalr.unsubscribeHub(HubEndpoints.NotificationHub, EngineConstants.ForceLogout);
+        this.signalr.unsubscribeHub(HubEndpoints.NotificationHub, 'TranscriptReceived');
+        this.sttWebRtcService.close();
+        this.releaseSttMicrophone();
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     ngAfterViewChecked(): void {
@@ -446,102 +456,278 @@ export class PromptSpace implements AfterViewChecked {
     }
 
     openVoiceModal(): void {
+        this.sttTranscriptStore.reset();
+        this.resetSttTranscript();
         this.isVoiceModalOpen = true;
-        this.voiceState = 'idle';
-        this.voiceTranscript = '';
         this.cdr.markForCheck();
+        this.startSttSession();
     }
 
     closeVoiceModal(): void {
+        this.sttOperationId++;
         this.isVoiceModalOpen = false;
-        this.voiceState = 'idle';
-        this.voiceTranscript = '';
+        this.stopSttSession();
         this.cdr.markForCheck();
     }
 
-    toggleVoiceRecording(): void {
-        if (this.voiceState === 'idle' || this.voiceState === 'done') {
-            //Ask media to broswer and returns stream from microphone.
-            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-                this.mediaRecorder = new MediaRecorder(stream);
-                this.audioChunks = [];
-                this.mediaRecorder.ondataavailable = (event) => { // audio chunks.
-                    this.audioChunks.push(event.data);
-                }
-                this.mediaRecorder.start();
-                //audio processing engine.
-                this.audioContext = new AudioContext();
-                const source = this.audioContext.createMediaStreamSource(stream);
-                this.analyser = this.audioContext.createAnalyser(); //freq analyzer
-                //fast fourier transform time domain --> freq domain.
-                this.analyser.fftSize = 64;
-                const bufferlength = this.analyser.frequencyBinCount; //fft/2.
-                this.dataArray = new Uint8Array(bufferlength); //8 bit --> 256 bytes.
-                source.connect(this.analyser);
-                this.startVisualizer();
-                this.voiceState = 'listening';
-                this.cdr.detectChanges();
-            }).catch(err => {
-                console.log("err");
-            });
-        } else if (this.voiceState === 'listening') {
-            this.voiceState = 'processing';
-            this.mediaRecorder.stop();
-            this.mediaRecorder.onstop = () => {
-                this.recordedBlod = new Blob(this.audioChunks, { type: 'audio/webm' });
-                cancelAnimationFrame(this.animatedFrameId);
-                if (this.audioContext) {
-                    this.audioContext.close();
-                }
-                this.sendAudioToBackend(this.recordedBlod);
-                this.mediaRecorder.stream.getTracks().forEach(track => track.stop()); //stoping microphone.
-            }
+    async toggleSttRecording(): Promise<void> {
+        if (this.sttState === 'listening' || this.sttState === 'connecting') {
+            this.stopSttSession();
+        } else if (this.sttState === 'idle' || this.sttState === 'error') {
+            await this.startSttSession();
         }
-        this.cdr.markForCheck();
     }
-
-    startVisualizer() {
-        const update = () => {
-            this.analyser.getByteFrequencyData(this.dataArray);
-            this.voiceBars = Array.from(this.dataArray)
-                .slice(0, 12)
-                .map(v => v / 255);
-
-            this.cdr.markForCheck();
-            this.animatedFrameId = requestAnimationFrame(update); //60fps.
-        };
-        update();
-    }
-
-    sendAudioToBackend(audioBlob: Blob) {
-        const formData = new FormData();
-        formData.append('audioFile', audioBlob, 'recording.webm');
-        this.chatService.uploadAudio(formData).subscribe({
-            next: (res: any) => {
-                if (!res?.text || res?.text == '[BLANK_AUDIO]') {
-                    this.voiceTranscript = '';
-                    this.voiceState = 'idle';
-                    this.cdr.markForCheck();
-                    return;
-                }
-                this.voiceTranscript = res.text;
-                this.voiceState = 'done';
-                this.cdr.markForCheck();
-            },
-            error: (err: any) => {
-                console.error(err);
-                this.voiceState = 'idle';
-            }
-        });
-    }
-
 
     useVoiceTranscript(): void {
-        if (this.voiceTranscript.trim()) {
-            this.promptText = this.voiceTranscript.trim();
+        const transcript = [this.sttFinalText.trim(), this.sttInterimText.trim()]
+            .filter(Boolean)
+            .join(' ');
+        if (!transcript) {
+            return;
         }
+
+        this.promptText = this.appendTranscript(this.promptText, transcript);
+
+        this.stopSttSession();
         this.closeVoiceModal();
         this.cdr.markForCheck();
+    }
+
+    private appendTranscript(existingText: string, transcript: string): string {
+        const existing = existingText ?? '';
+        const recognized = transcript.trim();
+
+        if (!recognized) {
+            return existing;
+        }
+
+        if (!existing.trim()) {
+            return recognized;
+        }
+
+        const separator = /\s$/.test(existing) ? '' : ' ';
+        return `${existing}${separator}${recognized}`;
+    }
+
+    private subscribeToSttSession(): void {
+        this.sttSessionService.state$
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(state => {
+                this.sttState = state.state;
+                this.sttError = state.error;
+
+                this.cdr.markForCheck();
+            });
+    }
+
+    private async acquireSttMicrophone(): Promise<MediaStream> {
+        return await this.sttMicrophoneService.acquire();
+    }
+
+    private releaseSttMicrophone(): void {
+        this.sttMicrophoneService.release();
+    }
+
+    private async initializeSttWebRtc(configuration: RTCConfiguration): Promise<void> {
+        const stream = await this.acquireSttMicrophone();
+        try {
+            this.sttWebRtcService.initialize(stream, configuration);
+
+            this.sttWebRtcService.connectionState$
+                .pipe(takeUntil(this.destroy$))
+                .subscribe(connectionState => {
+                    console.log('STT WebRTC connection state:', connectionState);
+                    this.cdr.markForCheck();
+                });
+        } catch (error) {
+            this.releaseSttMicrophone();
+            throw error;
+        }
+    }
+
+    private subscribeToSttTranscript(): void {
+        this.sttTranscriptStore.state$
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(state => {
+                this.sttFinalText = state.finalizedUtterances.join(' ');
+                this.sttInterimText = state.interimText;
+
+                this.cdr.markForCheck();
+            });
+    }
+
+    private resetSttTranscript(): void {
+        this.sttInterimText = '';
+        this.sttFinalText = '';
+    }
+
+    get hasSttTranscript(): boolean {
+        return !!(this.sttInterimText.trim() || this.sttFinalText.trim());
+    }
+
+    async startSttSession(): Promise<void> {
+        if (this.isSttStarting) {
+            return;
+        }
+
+        if (!this.sttSessionService.begin()) {
+            return;
+        }
+
+        const operationId = ++this.sttOperationId;
+        this.isSttStarting = true;
+
+        try {
+            await this.sttMicrophoneService.acquire();
+
+            // The user may have cancelled while the browser was
+            // waiting for microphone permission.
+            if (operationId !== this.sttOperationId) {
+                this.sttMicrophoneService.release();
+                return;
+            }
+
+            this.sttSessionService.markConnecting();
+
+            // WebRTC initialization and backend signaling
+            // will be added after the backend contract is confirmed.
+        } catch (error) {
+            // Do not show an error for an operation that was cancelled.
+            if (operationId !== this.sttOperationId) {
+                return;
+            }
+
+            this.sttSessionService.fail({
+                code: 'MICROPHONE_ACCESS_FAILED',
+                message: error instanceof Error
+                    ? error.message
+                    : 'Unable to access the microphone.',
+                recoverable: true
+            });
+
+            this.sttMicrophoneService.release();
+        } finally {
+            this.isSttStarting = false;
+            this.cdr.markForCheck();
+        }
+    }
+
+    stopSttSession(): void {
+        this.sttOperationId++;
+        const currentState = this.sttSessionService.snapshot.state;
+
+        if (currentState === 'idle') {
+            return;
+        }
+
+        if (currentState !== 'error') {
+            this.sttSessionService.markStopping();
+        }
+
+        this.sttWebRtcService.close();
+        this.sttMicrophoneService.release();
+        this.sttTranscriptStore.reset();
+
+        this.sttSessionService.reset();
+
+        this.cdr.markForCheck();
+    }
+
+    cancelSttSession(): void {
+        this.stopSttSession();
+        this.resetSttTranscript();
+        this.closeVoiceModal();
+    }
+
+    private subscribeToSttConnection(): void {
+        this.sttWebRtcService.connectionState$
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(connectionState => {
+                this.sttConnectionState = connectionState;
+
+                this.handleSttConnectionState(connectionState);
+
+                this.cdr.markForCheck();
+            });
+    }
+
+    private handleSttConnectionState(connectionState: RTCPeerConnectionState): void {
+        const currentState = this.sttSessionService.snapshot.state;
+        switch (connectionState) {
+            case 'connected':
+                if (currentState === 'connecting' || currentState === 'reconnecting') {
+                    this.sttSessionService.markListening();
+                }
+                break;
+
+            case 'disconnected':
+                if (currentState === 'connecting' || currentState === 'listening') {
+                    this.sttSessionService.markReconnecting();
+                }
+                break;
+
+            case 'failed':
+                if (currentState !== 'idle' && currentState !== 'stopping' && currentState !== 'error') {
+                    this.sttSessionService.fail({
+                        code: 'WEBRTC_CONNECTION_FAILED',
+                        message: 'The audio connection could not be established. Please try again.',
+                        recoverable: true
+                    });
+
+                    this.sttWebRtcService.close();
+                    this.sttMicrophoneService.release();
+                }
+                break;
+
+            case 'new':
+            case 'connecting':
+            case 'closed':
+                // No state transition is required here.
+                break;
+        }
+    }
+
+    private handleSttTranscriptEvent(event: SttTranscriptEvent): void {
+        if (!event) {
+            return;
+        }
+
+        const accepted = this.sttTranscriptStore.applyTranscript(event);
+        if (!accepted) {
+            return;
+        }
+
+        this.cdr.markForCheck();
+    }
+
+    private subscribeToSignalRTranscript(): void {
+        this.signalr.subscribeHub<SttTranscriptEvent>(HubEndpoints.NotificationHub, 'TranscriptReceived')
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(event => {
+                if (event) {
+                    this.handleSttTranscriptEvent(event);
+                }
+            });
+    }
+
+    get sttStatusLabel(): string {
+        switch (this.sttState) {
+            case 'requesting-permission':
+                return 'Requesting microphone access…';
+            case 'connecting':
+                return 'Connecting live audio stream…';
+            case 'listening':
+                return 'Listening… speak naturally';
+            case 'reconnecting':
+                return 'Reconnecting audio stream…';
+            case 'stopping':
+                return 'Finalizing transcription…';
+            case 'error':
+                return this.sttError?.message || 'Speech recognition encountered an error';
+            case 'idle':
+            default:
+                return this.hasSttTranscript ? 'Transcription ready' : 'Tap the microphone to speak';
+        }
     }
 
     onVoiceInput(): void {
@@ -1004,7 +1190,7 @@ export class PromptSpace implements AfterViewChecked {
         });
     }
 
-        isProjectExpanded(proj: AIProjectInfo): boolean {
+    isProjectExpanded(proj: AIProjectInfo): boolean {
         if (!proj) return false;
         if (this.manuallyCollapsedProjectIds.has(proj.id)) {
             return false;

@@ -33,17 +33,19 @@ export class SttSessionService {
 
 
     //Begins a new UI session for the selected composer.
-    begin(): void {
+    begin(): boolean {
         const currentState = this.snapshot.state;
 
         if (currentState !== 'idle' && currentState !== 'error') {
             this.snackbarService.showErrorMessage(`Cannot start an STT session while the current state is '${currentState}'.`);
+            return false;
         }
 
         this.updateState({
             state: 'requesting-permission',
             error: null
         });
+        return true;
     }
 
     /**
@@ -113,10 +115,16 @@ export class SttSessionService {
         this.updateState(this.initialState);
     }
 
-    private transitionTo(nextState: SttSessionState, allowedCurrentStates: SttSessionState[]): void {
+    private transitionTo(
+        nextState: SttSessionState,
+        allowedCurrentStates: SttSessionState[]
+    ): boolean {
         const currentState = this.snapshot;
+
         if (!allowedCurrentStates.includes(currentState.state)) {
             this.snackbarService.showErrorMessage(`Invalid STT state transition: '${currentState.state}' to '${nextState}'.`);
+
+            return false;
         }
 
         this.updateState({
@@ -124,6 +132,8 @@ export class SttSessionService {
             state: nextState,
             error: null
         });
+
+        return true;
     }
 
     private updateState(state: SttSessionUiState): void {

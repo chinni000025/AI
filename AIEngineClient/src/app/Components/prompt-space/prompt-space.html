@@ -784,61 +784,69 @@
                 </svg>
             </button>
         </div>
-        <p class="vim-status-label" [class.vim-status-label--listening]="voiceState === 'listening'"
-            [class.vim-status-label--processing]="voiceState === 'processing'"
-            [class.vim-status-label--done]="voiceState === 'done'">
-            {{ voiceStatusLabel }}
+        <p class="vim-status-label"
+            [class.vim-status-label--listening]="sttState === 'listening'"
+            [class.vim-status-label--processing]="sttState === 'connecting' || sttState === 'stopping'"
+            [class.vim-status-label--error]="sttState === 'error'"
+            [class.vim-status-label--done]="sttState === 'idle' && hasSttTranscript">
+            {{ sttStatusLabel }}
         </p>
 
-        <div class="vim-orb-area" [class.vim-orb-area--hidden]="voiceState === 'done'">
-            @if (voiceState === 'listening') {
+        <div class="vim-orb-area">
+            @if (sttState === 'listening') {
             <span class="vim-ripple vim-ripple--1"></span>
             <span class="vim-ripple vim-ripple--2"></span>
             <span class="vim-ripple vim-ripple--3"></span>
             }
 
-            <button class="vim-orb" [class.vim-orb--listening]="voiceState === 'listening'"
-                [class.vim-orb--processing]="voiceState === 'processing'" [disabled]="voiceState === 'processing'"
-                (click)="toggleVoiceRecording()"
-                [title]="voiceState === 'listening' ? 'Stop recording' : 'Start recording'">
+            <button class="vim-orb"
+                [class.vim-orb--listening]="sttState === 'listening'"
+                [class.vim-orb--processing]="sttState === 'connecting' || sttState === 'stopping'"
+                [class.vim-orb--error]="sttState === 'error'"
+                [disabled]="sttState === 'stopping' || isSttStarting"
+                (click)="toggleSttRecording()"
+                [title]="sttState === 'listening' ? 'Click to stop listening' : 'Click to start speaking'">
 
-                @if (voiceState !== 'processing') {
+                @if (sttState !== 'connecting' && sttState !== 'stopping') {
                 <svg class="vim-orb__icon" viewBox="0 0 24 24" fill="currentColor">
                     <path
                         d="M12 1a4 4 0 0 1 4 4v6a4 4 0 0 1-8 0V5a4 4 0 0 1 4-4zm0 2a2 2 0 0 0-2 2v6a2 2 0 1 0 4 0V5a2 2 0 0 0-2-2zm-7 9h2a5 5 0 0 0 10 0h2a7 7 0 0 1-6 6.92V21h3v2H8v-2h3v-2.08A7 7 0 0 1 5 12z" />
                 </svg>
-                }
-
-                @if (voiceState === 'processing') {
+                } @else {
                 <span class="vim-orb__spinner"></span>
                 }
             </button>
         </div>
-        @if (voiceState === 'listening') {
-        <div class="vim-waveform" aria-hidden="true">
-            @for (bar of voiceBars; track $index) {
-            <span class="vim-waveform__bar" [style.--bar-h]="bar"></span>
-            }
-        </div>
-        }
-        @if (voiceState === 'processing') {
-        <div class="vim-processing-dots" aria-hidden="true">
-            <span></span><span></span><span></span>
-        </div>
-        }
-        @if (voiceState === 'done') {
+
+        <!-- Live Transcript Display -->
         <div class="vim-transcript">
-            <div class="vim-transcript__card">
-                <svg class="vim-transcript__check" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    stroke-width="2.5">
-                    <polyline points="20 6 9 17 4 12" />
-                </svg>
-                <p class="vim-transcript__text">{{ voiceTranscript }}</p>
+            <div class="vim-transcript__card" [class.vim-transcript__card--active]="hasSttTranscript">
+                @if (hasSttTranscript) {
+                <p class="vim-transcript__text">
+                    <span class="vim-transcript__final">{{ sttFinalText }}</span>
+                    @if (sttInterimText) {
+                    <span class="vim-transcript__interim">
+                        {{ sttFinalText ? ' ' + sttInterimText : sttInterimText }}
+                        <span class="vim-interim-cursor" aria-hidden="true"></span>
+                    </span>
+                    }
+                </p>
+                } @else {
+                <p class="vim-transcript__placeholder">
+                    @if (sttState === 'listening') {
+                        Listening for speech…
+                    } @else if (sttState === 'error') {
+                        Click "Try again" to restart microphone.
+                    } @else {
+                        Your speech will appear here in real-time.
+                    }
+                </p>
+                }
             </div>
         </div>
-        }
+
         <div class="vim-actions">
-            @if (voiceState === 'done') {
+            @if (hasSttTranscript) {
             <button class="vim-btn vim-btn--primary" (click)="useVoiceTranscript()">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                     stroke-linejoin="round">
@@ -847,27 +855,22 @@
                 </svg>
                 Use this text
             </button>
-            <button class="vim-btn vim-btn--ghost" (click)="toggleVoiceRecording()">
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path
-                        d="M12 1a4 4 0 0 1 4 4v6a4 4 0 0 1-8 0V5a4 4 0 0 1 4-4zm0 2a2 2 0 0 0-2 2v6a2 2 0 1 0 4 0V5a2 2 0 0 0-2-2zm-7 9h2a5 5 0 0 0 10 0h2a7 7 0 0 1-6 6.92V21h3v2H8v-2h3v-2.08A7 7 0 0 1 5 12z" />
-                </svg>
-                Record again
-            </button>
-            } @else if (voiceState === 'listening') {
-            <button class="vim-btn vim-btn--danger" (click)="toggleVoiceRecording()">
+            }
+
+            @if (sttState === 'listening') {
+            <button class="vim-btn vim-btn--danger" (click)="stopSttSession()">
                 <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
                     <rect x="4" y="4" width="16" height="16" rx="2" />
                 </svg>
-                Stop recording
+                Done speaking
             </button>
-            } @else if (voiceState === 'idle') {
-            <button class="vim-btn vim-btn--primary" (click)="toggleVoiceRecording()">
+            } @else if (sttState === 'idle' || sttState === 'error') {
+            <button class="vim-btn vim-btn--primary" (click)="startSttSession()">
                 <svg viewBox="0 0 24 24" fill="currentColor">
                     <path
                         d="M12 1a4 4 0 0 1 4 4v6a4 4 0 0 1-8 0V5a4 4 0 0 1 4-4zm0 2a2 2 0 0 0-2 2v6a2 2 0 1 0 4 0V5a2 2 0 0 0-2-2zm-7 9h2a5 5 0 0 0 10 0h2a7 7 0 0 1-6 6.92V21h3v2H8v-2h3v-2.08A7 7 0 0 1 5 12z" />
                 </svg>
-                Start speaking
+                {{ hasSttTranscript ? 'Speak more' : 'Start speaking' }}
             </button>
             }
 
@@ -876,10 +879,11 @@
             </button>
         </div>
         <p class="vim-hint">
-            @if (voiceState === 'idle') { Click the mic or "Start speaking" to begin. }
-            @if (voiceState === 'listening') { Speak clearly — click Stop or the mic when done. }
-            @if (voiceState === 'processing') { Transcribing your speech, please wait… }
-            @if (voiceState === 'done') { Review the text above, then send it or record again. }
+            @if (sttState === 'listening') { Speak clearly — speech is transcribed automatically as you talk. }
+            @if (sttState === 'connecting') { Establishing live audio stream… }
+            @if (sttState === 'stopping') { Finalizing transcript… }
+            @if (hasSttTranscript && sttState === 'idle') { Click "Use this text" to insert it into your prompt. }
+            @if (!hasSttTranscript && sttState === 'idle') { Click "Start speaking" or the mic to begin. }
         </p>
     </div>
 </div>

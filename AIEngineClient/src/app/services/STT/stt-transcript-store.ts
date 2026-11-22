@@ -20,17 +20,19 @@ export class SttTranscriptStore {
     private latestUtteranceId = -1;
     private readonly latestRevisionByUtterance = new Map<number, number>();
     private readonly finalizedUtteranceIds = new Set<number>();
-
+    private readonly finalizedTextByUtterance = new Map<number, string>();
 
     //Starts a new transcript session and clears previous transcript data.
     startSession(sessionId: string): void {
         if (!sessionId?.trim()) {
-            this.snackBarService.showErrorMessage("A valid STT session ID is required.");
+            this.snackBarService.showErrorMessage('A valid STT session ID is required.');
+            return;
         }
 
         this.latestUtteranceId = -1;
         this.latestRevisionByUtterance.clear();
         this.finalizedUtteranceIds.clear();
+        this.finalizedTextByUtterance.clear();
 
         this.stateSubject.next({
             sessionId,
@@ -40,7 +42,6 @@ export class SttTranscriptStore {
         });
     }
 
-
     // Processes a complete transcript snapshot from the backend.
     //Returns false when the event is stale, duplicated,
     // belongs to another session, or arrives after finalization.
@@ -48,16 +49,19 @@ export class SttTranscriptStore {
     applyTranscript(event: SttTranscriptEvent): boolean {
         const currentState = this.stateSubject.value;
 
-        if (!currentState.sessionId || event.sessionId !== currentState.sessionId) {
+        if (!currentState.sessionId ||
+            event.sessionId !== currentState.sessionId) {
             return false;
         }
 
-        if (!Number.isInteger(event.utteranceId) || !Number.isInteger(event.revision) ||
-            event.utteranceId < 0 || event.revision < 0) {
-            return false;
-        }
-
-        if (event.utteranceId < this.latestUtteranceId) {
+        if (
+            !Number.isInteger(event.utteranceId) ||
+            !Number.isInteger(event.revision) ||
+            event.utteranceId < 0 ||
+            event.revision < 0 ||
+            typeof event.text !== 'string' ||
+            typeof event.isFinal !== 'boolean'
+        ) {
             return false;
         }
 
@@ -65,26 +69,61 @@ export class SttTranscriptStore {
             return false;
         }
 
-        const previousRevision = this.latestRevisionByUtterance.get(event.utteranceId);
+        const previousRevision =
+            this.latestRevisionByUtterance.get(event.utteranceId);
 
-        if (previousRevision !== undefined && event.revision <= previousRevision) {
+        if (
+            previousRevision !== undefined &&
+            event.revision <= previousRevision
+        ) {
             return false;
         }
 
-        this.latestRevisionByUtterance.set(event.utteranceId, event.revision);
-        this.latestUtteranceId = Math.max(this.latestUtteranceId, event.utteranceId);
+        // Ignore stale interim events, but allow legitimate
+        // delayed final events for older utterances.
+        if (
+            event.utteranceId < this.latestUtteranceId &&
+            !event.isFinal
+        ) {
+            return false;
+        }
+
+        this.latestRevisionByUtterance.set(
+            event.utteranceId,
+            event.revision
+        );
+
+        this.latestUtteranceId = Math.max(
+            this.latestUtteranceId,
+            event.utteranceId
+        );
 
         if (event.isFinal) {
             this.finalizedUtteranceIds.add(event.utteranceId);
 
+            this.finalizedTextByUtterance.set(
+                event.utteranceId,
+                event.text
+            );
+
+            const finalizedUtterances = Array.from(
+                this.finalizedTextByUtterance.entries()
+            )
+                .sort(([idA], [idB]) => idA - idB)
+                .map(([, text]) => text);
+
+            const isCurrentUtterance =
+                currentState.currentUtteranceId === event.utteranceId;
+
             this.stateSubject.next({
                 ...currentState,
-                currentUtteranceId: event.utteranceId,
-                interimText: '',
-                finalizedUtterances: [
-                    ...currentState.finalizedUtterances,
-                    event.text
-                ]
+                currentUtteranceId: isCurrentUtterance
+                    ? null
+                    : currentState.currentUtteranceId,
+                interimText: isCurrentUtterance
+                    ? ''
+                    : currentState.interimText,
+                finalizedUtterances
             });
 
             return true;
@@ -99,14 +138,13 @@ export class SttTranscriptStore {
         return true;
     }
 
-
     //Clears transcript data and ends the current local session.
     reset(): void {
         this.latestUtteranceId = -1;
         this.latestRevisionByUtterance.clear();
         this.finalizedUtteranceIds.clear();
+        this.finalizedTextByUtterance.clear();
 
         this.stateSubject.next(this.initialState);
     }
-
 }

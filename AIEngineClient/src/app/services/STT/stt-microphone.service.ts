@@ -27,30 +27,40 @@ export class SttMicrophoneService {
         if (this.isActive) {
             return this.activeStream!;
         }
-
         if (!navigator.mediaDevices?.getUserMedia) {
-            this.snackbar.showErrorMessage("Microphone access is not supported by this browser or environment.");
+            const error = new Error('Microphone access is not supported by this browser or environment.');
+            this.snackbar.showErrorMessage(error.message);
+            throw error;
         }
 
-        const stream = await navigator.mediaDevices.getUserMedia({
-            audio: {
-                echoCancellation: true, //Echo noise
-                noiseSuppression: true, //Background noise.
-                autoGainControl: true //Auto mic gain(volume) control.
-            },
-            video: false
-        });
+        let stream: MediaStream | null = null;
 
-        const audioTracks = stream.getAudioTracks();
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    autoGainControl: true
+                },
+                video: false
+            });
 
-        if (audioTracks.length === 0) {
-            stream.getTracks().forEach(track => track.stop());
-            this.snackbar.showErrorMessage("No microphone audio track was provided by the browser.");
+            const audioTracks = stream.getAudioTracks();
+
+            if (audioTracks.length === 0 || !audioTracks.some(track => track.readyState === 'live')) {
+                throw new Error('No active microphone audio track was provided by the browser.');
+            }
+
+            this.activeStream = stream;
+            return stream;
+
+        } catch (error) {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+            this.activeStream = null;
+            throw error;
         }
-
-        this.activeStream = stream;
-
-        return stream;
     }
 
     //Release microphone resources.
