@@ -26,7 +26,7 @@ namespace AIEngineSpeechRecognition.Extensions
                 // Ensure Whisper and Silero VAD models are downloaded on the new environment
                 SpeechModelProvisioner.EnsureModelsReadyAsync(baseDirectory, logger).GetAwaiter().GetResult();
 
-                return new WhisperNetTranscriber(modelPath, maxConcurrent: 2);
+                return new WhisperNetTranscriber(modelPath, maxConcurrent: 1);
             });
 
             services.AddSingleton<IStreamingSttSessionFactory, StreamingSttSessionFactory>();

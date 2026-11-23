@@ -8,23 +8,22 @@ public sealed class WhisperNetTranscriber : IAsyncDisposable
     private readonly WhisperFactory _factory;
     private readonly SemaphoreSlim _semaphore;
 
-    public WhisperNetTranscriber(string modelPath, int maxConcurrent = 2)
+    public WhisperNetTranscriber(string modelPath, int maxConcurrent = 1)
     {
         _factory = WhisperFactory.FromPath(modelPath);
-        _semaphore = new SemaphoreSlim(maxConcurrent, maxConcurrent);
+        _semaphore = new SemaphoreSlim(1, 1);
     }
 
     public async Task<string> TranscribeAsync(ReadOnlyMemory<float> audio16kMono, bool isFinal, CancellationToken cancellationToken = default)
     {
-        if (audio16kMono.Length < 4800) return string.Empty; // Skip < 300ms noise
+        if (audio16kMono.Length < 3200) return string.Empty; // Skip < 200ms noise
 
         await _semaphore.WaitAsync(cancellationToken);
         try
         {
             using var processor = _factory.CreateBuilder()
-                .WithThreads(Math.Min(Environment.ProcessorCount, 8))
+                .WithThreads(Math.Min(Environment.ProcessorCount, 6))
                 .WithLanguage("en")
-                .WithSingleSegment()
                 .WithTemperature(0f)
                 .WithNoContext()
                 .Build();
@@ -49,13 +48,13 @@ public sealed class WhisperNetTranscriber : IAsyncDisposable
             string raw = sb.ToString();
             string clean = Regex.Replace(raw, @"\[.*?\]|\(.*?\)|(\*.*?\*)", "").Trim();
 
-            // Filter out common YouTube subtitle hallucination artifacts on short speech
-            if (audio16kMono.Length < 32000) // < 2 seconds
+            // Filter out common YouTube subtitle hallucination artifacts
+            if (audio16kMono.Length < 32000)
             {
                 string lower = clean.ToLowerInvariant().TrimEnd('.', '!', '?', ',', ' ');
-                if (lower == "bye" || lower == "cheers" || lower == "thanks for watching" ||
-                    lower == "thank you" || lower == "please subscribe" || lower == "subscribe" ||
-                    lower == "you" || lower == "slurp")
+                if (lower == "thanks for watching" || lower == "thank you for watching" ||
+                    lower == "please subscribe" || lower == "subscribe to my channel" ||
+                    lower == "subtitles by" || lower == "translated by")
                 {
                     return string.Empty;
                 }

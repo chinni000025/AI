@@ -109,8 +109,8 @@ public sealed class StreamingSttSession : IStreamingSttSession
         _vadLogCounter++;
 
         // Hybrid detection: neural Silero VAD + acoustic energy (peak/RMS)
-        bool isSpeechStart = speechProbability >= _options.Vad.SpeechStartThreshold || peak >= 0.08f || rms >= 0.02f;
-        bool isSpeechContinue = speechProbability >= _options.Vad.SpeechContinueThreshold || peak >= 0.05f || rms >= 0.012f;
+        bool isSpeechStart = speechProbability >= _options.Vad.SpeechStartThreshold || peak >= 0.04f || rms >= 0.01f;
+        bool isSpeechContinue = speechProbability >= _options.Vad.SpeechContinueThreshold || peak >= 0.025f || rms >= 0.006f;
 
         if (_state == SessionSpeechState.Idle)
         {
@@ -195,7 +195,7 @@ public sealed class StreamingSttSession : IStreamingSttSession
     {
         try
         {
-            if (snapshot.Length < 9600) return; // Skip if less than 600ms of audio to prevent hallucinations
+            if (snapshot.Length < 3200) return; // Skip if less than 200ms
             string text = await _transcriber.TranscribeAsync(snapshot, isFinal: false, ct);
             if (!string.IsNullOrWhiteSpace(text) && _state == SessionSpeechState.Speaking && _utteranceId == utteranceId)
             {
@@ -204,9 +204,9 @@ public sealed class StreamingSttSession : IStreamingSttSession
             }
         }
         catch (OperationCanceledException) { }
-        catch
+        catch (Exception ex)
         {
-            throw;
+            Serilog.Log.Error(ex, "[STT] Interim inference failed");
         }
     }
 
@@ -219,7 +219,7 @@ public sealed class StreamingSttSession : IStreamingSttSession
                 await _inFlightInterimTask;
             }
 
-            if (finalSnapshot.Length >= 9600) // At least 600ms
+            if (finalSnapshot.Length >= 3200) // At least 200ms
             {
                 string finalResult = await _transcriber.TranscribeAsync(finalSnapshot, isFinal: true, ct);
                 if (!string.IsNullOrWhiteSpace(finalResult))
@@ -231,9 +231,9 @@ public sealed class StreamingSttSession : IStreamingSttSession
             }
         }
         catch (OperationCanceledException) { }
-        catch
+        catch (Exception ex)
         {
-            throw;
+            Serilog.Log.Error(ex, "[STT] Finalize inference failed");
         }
     }
 
@@ -244,7 +244,7 @@ public sealed class StreamingSttSession : IStreamingSttSession
 
     public async ValueTask CompleteInputAsync(CancellationToken cancellationToken = default)
     {
-        if (_utteranceBuffer.Length >= 9600)
+        if (_utteranceBuffer.Length >= 3200)
         {
             var snapshot = _utteranceBuffer.Snapshot();
             long finishedId = _utteranceId;

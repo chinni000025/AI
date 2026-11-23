@@ -84,6 +84,7 @@ public sealed class SileroOnnxVadRunner : IDisposable
         }
         catch (Exception ex)
         {
+            Serilog.Log.Error(ex, "[SileroVAD] Evaluate failed");
             return 0.0f;
         }
     }
